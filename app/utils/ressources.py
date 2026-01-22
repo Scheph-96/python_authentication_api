@@ -1,6 +1,6 @@
-def api_response(data=None, message="Success"):
+def api_response(success, data=None, message="Success"):
     return {
-        "success": True,
+        "success": success,
         "message": message,
         "data": data
     }

@@ -30,7 +30,7 @@ class BaseSchema(BaseModel):
         "str_strip_whitespace": False, # we control trimming ourselves
     }
 
-class UserCreateSchema(BaseSchema):
+class UserSignUpSchema(BaseSchema):
     username: str
     email: EmailStr
     password: str
@@ -43,7 +43,7 @@ class UserCreateSchema(BaseSchema):
             raise ValueError("Field cannot be empty")
         return v
     
-class UserGetSchema(BaseSchema):
+class UserSignInSchema(BaseSchema):
     username: Optional[str] = None
     email: Optional[EmailStr] = None
     password: str
@@ -60,6 +60,9 @@ class UserGetSchema(BaseSchema):
             raise ValueError("username or email is required")
         
         return values
+    
+class UserLogOutSchema(BaseSchema):
+    pass
     
 class UserResponseSchema(BaseModel):
     _id: str

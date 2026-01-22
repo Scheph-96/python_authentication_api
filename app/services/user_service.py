@@ -1,6 +1,9 @@
 from app.repositories.user_repository import UserRepository
 from app.schemas.user_schema import UserResponseSchema
 from fastapi import HTTPException
+from argon2 import PasswordHasher
+from app.models.user_model import User
+
 
 """
     Here is our business logic
@@ -28,7 +31,10 @@ class UserService:
         if await self.repo.find_by_username(data["username"]):
             raise HTTPException(400, "Username already exist")
         
-        return await self.repo.create(data)
+        user = User(username=data["username"], email=data["email"])
+        user.set_password(data["password"])
+        
+        return await self.repo.create(user.to_dict())
     
     """
         Authenticate a user
@@ -37,12 +43,12 @@ class UserService:
         email or the username
     """
     async def get_user(self, data: dict):
-        # If the request body provide a username attribute then the login is performed with the username
+        # If the request body provide a username attribute, the login is performed with the username
         if data.get("username"):
             user = await self.repo.find_by_username(data["username"])
             return UserResponseSchema(**user)
         
-        # If the request body provide a email attribute then the login is performed with the email
+        # If the request body provide a email attribute, the login is performed with the email
         elif data.get("email"):
             user = await self.repo.find_by_email(data["email"])
             return UserResponseSchema(**user)
