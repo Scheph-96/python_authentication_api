@@ -11,8 +11,8 @@ class UserRepository:
         return await self.collection.find_one({"username": username})
     
     async def create(self, data: dict):
-        result = self.collection.insert_one(data)
-        return await str(result.inserted_id)
+        result = await self.collection.insert_one(data)
+        return str(result.inserted_id)
     
     async def find_by_id(self, user_id: str):
         return await self.collection.find_one({"_id": ObjectId(user_id)})

@@ -1,5 +1,6 @@
 py_modules/
 .env
+app/keys/*.pem
 app/*/__pycache__/
 *.py[cod]
 *$py.class

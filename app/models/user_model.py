@@ -1,8 +1,6 @@
-
-from passlib.content import CryptContext
-from datetime import datetime
-
+from datetime import datetime, timezone
 from argon2 import PasswordHasher
+from bson import ObjectId
 
 """
     The user model
@@ -11,11 +9,12 @@ from argon2 import PasswordHasher
 passwordHash = PasswordHasher()
 
 class User:
-    def __init__(self, username: str, email: str, hashed_password: str | None = None, created_at: datetime | None = None):
+    def __init__(self,username: str, email: str,  _id: ObjectId = None, hashed_password: str | None = None, created_at: datetime | None = None):
         self.username = username
         self.email = email
+        self._id = _id
         self.hashed_password = hashed_password
-        self.created_at = created_at or datetime.timezone.utc()
+        self.created_at = created_at or datetime.now(timezone.utc)
         
     # -------- Domain Behavior --------
     
@@ -23,7 +22,7 @@ class User:
         self.hashed_password = passwordHash.hash(raw_password)
         
     def verify_password(self, raw_password: str) -> bool:
-        return passwordHash.verify(raw_password, self.hashed_password)
+        return passwordHash.verify(self.hashed_password, raw_password)
     
     # -------- Serialization --------
     

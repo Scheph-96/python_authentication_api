@@ -25,6 +25,14 @@ class BaseSchema(BaseModel):
         # Trim whitespace
         return v.strip()
     
+    # Reject empty strings. "" or " "
+    @field_validator("*")
+    @classmethod
+    def validate(cls, v):
+        if v is not None and not v:
+            raise ValueError("Field cannot be empty")
+        return v
+    
     model_config = {
         "extra": "forbid", # reject unknown fields
         "str_strip_whitespace": False, # we control trimming ourselves
@@ -34,14 +42,6 @@ class UserSignUpSchema(BaseSchema):
     username: str
     email: EmailStr
     password: str
-    
-    # Reject empty strings. "" or " "
-    @field_validator("username", "email")
-    @classmethod
-    def validate(cls, v):
-        if v is not None and not v:
-            raise ValueError("Field cannot be empty")
-        return v
     
 class UserSignInSchema(BaseSchema):
     username: Optional[str] = None
