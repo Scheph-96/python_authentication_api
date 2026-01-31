@@ -1,4 +1,5 @@
 from app.services.user_service import UserService
+from app.services.refresh_token_service import RefreshTokenService
 from app.models.user_model import User
 from app.utils.jwt import create_access_token
 from fastapi import HTTPException
@@ -9,10 +10,13 @@ from argon2.exceptions import VerifyMismatchError, InvalidHashError
     
     The data here is safe to process, we already went through the sanitization and validation with the SignUpSchema in the controller
 """
+
+
 class AuthService:
-    def __init__(self, user_service: UserService):
+    def __init__(self, user_service: UserService, refresh_token: RefreshTokenService):
         self.user_service = user_service
-    
+        self.refresh_token = refresh_token
+
     """
         Authenticate a user
         
@@ -26,20 +30,21 @@ class AuthService:
             
             HTTPException: password verification failed. Invalid password
     """
+
     async def login(self, data: dict):
-        
+
         # If the request provide a username attribute, the login is performed with username
         if data.get("username"):
             user = await self.user_service.get_by_username(data["username"])
-        
+
         # If the request provide a email attribute, the login is performed with the email
         elif data.get("email"):
             user = await self.user_service.get_by_email(data["email"])
         if not user:
             raise HTTPException(401, "Invalid credentials")
-        
+
         user = User(**user)
-        
+
         try:
             user.verify_password(data["password"])
         except VerifyMismatchError:
@@ -47,9 +52,11 @@ class AuthService:
         except InvalidHashError:
             print(user.to_dict())
             raise HTTPException(401, "Invalid credentials")
-        
-        return create_access_token(str(user._id))
-        
-    
+
+        access_token = await create_access_token(str(user._id))
+        refresh_token = await self.refresh_token.create_refresh_token(str(user._id))
+
+        return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+
     def password_recovery():
         pass
