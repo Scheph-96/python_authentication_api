@@ -9,11 +9,12 @@ from bson import ObjectId
 passwordHash = PasswordHasher()
 
 class User:
-    def __init__(self,username: str, email: str,  _id: ObjectId = None, hashed_password: str | None = None, created_at: datetime | None = None):
+    def __init__(self,username: str, email: str,  _id: ObjectId = None, hashed_password: str | None = None, is_verified:bool = False, created_at: datetime | None = None):
         self.username = username
         self.email = email
         self._id = _id
         self.hashed_password = hashed_password
+        self.is_verified = is_verified
         self.created_at = created_at or datetime.now(timezone.utc)
         
     # -------- Domain Behavior --------
@@ -31,6 +32,7 @@ class User:
             "username": self.username,
             "email": self.email,
             "hashed_password": self.hashed_password,
+            "is_verified": self.is_verified,
             "created_at": self.created_at
         }
     

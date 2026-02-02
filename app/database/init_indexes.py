@@ -8,3 +8,7 @@ async def init_indexes(db):
     # Without an index → Mongo does a collection scan (checks every document).
     # With an index → Mongo uses a pointer structure to jump directly to matches.
     await db.refresh_tokens.create_index({"user_id": 1})
+    # Delete the document as soon as the date stored in that field is reached.
+    # current_time >= expire_at
+    # expireAfterSeconds=0. Delete time is exactly the time set in the document
+    await db.email_validation_code.create_index({"expire_at": 1}, expireAfterSeconds=0)

@@ -1,34 +1,40 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, BackgroundTasks
 from app.schemas.user_schema import UserSignUpSchema, UserSignInSchema, UserLogOutSchema
+from app.schemas.email_validation_code import EmailValidationCodeSubmit
 from app.schemas.refresh_token_schema import RefreshTokenSchema
 from app.repositories.user_repository import UserRepository
+from app.repositories.base_repository import BaseRepository
 from app.repositories.refresh_token_repository import RefreshTokenRepository
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
 from app.services.refresh_token_service import RefreshTokenService
 from app.database.motor import db
 from app.utils.resources import api_response
-from app.utils.jwt import verify_access_token
+# from app.utils.jwt import verify_access_token
 
 router = APIRouter(prefix="/users/auth", tags=["users"])
 
 
-# Dependency: repository
+# Dependency: base repository
+def get_base_repository():
+    return BaseRepository(db.email_validation_code)
+
+# Dependency: user repository
 def get_user_repository():
     return UserRepository(db.users)
 
 
-# Dependency: refreshToken
+# Dependency: refreshToken repository
 def get_refresh_token_repository():
     return RefreshTokenRepository(db.refresh_tokens)
 
 
-# Dependency: service
-def get_user_service(repo: UserRepository = Depends(get_user_repository)):
-    return UserService(repo)
+# Dependency: user service
+def get_user_service(repo: UserRepository = Depends(get_user_repository), base_repo: BaseRepository = Depends(get_base_repository)):
+    return UserService(repo, base_repo)
 
 
-# Dependency: refreshToken
+# Dependency: refreshToken service
 def get_refresh_token_service(
     repo: RefreshTokenRepository = Depends(get_refresh_token_repository),
 ):
@@ -38,21 +44,21 @@ def get_refresh_token_service(
 # Dependency: auth
 def get_auth_service(
     user_service: AuthService = Depends(get_user_service),
-    refresh_token: RefreshTokenService = Depends(get_refresh_token_service),
+    refresh_token: RefreshTokenService = Depends(get_refresh_token_service), base_repo: BaseRepository = Depends(get_base_repository)
 ):
-    return AuthService(user_service, refresh_token)
+    return AuthService(user_service, refresh_token, base_repo)
 
 
 """
     The endpoint that will register users
 """
-@router.post("/auth/register", response_model=dict)
+@router.post("/register", response_model=dict)
 async def create_user(
-    user: UserSignUpSchema, service: UserService = Depends(get_user_service)
+    user: UserSignUpSchema,  background_tasks: BackgroundTasks, service: UserService = Depends(get_user_service)
 ):
-    user_id = await service.create_user(user.model_dump())
+    user_id = await service.create_user(user.model_dump(), background_tasks)
     return api_response(
-        success=True, data={"id": user_id}, message="User created successfully"
+        success=True, data={"user_id": user_id}, message="User created successfully"
     )
 
 
@@ -66,6 +72,12 @@ async def get_user(
     auth_token = await auth.login(user.model_dump())
 
     return api_response(success=True, data=auth_token)
+
+@router.post("/validate_email", response_model=dict)
+async def validate_email(data: EmailValidationCodeSubmit, auth: AuthService = Depends(get_auth_service)):
+    result = await auth.validate_email(data.model_dump())
+    
+    return api_response(success=True, data=result)
 
 """
     The endpoint that refresh tokens

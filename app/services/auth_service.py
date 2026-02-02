@@ -1,7 +1,8 @@
 from app.services.user_service import UserService
 from app.services.refresh_token_service import RefreshTokenService
+from app.repositories.base_repository import BaseRepository
 from app.models.user_model import User
-from app.utils.jwt import create_access_token
+from app.utils.jwt import create_access_token, hash_token
 from fastapi import HTTPException
 from argon2.exceptions import VerifyMismatchError, InvalidHashError
 
@@ -13,9 +14,10 @@ from argon2.exceptions import VerifyMismatchError, InvalidHashError
 
 
 class AuthService:
-    def __init__(self, user_service: UserService, refresh_token: RefreshTokenService):
+    def __init__(self, user_service: UserService, refresh_token: RefreshTokenService, base_repository: BaseRepository):
         self.user_service = user_service
         self.refresh_token = refresh_token
+        self.base_repository = base_repository
 
     """
         Authenticate a user
@@ -53,10 +55,33 @@ class AuthService:
             print(user.to_dict())
             raise HTTPException(401, "Invalid credentials")
 
-        access_token = await create_access_token(str(user._id))
+        access_token = create_access_token(str(user._id))
         refresh_token = await self.refresh_token.create_refresh_token(str(user._id))
 
         return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+
+    async def validate_email(self, data: dict):
+        # First we hash the code
+        code_hash = hash_token(data.get("code"))
+        
+        # Now we compare the hashed code and the user with our database record
+        email_validation_code = await self.base_repository.find({
+            "user_id": data.get("user_id"), 
+            "code_hash": code_hash
+        })
+        
+        # If there is no match reject the request
+        if not email_validation_code:
+            raise HTTPException(400, "Invalid or expired code")
+        
+        # If there is a match we delete code record
+        await self.base_repository.delete(email_validation_code["_id"])
+        
+        # And finally we update the user status
+        await self.user_service.update_user(data.get("user_id"), {"is_verified": True})
+        
+        return {"status": "verified"}
+        
 
     def password_recovery():
         pass
