@@ -10,3 +10,6 @@ class EmailValidationCode(BaseModel):
 class EmailValidationCodeSubmit(BaseModel):
     user_id: str
     code: str
+    
+class EmailValidationCodeRetry(BaseModel):
+    user_id: str

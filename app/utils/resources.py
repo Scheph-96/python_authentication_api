@@ -1,4 +1,4 @@
-import random
+import secrets
 
 """
     Api response structure
@@ -14,8 +14,4 @@ def api_response(success, data=None, message="Success"):
     Generate 6 digit code for email validation
 """
 def code_generator():
-    code = ""
-    for i in range(6):
-        value = str(random.randrange(1, 10))
-        code += value
-    return code
+    return f"{secrets.randbelow(1_000_000):06}"

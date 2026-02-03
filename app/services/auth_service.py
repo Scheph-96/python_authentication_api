@@ -3,7 +3,8 @@ from app.services.refresh_token_service import RefreshTokenService
 from app.repositories.base_repository import BaseRepository
 from app.models.user_model import User
 from app.utils.jwt import create_access_token, hash_token
-from fastapi import HTTPException
+from app.utils.email import email_processing
+from fastapi import HTTPException, BackgroundTasks
 from argon2.exceptions import VerifyMismatchError, InvalidHashError
 
 """
@@ -60,6 +61,9 @@ class AuthService:
 
         return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
+    """
+        Validate users account by validating the code sent to their email address
+    """
     async def validate_email(self, data: dict):
         # First we hash the code
         code_hash = hash_token(data.get("code"))
@@ -82,6 +86,31 @@ class AuthService:
         
         return {"status": "verified"}
         
+    """
+        Users can request a new code that will be sent to their email address
+    """
+    async def resend_validate_email(self, data: dict, background_tasks: BackgroundTasks):
+        
+        # Check whether the user exist
+        user = await self.user_service.get_by_id(data.get("user_id"))
+        
+        # If the user does not exist, reject the request
+        if not user:
+            raise HTTPException(400, "Unable to proceed")
+        
+        # Get the validation code record
+        email_validation_code = await self.base_repository.find({"user_id": str(user["_id"])})
+        
+        # If there is a validation code with the provided user id, delete it
+        if email_validation_code:
+            await self.base_repository.delete(str(email_validation_code["_id"]))
+        
+        user = User(**user)
+        
+        # Send email to validate the user email address in background
+        background_tasks.add_task(email_processing, user, self.base_repository)
+        
+        return "Email Resent"
 
     def password_recovery():
         pass

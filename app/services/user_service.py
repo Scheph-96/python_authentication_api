@@ -4,7 +4,7 @@ from app.models.user_model import User
 from app.schemas.email_validation_code import EmailValidationCode
 from app.utils.resources import code_generator
 from app.utils.jwt import hash_token
-from app.utils.email import send_email, verification_email_template
+from app.utils.email import email_processing
 from fastapi import HTTPException, BackgroundTasks
 
 
@@ -21,27 +21,30 @@ class UserService:
     """
     async def create_user(self, data: dict, background_tasks: BackgroundTasks):
         
+        # One email per user, no duplication
         if await self.repo.find_by_email(data["email"]):
             raise HTTPException(400, "Email already exist")
         
+        # Unique username
         if await self.repo.find_by_username(data["username"]):
             raise HTTPException(400, "Username already exist")
         
         user = User(username=data["username"], email=data["email"])
+        # This method hash the password
         user.set_password(data["password"])
         
+        # Create user and get the id
         user_id = await self.repo.create(user.to_dict())
+        user._id = user_id
         
-        code = code_generator()
-        email_validation_code = EmailValidationCode(user_id=user_id, code_hash=hash_token(code))
+        # Send email to validate the user email address in background
+        background_tasks.add_task(email_processing, user, self.base_repo)
         
-        await self.base_repo.create(email_validation_code.model_dump())
-        
-        html = verification_email_template(code)
-        
-        background_tasks.add_task(send_email, user.email, "Email Validation", html) 
-        
+        # retrieve user id
         return user_id
+    
+    async def get_by_id(self, user_id: str):
+        return await self.repo.find_by_id(user_id)
     
     async def get_by_email(self, email: str):
         return await self.repo.find_by_email(email)

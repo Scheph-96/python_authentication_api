@@ -1,14 +1,37 @@
 from app.core.config import settings
 from email.message import EmailMessage
+from app.models.user_model import User
+from app.schemas.email_validation_code import EmailValidationCode
+from app.repositories.base_repository import BaseRepository
+from app.utils.jwt import hash_token
+from app.utils.resources import code_generator
 import aiosmtplib
 
-async def send_email(to_email: str, subject: str, html_content: str):
+"""
+    Process to send validation email with the validation code
+"""
+async def email_processing(user: User, base_repo: BaseRepository):
+    # Generate validation code
+    code = code_generator()
+    # Create email validation record schema
+    email_validation_code = EmailValidationCode(user_id=str(user._id), code_hash=hash_token(code))
+    
+    # Insert email validation record
+    await base_repo.create(email_validation_code.model_dump())
+    
+    # Send email with the validation code
+    await send_email(user.email, "Email Validation", verification_email_template_plain_text(code), verification_email_template_html(code))
+
+"""
+    Email sending logic
+"""
+async def send_email(to_email: str, subject: str, plain_text_content: str, html_content: str):
     message = EmailMessage()
     message["From"] = settings.SMTP_FROM
     message["To"] = to_email
     message["Subject"] = subject
     
-    message.set_content("Your email client does not support HTML.")
+    message.set_content(plain_text_content)
     message.add_alternative(html_content, subtype="html")
     
     await aiosmtplib.send(
@@ -20,17 +43,29 @@ async def send_email(to_email: str, subject: str, html_content: str):
         start_tls=True, #TLS encryption
     )
     
-def verification_email_template(code: str) -> str:
+"""
+    Email Content Plain Text
+"""
+def verification_email_template_plain_text(code: str) -> str:
     return f"""
-        <html>
-            <body>
-                <h1>{settings.COMPANY_NAME}</h1>
-                <h2>Confirm Your Email</h2>
-                <p>Here is your verification code:</p>
-                <p style="color: #1e90ff; text-align: center; font-size: 2rem">{code}</p>
-                <p>This code expire in 1 hours</p>
-                <span style="display: block; width: 100%; height: 1px; background-color: #ccc; margin-bottom: 10px"></span>
-                <small>If you did not execute this operation. Please ignore and delete this email</small>
-            </body>
-        </html>
-        """
+                {settings.COMPANY_NAME}\n
+                Your validation code: {code}
+            """.strip()
+    
+"""
+    Email Content HTML
+"""
+def verification_email_template_html(code: str) -> str:
+    return f"""
+                <html>
+                    <body>
+                        <h1>{settings.COMPANY_NAME}</h1>
+                        <h2>Confirm Your Email</h2>
+                        <p>Here is your verification code:</p>
+                        <p style="color: #1e90ff; text-align: center; font-size: 2rem">{code}</p>
+                        <p>This code expire in 1 hours</p>
+                        <span style="display: block; width: 100%; height: 1px; background-color: #ccc; margin-bottom: 10px"></span>
+                        <small>If you did not execute this operation. Please ignore and delete this email</small>
+                    </body>
+                </html>
+            """.strip()
