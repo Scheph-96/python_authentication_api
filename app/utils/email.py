@@ -1,4 +1,5 @@
 from app.core.config import settings
+from app.core.logging.logger import get_logger
 from email.message import EmailMessage
 from app.models.user_model import User
 from app.schemas.email_validation_code import EmailValidationCode
@@ -9,18 +10,35 @@ import aiosmtplib
 
 """
     Process to send validation email with the validation code
+    
+    email sending runs here
+    HTTP request → response returned → background task starts → email_processing()
+    That is no longer inside FastAPI's request exception system
+    
+    so this try...except is not duplication. It's boundary protection. Since we have error_handling process and middleware
+    
+    Rule in distributed/backend systems:
+    Every boundary(thread, background task, queue worker, scheduler) must be exception-contained because once execution leaves the request lifecycle, FastAPI is no longer responsible
 """
 async def email_processing(user: User, base_repo: BaseRepository):
-    # Generate validation code
-    code = code_generator()
-    # Create email validation record schema
-    email_validation_code = EmailValidationCode(user_id=str(user._id), code_hash=hash_token(code))
-    
-    # Insert email validation record
-    await base_repo.create(email_validation_code.model_dump())
-    
-    # Send email with the validation code
-    await send_email(user.email, "Email Validation", verification_email_template_plain_text(code), verification_email_template_html(code))
+    try:
+        # Generate validation code
+        code = code_generator()
+        # Create email validation record schema
+        email_validation_code = EmailValidationCode(user_id=str(user._id), code_hash=hash_token(code))
+        
+        # Insert email validation record
+        await base_repo.create(email_validation_code.model_dump())
+        
+        # Send email with the validation code
+        await send_email(user.email, "Email Validation", verification_email_template_plain_text(code), verification_email_template_html(code))
+    except Exception as e:
+        logger = get_logger("email")
+        logger.error(
+            "email_send_failed",
+            error=str(e),
+            exc_info=True
+        )
 
 """
     Email sending logic
