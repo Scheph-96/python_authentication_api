@@ -19,7 +19,7 @@ class UserService:
     """
         Create an account for the user
     """
-    async def create_user(self, data: dict, background_tasks: BackgroundTasks):
+    async def user_registration(self, data: dict, background_tasks: BackgroundTasks):
         
         # One email per user, no duplication
         if await self.repo.find_by_email(data["email"]):
@@ -42,6 +42,9 @@ class UserService:
         
         # retrieve user id
         return user_id
+    
+    async def create_user(self, data: dict):
+        return await self.repo.create(data)
     
     async def get_by_id(self, user_id: str):
         return await self.repo.find_by_id(user_id)

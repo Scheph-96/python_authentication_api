@@ -75,6 +75,14 @@ class AuthService:
         Validate users account by validating the code sent to their email address
     """
 
+    async def refresh_token(self, data: dict):
+        rotation_data = await self.refresh_token_service.rotate_refresh_token(data["refresh_token"])
+        
+        # Generate new access token
+        new_access = create_access_token(rotation_data["user_id"])
+        
+        return {"access_token": new_access, "refresh_token": rotation_data["refresh_token"]}
+
     async def validate_email(self, data: dict):
         # First we hash the code
         code_hash = hash_token(data.get("code"))
@@ -127,6 +135,10 @@ class AuthService:
 
         return "Email Resent"
 
+    """
+        Users provide an email to recover their account and update the password.
+        First, we confirm the email and return the recovery process token
+    """
     async def password_recovery_confirm_email(self, data: dict):
         user = await self.user_service.get_by_email(data["email"])
 
@@ -139,5 +151,22 @@ class AuthService:
 
         return {"password_recovery_token": password_recovery_token}
 
-    async def password_recovery_update_password(self, data: dict):
-        pass
+    """
+        Second, we receive the token with new password. The token is then marked as used
+        and we update user's password
+    """
+    async def password_recovery_reset_password(self, data: dict):
+        # Get the user id
+        user_id = await self.password_recovery_token_service.invalidate_token(data["token"])
+        
+        # Get users data
+        user = await self.user_service.get_by_id(str(user_id))
+        
+        # Hash the password
+        user = User(**user)
+        user.set_password(data["password"])
+        
+        # Reset the password
+        await self.user_service.update_user(user_id, {"hashed_password": user.hashed_password})
+        
+        return {"message": "Password updated successfully"}

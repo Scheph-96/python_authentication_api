@@ -21,8 +21,8 @@ class RefreshTokenService:
         
         return raw
     
-    async def refresh(self, refresh_token: RefreshTokenSchema):
-        token_hash = hash_token(refresh_token.refresh_token)
+    async def rotate_refresh_token(self, token: str):
+        token_hash = hash_token(token)
         
         record = await self.repo.find_by_hash(token_hash)
         
@@ -52,10 +52,7 @@ class RefreshTokenService:
         # Revoke the old token
         await self.repo.revoke(refresh_token._id, new_hash)
         
-        # Generate new access token
-        new_access = create_access_token(user_id)
-        
-        return {"access_token":new_access, "refresh_token":new_refresh}
+        return {"user_id":user_id, "refresh_token":new_refresh}
         
     
     async def get_by_hash(self, token_hash: str):

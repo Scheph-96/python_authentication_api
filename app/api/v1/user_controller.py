@@ -7,6 +7,7 @@ from app.schemas.email_validation_code import (
 from app.schemas.refresh_token_schema import RefreshTokenSchema
 from app.schemas.password_recovery_token_schema import (
     PasswordRecoveryConfirmEmailSchema,
+    PasswordRecoveryResetPasswordSchema,
 )
 from app.repositories.base_repository import BaseRepository
 from app.repositories.user_repository import UserRepository
@@ -25,6 +26,10 @@ from app.utils.resources import api_response
 # from app.utils.jwt import verify_access_token
 
 router = APIRouter(prefix="/users/auth", tags=["users"])
+
+
+# Check refresh or access token before each login attempt.
+# Right now I don't know exactly. You will figure it out
 
 
 # Dependency: base repository
@@ -78,9 +83,13 @@ def get_auth_service(
     user_service: AuthService = Depends(get_user_service),
     refresh_token: RefreshTokenService = Depends(get_refresh_token_service),
     base_repo: BaseRepository = Depends(get_email_validation_repository),
-    password_recovery_token_service: PasswordRecoveryTokenService = Depends(get_password_recovery_token_service)
+    password_recovery_token_service: PasswordRecoveryTokenService = Depends(
+        get_password_recovery_token_service
+    ),
 ):
-    return AuthService(user_service, refresh_token, base_repo, password_recovery_token_service)
+    return AuthService(
+        user_service, refresh_token, base_repo, password_recovery_token_service
+    )
 
 
 """
@@ -89,13 +98,13 @@ def get_auth_service(
 
 
 @router.post("/register", response_model=dict)
-async def create_user(
+async def user_registration(
     user: UserSignUpSchema,
     background_tasks: BackgroundTasks,
     service: UserService = Depends(get_user_service),
 ):
 
-    user_id = await service.create_user(user.model_dump(), background_tasks)
+    user_id = await service.user_registration(user.model_dump(), background_tasks)
     return api_response(
         success=True, data={"user_id": user_id}, message="User created successfully"
     )
@@ -107,7 +116,7 @@ async def create_user(
 
 
 @router.post("/login", response_model=dict)
-async def get_user(
+async def user_login(
     user: UserSignInSchema, auth: AuthService = Depends(get_auth_service)
 ):
 
@@ -156,9 +165,9 @@ async def retry(
 @router.post("/refresh")
 async def refresh_token(
     refresh_token: RefreshTokenSchema,
-    refresh_token_service: RefreshTokenService = Depends(get_refresh_token_service),
+    auth_service: AuthService = Depends(get_auth_service),
 ):
-    new_tokens = await refresh_token_service.refresh(refresh_token)
+    new_tokens = await auth_service.refresh_token(refresh_token.model_dump())
 
     return api_response(success="True", message="New Token Generated", data=new_tokens)
 
@@ -168,12 +177,9 @@ async def refresh_token(
 """
 
 
-@router.post("/password/forgot")
-async def forgot(
+@router.post("/password_recovery/forgot")
+async def password_forgot(
     password_recovery_confirm_email: PasswordRecoveryConfirmEmailSchema,
-    password_recovery_token_repository: PasswordRecoveryTokenRepository = Depends(
-        get_password_recovery_token_repository
-    ),
     auth: AuthService = Depends(get_auth_service),
 ):
 
@@ -182,9 +188,27 @@ async def forgot(
     )
 
     return api_response(
-        success="True",
+        success=True,
         message="If this email exists, a reset link has been sent",
         data=password_recovery_token,
+    )
+
+
+"""
+    Now that the email address is validate and the token generated, let's reset the password
+"""
+
+
+@router.post("/password_recovery/reset")
+async def password_reset(
+    password_recovery_reset_password: PasswordRecoveryResetPasswordSchema,
+    auth: AuthService = Depends(get_auth_service),
+):
+    result = await auth.password_recovery_reset_password(password_recovery_reset_password.model_dump())
+    
+    return api_response(
+        success= True,
+        message= result,
     )
 
 

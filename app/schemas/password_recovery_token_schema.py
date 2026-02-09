@@ -1,9 +1,9 @@
-from pydantic import BaseModel, EmailStr, Field
-from datetime import datetime, timezone, timedelta
+from pydantic import BaseModel, EmailStr
+from app.schemas.user_schema import BaseSchema
 
-class PasswordRecoveryConfirmEmailSchema(BaseModel):
+class PasswordRecoveryConfirmEmailSchema(BaseSchema):
     email: EmailStr
     
-class PasswordRecoveryUpdatePasswordSchema(BaseModel):
+class PasswordRecoveryResetPasswordSchema(BaseSchema):
     token: str
     password: str

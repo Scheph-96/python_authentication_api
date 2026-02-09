@@ -1,7 +1,9 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from app.models.password_recovery_token_model import PasswordRecoveryToken
+from app.schemas.password_recovery_token_schema import PasswordRecoveryResetPasswordSchema
 from app.repositories.password_recovery_token_repository import PasswordRecoveryTokenRepository
 from app.utils.jwt import hash_token
+from fastapi import HTTPException
 import secrets
 
 class PasswordRecoveryTokenService:
@@ -21,13 +23,41 @@ class PasswordRecoveryTokenService:
         
         return  raw_token
     
+    async def invalidate_token(self, token: str):
+        token_hash = hash_token(token)
+        
+        password_recovery_token = await self.repo.find_by_hash(token_hash)
+        
+        if not password_recovery_token:
+            raise HTTPException(401, "Invalid Token")
+        
+        password_recovery_token = PasswordRecoveryToken(**password_recovery_token)
+        
+        # Timezone info of timezone aware variable
+        my_timezone = password_recovery_token.expire_at.tzinfo
+        # Current datetime for the timezone
+        now = datetime.now(my_timezone)
+        
+        # Check token expiration
+        if password_recovery_token.expire_at < now:
+            raise HTTPException(401, "Invalid Token")
+        
+        # Check whether was used or not
+        if password_recovery_token.used:
+            raise HTTPException(401, "Invalid Token")
+        
+        await self.repo.invalidate_token(password_recovery_token._id)
+        
+        return password_recovery_token.user_id
+        
+    
     async def get_by_hash(self, token_hash: str):
         return await self.repo.find_by_hash(token_hash)
     
     async def get_by_user_id(self, user_id: str):
         return await self.repo.find_by_user_id(user_id)
     
-    async def invalidate_password_recovery_token(self, password_recovery_instance_id: str):        
+    async def update_password_recovery_token(self, password_recovery_instance_id: str):        
         await self.repo.invalidate_token(password_recovery_instance_id)
         
     async def delete_password_recovery_token(self, recovery_token_id):
