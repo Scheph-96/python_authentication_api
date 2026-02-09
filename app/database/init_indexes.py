@@ -1,4 +1,5 @@
 async def init_indexes(db):
+    # The "1" stand for the order of sorting. 1 Ascending order -1 Descending order
     # token_hash must be unique
     await db.refresh_tokens.create_index({"token_hash": 1}, unique=True)
     # Delete the document as soon as the date stored in that field is reached.
@@ -12,3 +13,7 @@ async def init_indexes(db):
     # current_time >= expire_at
     # expireAfterSeconds=0. Delete time is exactly the time set in the document
     await db.email_validation_code.create_index({"expire_at": 1}, expireAfterSeconds=0)
+    # Delete the document as soon as the date stored in that field is reached.
+    # current_time >= expire_at
+    # expireAfterSeconds=0. Delete time is exactly the time set in the document
+    await db.password_recovery_token.create_index({"expire_at": 1}, expireAfterSeconds=0)

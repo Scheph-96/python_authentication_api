@@ -15,8 +15,8 @@ class RefreshTokenService:
     async def create_refresh_token(self, user_id: str):
         raw = secrets.token_urlsafe(64)
         token_hash = hash_token(raw)
-        refreshToken = RefreshToken(user_id= user_id, token_hash=token_hash)
         
+        refreshToken = RefreshToken(user_id= user_id, token_hash=token_hash)
         await self.repo.create(refreshToken.to_dict())
         
         return raw
@@ -62,8 +62,8 @@ class RefreshTokenService:
         return await self.repo.find_by_hash(token_hash)
     
     async def update_refresh_token(self, token_id: str, replaced_by: str):
-        return await self.repo.revoke(token_id, replaced_by)
+        await self.repo.revoke(token_id, replaced_by)
     
     async def delete_refresh_token(self):
-        return await self.repo.delete_expired_revoked()
+        await self.repo.delete_expired_revoked()
         
