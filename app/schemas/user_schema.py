@@ -62,9 +62,5 @@ class UserSignInSchema(BaseSchema):
         return values
     
 class UserLogOutSchema(BaseSchema):
-    pass
+    refresh_token: str
     
-class UserResponseSchema(BaseModel):
-    _id: str
-    username: str
-    email: str

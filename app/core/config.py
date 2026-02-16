@@ -16,4 +16,6 @@ class Settings:
     SMTP_USER: str = os.getenv("SMTP_USER")
     SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD")
     SMTP_FROM: str = os.getenv("SMTP_FROM")
+    SECURITY_EVENT_LABEL = "AuthSecurityEvent"
+    OPERATION_SUCCESS_EVENT_LABEL = "OperationSuccess"
 settings = Settings()

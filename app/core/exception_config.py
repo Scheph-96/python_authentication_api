@@ -30,7 +30,8 @@ class ExceptionConfig:
             path=request.url.path,
             method=request.method,
             status_code=exc.status_code,
-            detail=exc.detail
+            detail=exc.detail,
+            client=request.client.host
         )
         
         # This JSONResponse becomes the HTTP response sent to the client

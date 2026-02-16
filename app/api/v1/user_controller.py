@@ -28,9 +28,6 @@ from app.utils.resources import api_response
 router = APIRouter(prefix="/users/auth", tags=["users"])
 
 
-# Check refresh or access token before each login attempt.
-# Right now I don't know exactly. You will figure it out
-
 
 # Dependency: base repository
 def get_email_validation_repository():
@@ -46,27 +43,26 @@ def get_user_repository():
 def get_refresh_token_repository():
     return RefreshTokenRepository(db.refresh_tokens)
 
-    return BaseRepository(db.email_validation_code)
-
 
 # Dependency: passwordRecoveryToken repository
 def get_password_recovery_token_repository():
-    return PasswordRecoveryTokenRepository(db.password_recovery_token)
+    return PasswordRecoveryTokenRepository(db.password_recovery_tokens)
 
 
 # Dependency: user service
 def get_user_service(
     repo: UserRepository = Depends(get_user_repository),
-    base_repo: BaseRepository = Depends(get_email_validation_repository),
+    email_validation_repository: BaseRepository = Depends(get_email_validation_repository),
 ):
-    return UserService(repo, base_repo)
+    return UserService(repo, email_validation_repository)
 
 
 # Dependency: refreshToken service
 def get_refresh_token_service(
-    repo: RefreshTokenRepository = Depends(get_refresh_token_repository),
+    refresh_token_repo: RefreshTokenRepository = Depends(get_refresh_token_repository),
+    user_repo: UserRepository = Depends(get_user_repository)
 ):
-    return RefreshTokenService(repo)
+    return RefreshTokenService(refresh_token_repo, user_repo)
 
 
 # Dependency: passwordRecovery service
@@ -123,6 +119,16 @@ async def user_login(
     auth_token = await auth.login(user.model_dump())
 
     return api_response(success=True, data=auth_token)
+
+
+"""
+    The endpoint that will log users out
+"""
+@router.post("/logout", response_model=dict)
+async def logout(user: UserLogOutSchema, auth: AuthService = Depends(get_auth_service)):
+    result = await auth.logout(user.model_dump())
+    
+    return api_response(success=True, data=result)
 
 
 """
@@ -210,17 +216,6 @@ async def password_reset(
         success= True,
         message= result,
     )
-
-
-# """
-#     The endpoint that will log users out
-# """
-# @router.post("/auth/logout", response_model=dict)
-# async def logout(user: UserLogOutSchema, service: UserService = Depends(get_user_service)):
-#     try:
-#         pass
-#     except:
-#         return api_response(success=False, message="Unexpected error. Please try again later")
 
 
 # Used this endpoint to test tokens. Remember this api is a stand alone login api, it does nothing else. Protected endpoints will in YOUR backend. The backend of your app

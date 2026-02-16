@@ -1,3 +1,5 @@
+from app.core.logging.logger import get_logger
+from app.core.config import Settings
 from app.services.user_service import UserService
 from app.services.refresh_token_service import RefreshTokenService
 from app.services.password_recovery_token_service import PasswordRecoveryTokenService
@@ -27,6 +29,7 @@ class AuthService:
         self.refresh_token_service = refresh_token_service
         self.base_repository = base_repository
         self.password_recovery_token_service = password_recovery_token_service
+        self.logger = get_logger("AuthService")
 
     """
         Authenticate a user
@@ -51,7 +54,12 @@ class AuthService:
         # If the request provide a email attribute, the login is performed with the email
         elif data.get("email"):
             user = await self.user_service.get_by_email(data["email"])
+
         if not user:
+            self.logger.warning(
+                Settings.SECURITY_EVENT_LABEL, detail="INCORRECT EMAIL OR PASSWORD"
+            )
+
             raise HTTPException(401, "Invalid credentials")
 
         user = User(**user)
@@ -59,29 +67,47 @@ class AuthService:
         try:
             user.verify_password(data["password"])
         except VerifyMismatchError:
+            self.logger.warning(
+                Settings.SECURITY_EVENT_LABEL,
+                detail="THE SECRET DOES NOT MATCH THE HASH",
+            )
+
             raise HTTPException(401, "Invalid credentials")
         except InvalidHashError:
-            print(user.to_dict())
+            self.logger.warning(
+                Settings.SECURITY_EVENT_LABEL,
+                detail="THE HASH IS INVALIDE. EXPIRED OR WRONG ISSUER",
+            )
+
             raise HTTPException(401, "Invalid credentials")
 
         access_token = create_access_token(str(user._id))
-        refresh_token = await self.refresh_token_service.create_refresh_token(
-            str(user._id)
+        result = await self.refresh_token_service.create_refresh_token(str(user._id))
+
+        self.logger.info(
+            "user_login",
+            user_id=str(user._id),
+            refresh_token_id=str(result["refresh_token_id"]),
         )
 
-        return {"access_token": access_token, "refresh_token": refresh_token}
+        return {"access_token": access_token, "refresh_token": result["raw_token"]}
 
     """
         Validate users account by validating the code sent to their email address
     """
 
     async def refresh_token(self, data: dict):
-        rotation_data = await self.refresh_token_service.rotate_refresh_token(data["refresh_token"])
-        
+        rotation_data = await self.refresh_token_service.rotate_refresh_token(
+            data["refresh_token"]
+        )
+
         # Generate new access token
         new_access = create_access_token(rotation_data["user_id"])
-        
-        return {"access_token": new_access, "refresh_token": rotation_data["refresh_token"]}
+
+        return {
+            "access_token": new_access,
+            "refresh_token": rotation_data["refresh_token"],
+        }
 
     async def validate_email(self, data: dict):
         # First we hash the code
@@ -117,6 +143,10 @@ class AuthService:
 
         # If the user does not exist, reject the request
         if not user:
+            self.logger.warning(
+                Settings.SECURITY_EVENT_LABEL,
+                detail="EMAIL SENDING: THERE IS NO RECORD FOR THE SPECIFIED USER ID",
+            )
             raise HTTPException(400, "Unable to proceed")
 
         # Get the validation code record
@@ -139,34 +169,95 @@ class AuthService:
         Users provide an email to recover their account and update the password.
         First, we confirm the email and return the recovery process token
     """
+
     async def password_recovery_confirm_email(self, data: dict):
         user = await self.user_service.get_by_email(data["email"])
 
         if not user:
+            self.logger.warning(
+                Settings.SECURITY_EVENT_LABEL,
+                detail="PASSWORD RECOVERY: EMAIL VALIDATION FAILED",
+            )
+
             # Do not reveal whether the email exists
             raise HTTPException(400, "If this email exists, a reset link has been sent")
-        
-        # Insert the hashed token in the database
-        password_recovery_token = await self.password_recovery_token_service.create_password_recovery_token(str(user["_id"]))
 
-        return {"password_recovery_token": password_recovery_token}
+        # Insert the hashed token in the database
+        result = (
+            await self.password_recovery_token_service.create_password_recovery_token(
+                str(user["_id"])
+            )
+        )
+
+        self.logger.info(
+            f"{Settings.OPERATION_SUCCESS_EVENT_LABEL}: password_recovery_token_issued",
+            user_id=str(
+                user["_id"],
+            ),
+            password_recovery_token_id=result["password_recovery_token_id"],
+        )
+
+        return {"password_recovery_token": result["raw_token"]}
 
     """
         Second, we receive the token with new password. The token is then marked as used
         and we update user's password
     """
+
     async def password_recovery_reset_password(self, data: dict):
         # Get the user id
-        user_id = await self.password_recovery_token_service.invalidate_token(data["token"])
-        
+        user_id = await self.password_recovery_token_service.invalidate_token(
+            data["token"]
+        )
+
         # Get users data
         user = await self.user_service.get_by_id(str(user_id))
-        
+
         # Hash the password
         user = User(**user)
         user.set_password(data["password"])
-        
+
+        # Increment auth_version
+        user.auth_version += 1
+
         # Reset the password
-        await self.user_service.update_user(user_id, {"hashed_password": user.hashed_password})
-        
+        await self.user_service.update_user(
+            user_id,
+            {
+                "hashed_password": user.hashed_password,
+                "auth_version": user.auth_version,
+            },
+        )
+
+        self.logger.info(
+            f"{Settings.OPERATION_SUCCESS_EVENT_LABEL}: password_updated",
+            user_id=str(user_id),
+            auth_version=str(user.auth_version),
+        )
+
         return {"message": "Password updated successfully"}
+
+    """
+        Users login, they have to logout
+    """
+
+    async def logout(self, data: dict):
+        refresh_token = await self.refresh_token_service.is_refresh_token_valid(
+            data["refresh_token"]
+        )
+
+        # Increment authentication version
+        await self.user_service.update_inc_user(
+            refresh_token.user_id, {"auth_version": 1}
+        )
+
+        # Revoke refresh_token
+        await self.refresh_token_service.update_refresh_token(refresh_token._id)
+
+        self.logger.info(
+            f"{Settings.OPERATION_SUCCESS_EVENT_LABEL}: user_logout",
+            user_id=str(refresh_token.user_id),
+            refresh_token_id=str(refresh_token._id),
+        )
+
+        return {"logged_out": True}

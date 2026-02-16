@@ -1,3 +1,5 @@
+from app.core.logging.logger import get_logger
+from app.core.config import Settings
 from app.repositories.user_repository import UserRepository
 from app.repositories.base_repository import BaseRepository
 from app.models.user_model import User
@@ -12,9 +14,10 @@ from fastapi import HTTPException, BackgroundTasks
     Here is our business logic
 """
 class UserService:
-    def __init__(self, repo: UserRepository, base_repo: BaseRepository):
+    def __init__(self, repo: UserRepository, email_validation_repository: BaseRepository):
         self.repo = repo
-        self.base_repo = base_repo
+        self.email_validation_repository = email_validation_repository
+        self.logger = get_logger("UserService")
         
     """
         Create an account for the user
@@ -23,13 +26,24 @@ class UserService:
         
         # One email per user, no duplication
         if await self.repo.find_by_email(data["email"]):
-            raise HTTPException(400, "Email already exist")
+            self.logger.warning(
+            Settings.SECURITY_EVENT_LABEL,
+            detail=f"EMAIL {data["email"]} ALREADY EXIST"
+            )
+            
+            raise HTTPException(400, "Invalid Credential")
         
         # Unique username
         if await self.repo.find_by_username(data["username"]):
-            raise HTTPException(400, "Username already exist")
+            self.logger.warning(
+            Settings.SECURITY_EVENT_LABEL,
+            detail=f"USERNAME {data["username"]} ALREADY EXIST"
+            )
+            
+            raise HTTPException(400, "Invalid Credential")
         
         user = User(username=data["username"], email=data["email"])
+        
         # This method hash the password
         user.set_password(data["password"])
         
@@ -38,10 +52,16 @@ class UserService:
         user._id = user_id
         
         # Send email to validate the user email address in background
-        background_tasks.add_task(email_processing, user, self.base_repo)
+        background_tasks.add_task(email_processing, user, self.email_validation_repository)
+        
+        self.logger.info(
+        Settings.SECURITY_EVENT_LABEL,
+        detail=f"USER CREATED SUCCESSFULLY",
+        user_id=str(user._id)
+        )
         
         # retrieve user id
-        return user_id
+        return user._id
     
     async def create_user(self, data: dict):
         return await self.repo.create(data)
@@ -57,3 +77,6 @@ class UserService:
     
     async def update_user(self, user_id: str, data: dict):
         await self.repo.update(user_id, data)
+    
+    async def update_inc_user(self, user_id: str, data: dict):
+        await self.repo.update_inc(user_id, data)

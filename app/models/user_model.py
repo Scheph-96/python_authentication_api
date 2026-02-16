@@ -9,9 +9,10 @@ from bson import ObjectId
 passwordHash = PasswordHasher()
 
 class User:
-    def __init__(self,username: str, email: str,  _id: ObjectId = None, hashed_password: str | None = None, is_verified:bool = False, created_at: datetime | None = None):
+    def __init__(self,username: str, email: str, auth_version: int = 0, _id: ObjectId = None, hashed_password: str | None = None, is_verified:bool = False, created_at: datetime | None = None):
         self.username = username
         self.email = email
+        self.auth_version = auth_version
         self._id = _id
         self.hashed_password = hashed_password
         self.is_verified = is_verified
@@ -31,6 +32,7 @@ class User:
         return {
             "username": self.username,
             "email": self.email,
+            "auth_version": self.auth_version,
             "hashed_password": self.hashed_password,
             "is_verified": self.is_verified,
             "created_at": self.created_at

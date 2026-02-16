@@ -8,6 +8,10 @@ from app.utils.jwt import hash_token
 from app.utils.resources import code_generator
 import aiosmtplib
 
+
+logger = get_logger("email_processing")
+
+
 """
     Process to send validation email with the validation code
     
@@ -20,59 +24,80 @@ import aiosmtplib
     Rule in distributed/backend systems:
     Every boundary(thread, background task, queue worker, scheduler) must be exception-contained because once execution leaves the request lifecycle, FastAPI is no longer responsible
 """
+
+
 async def email_processing(user: User, base_repo: BaseRepository):
     try:
         # Generate validation code
         code = code_generator()
         # Create email validation record schema
-        email_validation_code = EmailValidationCode(user_id=str(user._id), code_hash=hash_token(code))
-        
-        # Insert email validation record
-        await base_repo.create(email_validation_code.model_dump())
-        
-        # Send email with the validation code
-        await send_email(user.email, "Email Validation", verification_email_template_plain_text(code), verification_email_template_html(code))
-    except Exception as e:
-        logger = get_logger("email")
-        logger.error(
-            "email_send_failed",
-            error=str(e),
-            exc_info=True
+        email_validation_code = EmailValidationCode(
+            user_id=str(user._id), code_hash=hash_token(code)
         )
+
+        # Insert email validation record
+        email_validation_code_id = await base_repo.create(email_validation_code.model_dump())
+
+        # Send email with the validation code
+        await send_email(
+            user.email,
+            "Email Validation",
+            verification_email_template_plain_text(code),
+            verification_email_template_html(code),
+        )
+
+        logger.info(
+            f"{Settings.OPERATION_SUCCESS_EVENT_LABEL}: email_sent",
+            user_id=str(user._id),
+            email_validation_code_id=email_validation_code_id,
+        )
+    except Exception as e:
+        logger.error("email_send_failed", error=str(e), exc_info=True)
+
 
 """
     Email sending logic
 """
-async def send_email(to_email: str, subject: str, plain_text_content: str, html_content: str):
+
+
+async def send_email(
+    to_email: str, subject: str, plain_text_content: str, html_content: str
+):
     message = EmailMessage()
     message["From"] = settings.SMTP_FROM
     message["To"] = to_email
     message["Subject"] = subject
-    
+
     message.set_content(plain_text_content)
     message.add_alternative(html_content, subtype="html")
-    
+
     await aiosmtplib.send(
         message,
         hostname=settings.SMTP_HOST,
         port=settings.SMTP_PORT,
         username=settings.SMTP_USER,
         password=settings.SMTP_PASSWORD,
-        start_tls=True, #TLS encryption
+        start_tls=True,  # TLS encryption
     )
-    
+
+
 """
     Email Content Plain Text
 """
+
+
 def verification_email_template_plain_text(code: str) -> str:
     return f"""
                 {settings.COMPANY_NAME}\n
                 Your validation code: {code}
             """.strip()
-    
+
+
 """
     Email Content HTML
 """
+
+
 def verification_email_template_html(code: str) -> str:
     return f"""
                 <html>

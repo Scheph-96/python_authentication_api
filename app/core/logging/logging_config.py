@@ -8,7 +8,7 @@ from pathlib import Path
 
 def configure_logging():
     """
-        When someone logs something, here's how logs should look.
+        The whole logging system structure, condole/file handler, formatting etc...
     """
     
     BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -42,11 +42,20 @@ def configure_logging():
     
     # ROUTER LOGGER
     root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
     
     # If we call configure_logging() multiple times (reload, tests), handlers will duplicate and logs will appear multiple times.
-    if not root_logger.handlers:
-        root_logger.addHandler(console_handler)
+    
+    # Remove default hanlders
+    for i in root_logger.handlers[:]:
+        print("Handler: ", i)
+        root_logger.removeHandler(i)
+    
+    root_logger.setLevel(log_level)
+    
+    # Adding custom handlers  
+    root_logger.addHandler(console_handler)
+    
+    if Settings.ENV == "production":
         root_logger.addHandler(file_handler)
         
     structlog.configure(

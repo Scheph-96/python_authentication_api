@@ -20,6 +20,9 @@ class UserRepository:
     async def update(self, user_id: str, data: dict):
         await self.collection.update_one({"_id": ObjectId(user_id)}, {"$set": data})
         
+    async def update_inc(self, user_id: str, data: dict):
+        await self.collection.update_one({"_id": ObjectId(user_id)}, {"$inc": data})
+        
     async def delete(self, user_id: str):
         await self.collection.delete_one({"_id": ObjectId(user_id)})
     

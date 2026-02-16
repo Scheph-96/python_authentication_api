@@ -17,11 +17,11 @@ class PasswordRecoveryTokenService:
         # Hash the token
         token_hash = hash_token(raw_token)
         
-        # Create the schema
+        # Create the model
         password_recovery_token = PasswordRecoveryToken(user_id=str(user_id), token_hash=token_hash)
-        await self.repo.create(password_recovery_token.to_dict())
+        password_recovery_token_id = await self.repo.create(password_recovery_token.to_dict())
         
-        return  raw_token
+        return  {"raw_token": raw_token, "password_recovery_token_id": password_recovery_token_id}
     
     async def invalidate_token(self, token: str):
         token_hash = hash_token(token)
@@ -29,6 +29,11 @@ class PasswordRecoveryTokenService:
         password_recovery_token = await self.repo.find_by_hash(token_hash)
         
         if not password_recovery_token:
+            self.logger.warning(
+            Settings.SECURITY_EVENT_LABEL,
+            detail="PASSWORD RECOVERY TOKEN NOT FOUND"
+            )
+            
             raise HTTPException(401, "Invalid Token")
         
         password_recovery_token = PasswordRecoveryToken(**password_recovery_token)
@@ -40,10 +45,20 @@ class PasswordRecoveryTokenService:
         
         # Check token expiration
         if password_recovery_token.expire_at < now:
+            self.logger.warning(
+            Settings.SECURITY_EVENT_LABEL,
+            detail="PASSWORD RECOVERY TOKEN EXPIRED"
+            )
+            
             raise HTTPException(401, "Invalid Token")
         
         # Check whether was used or not
         if password_recovery_token.used:
+            self.logger.warning(
+            Settings.SECURITY_EVENT_LABEL,
+            detail="PASSWORD RECOVERY TOKEN USED"
+            )
+            
             raise HTTPException(401, "Invalid Token")
         
         await self.repo.invalidate_token(password_recovery_token._id)

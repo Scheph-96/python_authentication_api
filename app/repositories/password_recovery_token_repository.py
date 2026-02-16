@@ -6,6 +6,7 @@ class PasswordRecoveryTokenRepository:
         
     async def create(self, password_recovery_entry: dict):
         result = await self.collection.insert_one(password_recovery_entry)
+        return str(result.inserted_id)
         
     async def find_by_hash(self, token_hash: str):
         return await self.collection.find_one({"token_hash": token_hash})

@@ -1,6 +1,8 @@
 from app.repositories.refresh_token_repository import RefreshTokenRepository
+from app.repositories.user_repository import UserRepository
 from app.schemas.refresh_token_schema import RefreshTokenSchema
 from app.core.config import Settings
+from app.core.logging.logger import get_logger
 from app.models.refresh_token_model import RefreshToken
 from app.utils.jwt import create_access_token, hash_token
 from fastapi import HTTPException
@@ -9,25 +11,34 @@ import secrets
 
 class RefreshTokenService:
     
-    def __init__(self, repo: RefreshTokenRepository):
-        self.repo = repo
+    def __init__(self, refresh_token_repo: RefreshTokenRepository, user_repo: UserRepository):
+        self.refresh_token_repo = refresh_token_repo
+        self.user_repo = user_repo
+        self.logger = get_logger("RefreshTokenService")
         
     async def create_refresh_token(self, user_id: str):
         raw = secrets.token_urlsafe(64)
         token_hash = hash_token(raw)
         
-        refreshToken = RefreshToken(user_id= user_id, token_hash=token_hash)
-        await self.repo.create(refreshToken.to_dict())
+        user = await self.user_repo.find_by_id(user_id)
         
-        return raw
+        refreshToken = RefreshToken(user_id=user_id, token_hash=token_hash, auth_version=user["auth_version"])
+        
+        refresh_token_id = await self.refresh_token_repo.create(refreshToken.to_dict())
+        
+        return {"raw_token": raw, "refresh_token_id": refresh_token_id}
     
-    async def rotate_refresh_token(self, token: str):
+    async def is_refresh_token_valid(self, token: str):
         token_hash = hash_token(token)
         
-        record = await self.repo.find_by_hash(token_hash)
+        record = await self.refresh_token_repo.find_by_hash(token_hash)
         
         # Invalid token when the token is revoked
         if not record or record["revoked"]:
+            self.logger.warning(
+            Settings.SECURITY_EVENT_LABEL,
+            detail="TOKEN REVOKED"
+            )
             raise HTTPException(401, "Invalid refresh token")
         
         refresh_token = RefreshToken(**record)
@@ -38,10 +49,36 @@ class RefreshTokenService:
         now = datetime.now(my_timezone)
         
         if refresh_token.expire_at < now:
+            # Since the token has expired. We just revoke it
+            await self.update_refresh_token(refresh_token._id)
             
-            raise HTTPException(401, "Refresh expired")
+            self.logger.warning(
+            Settings.SECURITY_EVENT_LABEL,
+            detail="TOKEN EXPIRED ==> REVOKE TOKEN"
+            )
+            
+            raise HTTPException(401, "Invalid refresh token")
         
-        user_id = str(refresh_token.user_id)
+        user = await self.user_repo.find_by_id(str(refresh_token.user_id))
+        
+        if refresh_token.auth_version != user["auth_version"]:
+            # Since the token version doesn't match. We just revoke it
+            await self.update_refresh_token(refresh_token._id)
+            
+            self.logger.warning(
+            Settings.SECURITY_EVENT_LABEL,
+            detail="TOKEN VERSION INVALID ==> REVOKE TOKEN"
+            )
+            
+            raise HTTPException(401, "Invalid refresh token")
+        
+        return refresh_token
+    
+    async def rotate_refresh_token(self, token: str):
+        
+        refresh_token = await self.is_refresh_token_valid(token)
+        
+        user_id = str(refresh_token.user_id)        
         
         # ROTATE
         # Generate new refresh token
@@ -50,17 +87,17 @@ class RefreshTokenService:
         new_hash = hash_token(new_refresh)
         
         # Revoke the old token
-        await self.repo.revoke(refresh_token._id, new_hash)
+        await self.refresh_token_repo.revoke(refresh_token._id, new_hash)
         
         return {"user_id":user_id, "refresh_token":new_refresh}
         
     
     async def get_by_hash(self, token_hash: str):
-        return await self.repo.find_by_hash(token_hash)
+        return await self.refresh_token_repo.find_by_hash(token_hash)
     
-    async def update_refresh_token(self, token_id: str, replaced_by: str):
-        await self.repo.revoke(token_id, replaced_by)
+    async def update_refresh_token(self, token_id: str, replaced_by: str = None):
+        await self.refresh_token_repo.revoke(token_id, replaced_by)
     
     async def delete_refresh_token(self):
-        await self.repo.delete_expired_revoked()
+        await self.refresh_token_repo.delete_expired_revoked()
         

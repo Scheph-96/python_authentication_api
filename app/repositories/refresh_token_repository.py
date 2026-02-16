@@ -12,7 +12,7 @@ class RefreshTokenRepository:
     async def find_by_hash(self, token_hash: str):
         return await self.collection.find_one({"token_hash": token_hash})
     
-    async def revoke(self, token_id: str, replaced_by: str):
+    async def revoke(self, token_id: str, replaced_by: str = None):
         await self.collection.update_one({"_id": ObjectId(token_id)}, {"$set": {"revoked": True, "replaced_by": replaced_by}})
         
     async def delete_expired_revoked(self):
