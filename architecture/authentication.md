@@ -2,9 +2,9 @@
 
 ## Overview
 This system uses JWT (RS256) for authentication with refresh token rotation.
-    . A dedicated Auth API(FastAPI) is responsible for login and token issuance.
-    . Other projects backends trust this Auth API and verify JWTs using the public key.
-    . Access tokens are short-lived; refresh tokens maintain long sessions securely.
+- A dedicated Auth API(FastAPI) is responsible for login and token issuance.
+- Other projects backends trust this Auth API and verify JWTs using the public key.
+- Access tokens are short-lived; refresh tokens maintain long sessions securely.
 
 ## What is auth_version?
 auth_version is a per-user session version number stored in the database.
@@ -29,8 +29,8 @@ Password change invalidates sessions
 1. Credentials are sent to Auth API
 2. Auth API validate credentials
 3. Auth API returns:
-    . Access Token (15 min)
-    . Refresh Token (30 days)
+    - Access Token (15 min)
+    - Refresh Token (30 days)
 
 ## Protected Route Flow
 Frontend → Backend
@@ -70,11 +70,17 @@ Database record:
 Field           |        Purpose
 -------------------------------------------------------------------
 token_hash      →        SHA256 hash of refresh token
+
 user_id         →        Token owner
+
 auth_version    →        Assure token validity
+
 expire_at       →        Expiration time (TTL indexed)
+
 revoked         →        Whether token is invalid
+
 replaced_by     →        Hash of new token created during rotation
+
 created_at      →        Creation time
 
 Expired tokens are automatically deleted using a MongoDB TTL index
