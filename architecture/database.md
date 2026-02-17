@@ -1,9 +1,16 @@
 ## Database Architecture
 
 ## Overview
-For a standalone authentication api their are only a few collections to validate data and authenticate users. So we have users, email_validation_code, password_recovery_token, refresh_tokens. (You might to forgive my poor naming skill 😅)
+For a standalone authentication api their are only a few collections to validate data and authenticate users. So we have users, email_validation_code, password_recovery_token, refresh_tokens. (You might want to forgive my poor naming skills 😅)
 
-Name the database how you want. If you want to change collections name it's possible in app/api/v1/user_controller.py
+Name the database how you want (The value is environment variables). If you want to change collections name it's possible in app/api/v1/user_controller.py under 
+```
+#Dependency: user repository
+def get_user_repository():
+    return UserRepository(db.users)
+
+Change db.<users> with db.<anything> to change users collection name
+```
 
 ## Collections
 ### users 
