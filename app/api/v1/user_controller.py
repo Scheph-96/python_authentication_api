@@ -15,7 +15,7 @@ from app.repositories.refresh_token_repository import RefreshTokenRepository
 from app.repositories.password_recovery_token_repository import (
     PasswordRecoveryTokenRepository,
 )
-from app.services.auth_service import AuthService
+from app.services.authentication_service import AuthenticationService
 from app.services.user_service import UserService
 from app.services.refresh_token_service import RefreshTokenService
 from app.services.password_recovery_token_service import PasswordRecoveryTokenService
@@ -74,16 +74,16 @@ def get_password_recovery_token_service(
     return PasswordRecoveryTokenService(repo)
 
 
-# Dependency: auth service
+# Dependency: authentication service
 def get_auth_service(
-    user_service: AuthService = Depends(get_user_service),
+    user_service: UserService = Depends(get_user_service),
     refresh_token: RefreshTokenService = Depends(get_refresh_token_service),
     base_repo: BaseRepository = Depends(get_email_validation_repository),
     password_recovery_token_service: PasswordRecoveryTokenService = Depends(
         get_password_recovery_token_service
     ),
 ):
-    return AuthService(
+    return AuthenticationService(
         user_service, refresh_token, base_repo, password_recovery_token_service
     )
 
@@ -113,10 +113,10 @@ async def user_registration(
 
 @router.post("/login", response_model=dict)
 async def user_login(
-    user: UserSignInSchema, auth: AuthService = Depends(get_auth_service)
+    user: UserSignInSchema, authentication: AuthenticationService = Depends(get_auth_service)
 ):
 
-    auth_token = await auth.login(user.model_dump())
+    auth_token = await authentication.login(user.model_dump())
 
     return api_response(success=True, data=auth_token)
 
@@ -125,8 +125,8 @@ async def user_login(
     The endpoint that will log users out
 """
 @router.post("/logout", response_model=dict)
-async def logout(user: UserLogOutSchema, auth: AuthService = Depends(get_auth_service)):
-    result = await auth.logout(user.model_dump())
+async def logout(user: UserLogOutSchema, authentication: AuthenticationService = Depends(get_auth_service)):
+    result = await authentication.logout(user.model_dump())
     
     return api_response(success=True, data=result)
 
@@ -138,10 +138,10 @@ async def logout(user: UserLogOutSchema, auth: AuthService = Depends(get_auth_se
 
 @router.post("/validate_email", response_model=dict)
 async def validate_email(
-    data: EmailValidationCodeSubmit, auth: AuthService = Depends(get_auth_service)
+    data: EmailValidationCodeSubmit, authentication: AuthenticationService = Depends(get_auth_service)
 ):
 
-    result = await auth.validate_email(data.model_dump())
+    result = await authentication.validate_email(data.model_dump())
 
     return api_response(success=True, data=result)
 
@@ -155,10 +155,10 @@ async def validate_email(
 async def retry(
     data: EmailValidationCodeRetry,
     background_tasks: BackgroundTasks,
-    auth: AuthService = Depends(get_auth_service),
+    authentication: AuthenticationService = Depends(get_auth_service),
 ):
 
-    result = await auth.resend_validate_email(data.model_dump(), background_tasks)
+    result = await authentication.resend_validate_email(data.model_dump(), background_tasks)
 
     return api_response(success=True, message=result)
 
@@ -171,7 +171,7 @@ async def retry(
 @router.post("/refresh")
 async def refresh_token(
     refresh_token: RefreshTokenSchema,
-    auth_service: AuthService = Depends(get_auth_service),
+    auth_service: AuthenticationService = Depends(get_auth_service),
 ):
     new_tokens = await auth_service.refresh_token(refresh_token.model_dump())
 
@@ -186,10 +186,10 @@ async def refresh_token(
 @router.post("/password_recovery/forgot")
 async def password_forgot(
     password_recovery_confirm_email: PasswordRecoveryConfirmEmailSchema,
-    auth: AuthService = Depends(get_auth_service),
+    authentication: AuthenticationService = Depends(get_auth_service),
 ):
 
-    password_recovery_token = await auth.password_recovery_confirm_email(
+    password_recovery_token = await authentication.password_recovery_confirm_email(
         password_recovery_confirm_email.model_dump()
     )
 
@@ -208,9 +208,9 @@ async def password_forgot(
 @router.post("/password_recovery/reset")
 async def password_reset(
     password_recovery_reset_password: PasswordRecoveryResetPasswordSchema,
-    auth: AuthService = Depends(get_auth_service),
+    authentication: AuthenticationService = Depends(get_auth_service),
 ):
-    result = await auth.password_recovery_reset_password(password_recovery_reset_password.model_dump())
+    result = await authentication.password_recovery_reset_password(password_recovery_reset_password.model_dump())
     
     return api_response(
         success= True,

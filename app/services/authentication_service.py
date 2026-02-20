@@ -17,7 +17,7 @@ from argon2.exceptions import VerifyMismatchError, InvalidHashError
 """
 
 
-class AuthService:
+class AuthenticationService:
     def __init__(
         self,
         user_service: UserService,
@@ -29,7 +29,7 @@ class AuthService:
         self.refresh_token_service = refresh_token_service
         self.base_repository = base_repository
         self.password_recovery_token_service = password_recovery_token_service
-        self.logger = get_logger("AuthService")
+        self.logger = get_logger("AuthenticationService")
 
     """
         Authenticate a user
