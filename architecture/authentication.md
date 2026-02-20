@@ -15,14 +15,14 @@ Incrementing auth_version immediately invalidates all existing refresh tokens an
 
 The rule is:
 
->A token is valid ony if
+>A token is valid ony if\
 refresh_token.auth_version == user.auth_version
 
 ## When is this used?
 
 auth_version is usefull when we want to:
 
-Logout all devices
+Logout all devices\
 Password change invalidates sessions
 
 ## Authentication Flow
@@ -33,7 +33,7 @@ Password change invalidates sessions
     - Refresh Token (30 days)
 
 ## Protected Route Flow
-Frontend → Backend
+Frontend → Backend\
 Header: Authorization: Bearer <access_token>
 
 The backend that consumes this Auth system verifies:
@@ -67,28 +67,22 @@ Refresh tokens are never stored raw.
 
 Database record:
 
-Field           |        Purpose
--------------------------------------------------------------------
-token_hash      →        SHA256 hash of refresh token
-
-user_id         →        Token owner
-
-auth_version    →        Assure token validity
-
-expire_at       →        Expiration time (TTL indexed)
-
-revoked         →        Whether token is invalid
-
-replaced_by     →        Hash of new token created during rotation
-
-created_at      →        Creation time
+| Field        | Purpose                                   |
+|--------------|-------------------------------------------|
+| token_hash   | SHA256 hash of refresh token              |
+| user_id      | Token owner                               |
+| auth_version | Assure token validity                     |
+| expire_at    | Expiration time (TTL indexed)             |
+| revoked      | Whether token is invalid                  |
+| replaced_by  | Hash of new token created during rotation |
+| created_at   | Creation time                             |
 
 Expired tokens are automatically deleted using a MongoDB TTL index
 
 ## Security Features
 - RS256 asymmetric signing
-    . Private key → Auth API
-    . Public key → Backend services
+   * Private key → Auth API
+   * Public key → Backend consumer
 - Short-lived access tokens
 - Hashed refresh token
 - Refresh token rotation

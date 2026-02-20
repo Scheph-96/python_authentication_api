@@ -1,10 +1,10 @@
 # Logout System Workflow
 
 ## Overview
-To log out user we have to discard tokens, to forbide every futur request.
-    . Increment authentication version
-    . Revoke refresh token
-    . Access token is short lived (5-15 min), no operation will be done we will just let it die(expire)
+To log out user we have to discard tokens, to forbid every future request.
+- Increment authentication version.
+- Revoke refresh token.
+- Access token is short lived (5-15 min), no operation will be done we will just let it die(expire).
 
 ## Logout Flow
 1. Validate refresh token
@@ -21,7 +21,7 @@ When user logs out:
 Now:
 
 >Old tokens:
-ver = 0
+ver = 0\
 Database:
 ver = 1
 

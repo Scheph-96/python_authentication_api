@@ -1,10 +1,13 @@
 # Logging Workflow
+```
 lifespan() → configure logging engine
 middleware → logs every request
 exception handler → logs crashes
 services → raise HTTPException
+```
 
 ## Visual Architecture
+```
                 ┌────────────────────────┐
 Request  ─────> │ FastAPI Router         │
                 └──────────┬─────────────┘
@@ -16,8 +19,10 @@ Request  ─────> │ FastAPI Router         │
         http_exception_handler   unhandled_exception_handler
              log.info()               log.error()
              return 4xx               return 500
+```
 
 ## Structure
+```
 app/
  ├── core/
  │    ├──logging/
@@ -31,3 +36,4 @@ app/
 app/
  ├── middleware/
  │    └── middleware.py <!-- Perform logging on each request no matter the outcome
+```

@@ -12,4 +12,4 @@ To create an account users provide username,email and password, after validation
 
 After registration the user has to login
 
-(I might make the email validation optional for quick tests and ligtweight apps)
+(I might make the email validation optional for quick tests and lightweight apps)
