@@ -1,12 +1,12 @@
 from app.core.logging.logger import get_logger
 from app.core.config import Settings
-from app.services.user_service import UserService
-from app.services.refresh_token_service import RefreshTokenService
-from app.services.password_recovery_token_service import PasswordRecoveryTokenService
+from app.services.model_schema_services.user_service import UserService
+from app.services.model_schema_services.refresh_token_service import RefreshTokenService
+from app.services.model_schema_services.password_recovery_token_service import PasswordRecoveryTokenService
 from app.repositories.base_repository import BaseRepository
 from app.models.user_model import User
 from app.utils.jwt import create_access_token, hash_token
-from app.utils.email import email_processing
+from app.utils.email_process import email_processing
 from fastapi import HTTPException, BackgroundTasks
 from argon2.exceptions import VerifyMismatchError, InvalidHashError
 
@@ -18,18 +18,64 @@ from argon2.exceptions import VerifyMismatchError, InvalidHashError
 
 
 class AuthenticationService:
+
     def __init__(
         self,
         user_service: UserService,
         refresh_token_service: RefreshTokenService,
-        base_repository: BaseRepository,
         password_recovery_token_service: PasswordRecoveryTokenService,
+        email_validation_repository: BaseRepository
     ):
         self.user_service = user_service
         self.refresh_token_service = refresh_token_service
-        self.base_repository = base_repository
         self.password_recovery_token_service = password_recovery_token_service
+        self.email_validation_repository = email_validation_repository
         self.logger = get_logger("AuthenticationService")
+
+    """
+        Create an account for the user
+    """
+
+    async def user_registration(self, data: dict, background_tasks: BackgroundTasks):
+
+        # One email per user, no duplication
+        if await self.user_service.get_by_email(data["email"]):
+            self.logger.warning(
+                Settings.SECURITY_EVENT_LABEL,
+                detail=f"EMAIL {data["email"]} ALREADY EXIST"
+            )
+
+            raise HTTPException(400, "Invalid Credential")
+
+        # Unique username
+        if await self.user_service.get_by_username(data["username"]):
+            self.logger.warning(
+                Settings.SECURITY_EVENT_LABEL,
+                detail=f"USERNAME {data["username"]} ALREADY EXIST"
+            )
+
+            raise HTTPException(400, "Invalid Credential")
+
+        user = User(username=data["username"], email=data["email"])
+
+        # This method hash the password
+        user.set_password(data["password"])
+
+        # Create user and get the id
+        user_id = await self.user_service.create_user(user.to_dict())
+        user._id = user_id
+
+        # Send email to validate the user email address in background
+        background_tasks.add_task(email_processing, user, self.email_validation_repository)
+
+        self.logger.info(
+            Settings.SECURITY_EVENT_LABEL,
+            detail=f"USER CREATED SUCCESSFULLY",
+            user_id=str(user._id)
+        )
+
+        # retrieve user id
+        return user._id
 
     """
         Authenticate a user
@@ -46,6 +92,8 @@ class AuthenticationService:
     """
 
     async def login(self, data: dict):
+
+        user = None
 
         # If the request provide a username attribute, the login is performed with username
         if data.get("username"):
@@ -97,24 +145,37 @@ class AuthenticationService:
     """
 
     async def refresh_token(self, data: dict):
-        rotation_data = await self.refresh_token_service.rotate_refresh_token(
-            data["refresh_token"]
-        )
+
+        refresh_token = await self.refresh_token_service.is_refresh_token_valid(data["refresh_token"])
+
+        user_id = str(refresh_token.user_id)
+
+        # ROTATE
+        # Generate new refresh token
+        new_refresh = await self.refresh_token_service.create_refresh_token(user_id)
+
+        new_hash = hash_token(new_refresh["raw_token"])
+
+        # Revoke the old token
+        await self.refresh_token_service.update_refresh_token(refresh_token._id, new_hash)
 
         # Generate new access token
-        new_access = create_access_token(rotation_data["user_id"])
+        new_access = create_access_token(user_id)
 
         return {
             "access_token": new_access,
-            "refresh_token": rotation_data["refresh_token"],
+            "refresh_token": new_refresh["raw_token"],
         }
 
-    async def validate_email(self, data: dict):
+    async def validate_verification_code(self, data: dict):
+        """
+            This function is used to validate the code users send to verify their email
+        """
         # First we hash the code
         code_hash = hash_token(data.get("code"))
 
         # Now we compare the hashed code and the user with our database record
-        email_validation_code = await self.base_repository.find(
+        email_validation_code = await self.email_validation_repository.find(
             {"user_id": data.get("user_id"), "code_hash": code_hash}
         )
 
@@ -123,7 +184,7 @@ class AuthenticationService:
             raise HTTPException(400, "Invalid or expired code")
 
         # If there is a match we delete code record
-        await self.base_repository.delete(email_validation_code["_id"])
+        await self.email_validation_repository.delete(email_validation_code["_id"])
 
         # And finally we update the user status
         await self.user_service.update_user(data.get("user_id"), {"is_verified": True})
@@ -134,34 +195,44 @@ class AuthenticationService:
         Users can request a new code that will be sent to their email address
     """
 
-    async def resend_validate_email(
+    async def resend_validation_code(
         self, data: dict, background_tasks: BackgroundTasks
     ):
+        """
+            When the user want a new validation code
+        """
 
         # Check whether the user exist
-        user = await self.user_service.get_by_id(data.get("user_id"))
+        user = await self.user_service.get_by_id(data["user_id"])
 
         # If the user does not exist, reject the request
         if not user:
             self.logger.warning(
                 Settings.SECURITY_EVENT_LABEL,
-                detail="EMAIL SENDING: THERE IS NO RECORD FOR THE SPECIFIED USER ID",
+                detail="EMAIL SENDING: THERE IS NO RECORD FOR THE SPECIFIED USER ID IN USER COLLECTION",
+            )
+            raise HTTPException(400, "Unable to proceed")
+
+        if user["is_verified"]:
+            self.logger.warning(
+                Settings.SECURITY_EVENT_LABEL,
+                detail="EMAIL SENDING: USER ALREADY VERIFIED"
             )
             raise HTTPException(400, "Unable to proceed")
 
         # Get the validation code record
-        email_validation_code = await self.base_repository.find(
+        email_validation_code = await self.email_validation_repository.find(
             {"user_id": str(user["_id"])}
         )
 
         # If there is a validation code with the provided user id, delete it
         if email_validation_code:
-            await self.base_repository.delete(str(email_validation_code["_id"]))
+            await self.email_validation_repository.delete(str(email_validation_code["_id"]))
 
         user = User(**user)
 
         # Send email to validate the user email address in background
-        background_tasks.add_task(email_processing, user, self.base_repository)
+        background_tasks.add_task(email_processing, user, self.email_validation_repository)
 
         return "Email Resent"
 
@@ -215,7 +286,7 @@ class AuthenticationService:
 
         # Hash the password
         user = User(**user)
-        user.set_password(data["password"])
+        user.set_password(data["new_password"])
 
         # Increment auth_version
         user.auth_version += 1

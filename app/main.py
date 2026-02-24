@@ -1,7 +1,9 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from app.api.v1.user_controller import router as user_router
-from app.core.logging.logging_config import configure_logging
+from app.api.v1.authentication_controller import router as authentication_router
+from app.core.config import Settings
+from app.core.logging.logger import get_logger
+from app.core.logging.logging_config import logging_config
 from app.core.exception_config import ExceptionConfig
 from app.middleware.logging_middleware import LoggingMiddleware
 from app.database.motor import db
@@ -9,17 +11,26 @@ from app.database.init_indexes import init_indexes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Execute these lines before the application start
+    # Execute these lines when the application is starting
+
     # Initialize logging
-    configure_logging()
+    logging_config()
+
+    logger = get_logger("startup")
+    logger.info("Starting authentication API")
+    logger.info(f"Environment: {Settings.ENV}")
+    logger.info(f"Database: {str(db.client.address)}")
     # Load indexes
     await init_indexes(db)
+    logger.info("Database indexes initialized")
+
     yield
-    # Execute these lines before the application stop
+    # Execute these lines when the application is stopping
+    logger.info("Shutting down authentication API")
 
 my_app = FastAPI(lifespan=lifespan)
 
-my_app.include_router(user_router)
+my_app.include_router(authentication_router)
 ExceptionConfig(my_app)
 my_app.add_middleware(LoggingMiddleware)
 

@@ -15,18 +15,18 @@ from app.repositories.refresh_token_repository import RefreshTokenRepository
 from app.repositories.password_recovery_token_repository import (
     PasswordRecoveryTokenRepository,
 )
-from app.services.authentication_service import AuthenticationService
-from app.services.user_service import UserService
-from app.services.refresh_token_service import RefreshTokenService
-from app.services.password_recovery_token_service import PasswordRecoveryTokenService
+from app.services.core_services.authentication.authentication_service import AuthenticationService
+from app.services.model_schema_services.user_service import UserService
+from app.services.model_schema_services.refresh_token_service import RefreshTokenService
+from app.services.model_schema_services.password_recovery_token_service import PasswordRecoveryTokenService
 
+from app.core.config import Settings
 from app.database.motor import db
 from app.utils.resources import api_response
 
 # from app.utils.jwt import verify_access_token
 
-router = APIRouter(prefix="/users/auth", tags=["users"])
-
+router = APIRouter(prefix=f"{Settings.API_PREFIX}/authenticate")
 
 
 # Dependency: base repository
@@ -51,40 +51,39 @@ def get_password_recovery_token_repository():
 
 # Dependency: user service
 def get_user_service(
-    repo: UserRepository = Depends(get_user_repository),
-    email_validation_repository: BaseRepository = Depends(get_email_validation_repository),
+        repo: UserRepository = Depends(get_user_repository)
 ):
-    return UserService(repo, email_validation_repository)
+    return UserService(repo)
 
 
 # Dependency: refreshToken service
 def get_refresh_token_service(
-    refresh_token_repo: RefreshTokenRepository = Depends(get_refresh_token_repository),
-    user_repo: UserRepository = Depends(get_user_repository)
+        refresh_token_repo: RefreshTokenRepository = Depends(get_refresh_token_repository),
+        user_repo: UserRepository = Depends(get_user_repository)
 ):
     return RefreshTokenService(refresh_token_repo, user_repo)
 
 
 # Dependency: passwordRecovery service
 def get_password_recovery_token_service(
-    repo: PasswordRecoveryTokenRepository = Depends(
-        get_password_recovery_token_repository
-    ),
+        repo: PasswordRecoveryTokenRepository = Depends(
+            get_password_recovery_token_repository
+        ),
 ):
     return PasswordRecoveryTokenService(repo)
 
 
 # Dependency: authentication service
 def get_auth_service(
-    user_service: UserService = Depends(get_user_service),
-    refresh_token: RefreshTokenService = Depends(get_refresh_token_service),
-    base_repo: BaseRepository = Depends(get_email_validation_repository),
-    password_recovery_token_service: PasswordRecoveryTokenService = Depends(
-        get_password_recovery_token_service
-    ),
+        user_service: UserService = Depends(get_user_service),
+        refresh_token: RefreshTokenService = Depends(get_refresh_token_service),
+        email_validation_repository: BaseRepository = Depends(get_email_validation_repository),
+        password_recovery_token_service: PasswordRecoveryTokenService = Depends(
+            get_password_recovery_token_service
+        ),
 ):
     return AuthenticationService(
-        user_service, refresh_token, base_repo, password_recovery_token_service
+        user_service, refresh_token, password_recovery_token_service, email_validation_repository
     )
 
 
@@ -95,12 +94,11 @@ def get_auth_service(
 
 @router.post("/register", response_model=dict)
 async def user_registration(
-    user: UserSignUpSchema,
-    background_tasks: BackgroundTasks,
-    service: UserService = Depends(get_user_service),
+        user: UserSignUpSchema,
+        background_tasks: BackgroundTasks,
+        authentication_service: AuthenticationService = Depends(get_auth_service)
 ):
-
-    user_id = await service.user_registration(user.model_dump(), background_tasks)
+    user_id = await authentication_service.user_registration(user.model_dump(), background_tasks)
     return api_response(
         success=True, data={"user_id": user_id}, message="User created successfully"
     )
@@ -113,10 +111,10 @@ async def user_registration(
 
 @router.post("/login", response_model=dict)
 async def user_login(
-    user: UserSignInSchema, authentication: AuthenticationService = Depends(get_auth_service)
+        user: UserSignInSchema,
+        authentication_service: AuthenticationService = Depends(get_auth_service)
 ):
-
-    auth_token = await authentication.login(user.model_dump())
+    auth_token = await authentication_service.login(user.model_dump())
 
     return api_response(success=True, data=auth_token)
 
@@ -124,10 +122,12 @@ async def user_login(
 """
     The endpoint that will log users out
 """
+
+
 @router.post("/logout", response_model=dict)
-async def logout(user: UserLogOutSchema, authentication: AuthenticationService = Depends(get_auth_service)):
-    result = await authentication.logout(user.model_dump())
-    
+async def logout(user: UserLogOutSchema, authentication_service: AuthenticationService = Depends(get_auth_service)):
+    result = await authentication_service.logout(user.model_dump())
+
     return api_response(success=True, data=result)
 
 
@@ -138,10 +138,9 @@ async def logout(user: UserLogOutSchema, authentication: AuthenticationService =
 
 @router.post("/validate_email", response_model=dict)
 async def validate_email(
-    data: EmailValidationCodeSubmit, authentication: AuthenticationService = Depends(get_auth_service)
+        data: EmailValidationCodeSubmit, authentication_service: AuthenticationService = Depends(get_auth_service)
 ):
-
-    result = await authentication.validate_email(data.model_dump())
+    result = await authentication_service.validate_verification_code(data.model_dump())
 
     return api_response(success=True, data=result)
 
@@ -153,12 +152,11 @@ async def validate_email(
 
 @router.post("/validate_email/retry", response_model=dict)
 async def retry(
-    data: EmailValidationCodeRetry,
-    background_tasks: BackgroundTasks,
-    authentication: AuthenticationService = Depends(get_auth_service),
+        data: EmailValidationCodeRetry,
+        background_tasks: BackgroundTasks,
+        authentication_service: AuthenticationService = Depends(get_auth_service),
 ):
-
-    result = await authentication.resend_validate_email(data.model_dump(), background_tasks)
+    result = await authentication_service.resend_validation_code(data.model_dump(), background_tasks)
 
     return api_response(success=True, message=result)
 
@@ -170,10 +168,10 @@ async def retry(
 
 @router.post("/refresh")
 async def refresh_token(
-    refresh_token: RefreshTokenSchema,
-    auth_service: AuthenticationService = Depends(get_auth_service),
+        refresh_token: RefreshTokenSchema,
+        authentication_service: AuthenticationService = Depends(get_auth_service),
 ):
-    new_tokens = await auth_service.refresh_token(refresh_token.model_dump())
+    new_tokens = await authentication_service.refresh_token(refresh_token.model_dump())
 
     return api_response(success="True", message="New Token Generated", data=new_tokens)
 
@@ -185,11 +183,10 @@ async def refresh_token(
 
 @router.post("/password_recovery/forgot")
 async def password_forgot(
-    password_recovery_confirm_email: PasswordRecoveryConfirmEmailSchema,
-    authentication: AuthenticationService = Depends(get_auth_service),
+        password_recovery_confirm_email: PasswordRecoveryConfirmEmailSchema,
+        authentication_service: AuthenticationService = Depends(get_auth_service),
 ):
-
-    password_recovery_token = await authentication.password_recovery_confirm_email(
+    password_recovery_token = await authentication_service.password_recovery_confirm_email(
         password_recovery_confirm_email.model_dump()
     )
 
@@ -207,18 +204,17 @@ async def password_forgot(
 
 @router.post("/password_recovery/reset")
 async def password_reset(
-    password_recovery_reset_password: PasswordRecoveryResetPasswordSchema,
-    authentication: AuthenticationService = Depends(get_auth_service),
+        password_recovery_reset_password: PasswordRecoveryResetPasswordSchema,
+        authentication_service: AuthenticationService = Depends(get_auth_service),
 ):
-    result = await authentication.password_recovery_reset_password(password_recovery_reset_password.model_dump())
-    
+    result = await authentication_service.password_recovery_reset_password(password_recovery_reset_password.model_dump())
+
     return api_response(
-        success= True,
-        message= result,
+        success=True,
+        message=result,
     )
 
-
-# Used this endpoint to test tokens. Remember this api is a stand alone login api, it does nothing else. Protected endpoints will in YOUR backend. The backend of your app
+# Used this endpoint to test tokens. Remember this api is a standalone login api, it does nothing else. Protected endpoints will in YOUR backend. The backend of your app
 # @router.get("/protected")
 # async def protected(user_id: str = Depends(verify_access_token)):
 #     return api_response(success=True, data={"user_id": user_id}, message="ACCESS GRANTED")

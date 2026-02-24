@@ -36,7 +36,7 @@ def create_access_token(user_id: str):
     return jwt.encode(payload.model_dump(), PRIVATE_KEY, algorithm=ALGORITHM)
 
 """
-    Here we validate tokens
+    Token validation. Only for test purpose
 """
 # def verify_access_token(http_credentials: HTTPAuthorizationCredentials = Depends(security)):
 #     try:

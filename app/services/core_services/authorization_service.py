@@ -1,5 +1,5 @@
-from app.services.role_service import RoleService
-from app.services.permission_service import PermissionService
+from app.services.model_schema_services.role_service import RoleService
+from app.services.model_schema_services.permission_service import PermissionService
 
 class AuthorizationService:
     def __init__(self, role_service: RoleService, permission_service: PermissionService):

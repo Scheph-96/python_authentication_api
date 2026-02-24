@@ -4,9 +4,11 @@ import os
 load_dotenv()
 
 class Settings:
+    #################### CONFIG SETTINGS ####################
     MONGO_URI: str = os.getenv("MONGO_URI")
     MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME")
     ENV: str = os.getenv("ENV")
+    API_PREFIX: str = os.getenv("API_PREFIX")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
     REFRESH_TOKEN_EXPIRE_DAYS: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS"))
     COMPANY_NAME: str = os.getenv("COMPANY_NAME")
@@ -18,4 +20,8 @@ class Settings:
     SMTP_FROM: str = os.getenv("SMTP_FROM")
     SECURITY_EVENT_LABEL = "AuthSecurityEvent"
     OPERATION_SUCCESS_EVENT_LABEL = "OperationSuccess"
+
+    #################### REGISTRATION PIPELINE SETTINGS ####################
+    EMAIL_VERIFICATION: bool = True
+    ROLE_ASSIGNMENT: bool = True
 settings = Settings()

@@ -1,4 +1,7 @@
 from datetime import datetime
+
+from app.core.config import Settings
+from app.core.logging.logger import get_logger
 from app.models.password_recovery_token_model import PasswordRecoveryToken
 from app.schemas.password_recovery_token_schema import PasswordRecoveryResetPasswordSchema
 from app.repositories.password_recovery_token_repository import PasswordRecoveryTokenRepository
@@ -10,6 +13,7 @@ class PasswordRecoveryTokenService:
     
     def __init__(self, repo: PasswordRecoveryTokenRepository):
         self.repo = repo
+        self.logger = get_logger("PasswordRecoveryTokenService")
         
     async def create_password_recovery_token(self, user_id: str):
         # Generate the recovery token

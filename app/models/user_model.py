@@ -9,13 +9,22 @@ from bson import ObjectId
 passwordHash = PasswordHasher()
 
 class User:
-    def __init__(self,username: str, email: str, auth_version: int = 0, _id: ObjectId = None, hashed_password: str | None = None, effective_permissions: list = [], is_verified:bool = False, created_at: datetime | None = None):
+    def __init__(
+            self,
+            username: str,
+            email: str,
+            auth_version: int = 0,
+            _id: ObjectId = None,
+            hashed_password: str | None = None,
+            effective_permissions: list = None,
+            is_verified:bool = False,
+            created_at: datetime | None = None):
         self.username = username
         self.email = email
         self.auth_version = auth_version
         self._id = _id
         self.hashed_password = hashed_password
-        self.effective_permissions: effective_permissions
+        self.effective_permissions= effective_permissions
         self.is_verified = is_verified
         self.created_at = created_at or datetime.now(timezone.utc)
         

@@ -1,4 +1,4 @@
-from app.core.config import settings
+from app.core.config import settings, Settings
 from app.core.logging.logger import get_logger
 from email.message import EmailMessage
 from app.models.user_model import User

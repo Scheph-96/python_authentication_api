@@ -6,4 +6,4 @@ class PasswordRecoveryConfirmEmailSchema(BaseSchema):
     
 class PasswordRecoveryResetPasswordSchema(BaseSchema):
     token: str
-    password: str
+    new_password: str

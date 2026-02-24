@@ -6,7 +6,7 @@ from logging.handlers import RotatingFileHandler
 from app.core.config import Settings
 from pathlib import Path
 
-def configure_logging():
+def logging_config():
     """
         The whole logging system structure, condole/file handler, formatting etc...
     """
@@ -45,9 +45,8 @@ def configure_logging():
     
     # If we call configure_logging() multiple times (reload, tests), handlers will duplicate and logs will appear multiple times.
     
-    # Remove default hanlders
+    # Remove default handlers
     for i in root_logger.handlers[:]:
-        print("Handler: ", i)
         root_logger.removeHandler(i)
     
     root_logger.setLevel(log_level)
