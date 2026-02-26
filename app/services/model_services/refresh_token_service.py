@@ -1,12 +1,12 @@
 from bson import ObjectId
-from app.repositories.refresh_token_repository import RefreshTokenRepository
-from app.repositories.user_repository import UserRepository
+from app.repositories.authentication_repositories.refresh_token_repository import RefreshTokenRepository
+from app.repositories.authentication_repositories.user_repository import UserRepository
 from app.core.config import Settings
 from app.core.logging.logger import get_logger
-from app.models.refresh_token_model import RefreshToken
+from app.models.core_model.refresh_token_model import RefreshToken
 from app.utils.jwt import hash_token
 from fastapi import HTTPException
-from datetime import datetime, timezone
+from datetime import datetime
 import secrets
 
 class RefreshTokenService:

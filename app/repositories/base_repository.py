@@ -1,7 +1,9 @@
 from bson import ObjectId
+from motor.motor_asyncio import AsyncIOMotorCollection
+
 
 class BaseRepository:
-    def __init__(self, collection):
+    def __init__(self, collection: AsyncIOMotorCollection):
         self.collection = collection
         
     async def create(self, data: dict):
@@ -11,8 +13,8 @@ class BaseRepository:
     async def find_by_id(self, id: str):
         return await self.collection.find_one({"_id": ObjectId(id)})
     
-    async def find(self, data: dict):
-        return await self.collection.find_one(data)
+    async def find_all(self):
+        return self.collection.find({})
     
     async def update(self, id: str, data: dict):
         await self.collection.update_one({"_id": ObjectId(id)}, {"$set": data})

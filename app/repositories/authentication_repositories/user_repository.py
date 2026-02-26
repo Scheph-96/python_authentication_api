@@ -1,7 +1,8 @@
 from bson import ObjectId
+from motor.motor_asyncio import AsyncIOMotorCollection
 
 class UserRepository:
-    def __init__(self, collection):
+    def __init__(self, collection: AsyncIOMotorCollection):
         self.collection = collection
         
     async def find_by_email(self, email: str):

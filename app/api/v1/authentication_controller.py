@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, BackgroundTasks
 from app.schemas.user_schema import UserSignUpSchema, UserSignInSchema, UserLogOutSchema
-from app.schemas.email_validation_code import (
+from app.schemas.email_validation_code_schema import (
     EmailValidationCodeSubmit,
     EmailValidationCodeRetry,
 )
@@ -10,9 +10,9 @@ from app.schemas.password_recovery_token_schema import (
     PasswordRecoveryResetPasswordSchema,
 )
 from app.repositories.base_repository import BaseRepository
-from app.repositories.user_repository import UserRepository
-from app.repositories.refresh_token_repository import RefreshTokenRepository
-from app.repositories.password_recovery_token_repository import (
+from app.repositories.authentication_repositories.user_repository import UserRepository
+from app.repositories.authentication_repositories.refresh_token_repository import RefreshTokenRepository
+from app.repositories.authentication_repositories.password_recovery_token_repository import (
     PasswordRecoveryTokenRepository,
 )
 from app.services.core_services.authentication.authentication_service import AuthenticationService
@@ -138,7 +138,8 @@ async def logout(user: UserLogOutSchema, authentication_service: AuthenticationS
 
 @router.post("/validate_email", response_model=dict)
 async def validate_email(
-        data: EmailValidationCodeSubmit, authentication_service: AuthenticationService = Depends(get_auth_service)
+        data: EmailValidationCodeSubmit,
+        authentication_service: AuthenticationService = Depends(get_auth_service)
 ):
     result = await authentication_service.validate_verification_code(data.model_dump())
 

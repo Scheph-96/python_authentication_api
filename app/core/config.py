@@ -14,7 +14,7 @@ class Settings:
     COMPANY_NAME: str = os.getenv("COMPANY_NAME")
     ISSUER: str = os.getenv("ISSUER")
     SMTP_HOST: str = os.getenv("SMTP_HOST")
-    SMTP_PORT: str = os.getenv("SMTP_PORT")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT"))
     SMTP_USER: str = os.getenv("SMTP_USER")
     SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD")
     SMTP_FROM: str = os.getenv("SMTP_FROM")
@@ -24,4 +24,5 @@ class Settings:
     #################### REGISTRATION PIPELINE SETTINGS ####################
     EMAIL_VERIFICATION: bool = True
     ROLE_ASSIGNMENT: bool = True
+
 settings = Settings()

@@ -1,4 +1,4 @@
-from app.repositories.role_repository import RoleRepository
+from app.repositories.authorization_repositories.role_repository import RoleRepository
 
 class RoleService:
     def __init__(self, role_repository: RoleRepository):

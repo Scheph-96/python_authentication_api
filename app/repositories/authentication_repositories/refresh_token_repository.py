@@ -1,8 +1,9 @@
 from datetime import datetime, timezone
 from bson import ObjectId
+from motor.motor_asyncio import AsyncIOMotorCollection
 
 class RefreshTokenRepository:
-    def __init__(self, collection):
+    def __init__(self, collection: AsyncIOMotorCollection):
         self.collection = collection
         
     async def create(self, refresh_token_entry: dict):

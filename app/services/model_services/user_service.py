@@ -1,5 +1,5 @@
 from app.core.logging.logger import get_logger
-from app.repositories.user_repository import UserRepository
+from app.repositories.authentication_repositories.user_repository import UserRepository
 
 
 """
