@@ -69,13 +69,16 @@ class EmailValidationCodeService:
 
         return email_validation_code.user_id
 
+    async def get(self, data: dict):
+        return await self.repo.find(data)
+
     async def get_by_hash(self, code_hash: str):
         return await self.repo.find_by_hash(code_hash)
 
     async def get_by_user_id(self, user_id: str):
         return await self.repo.find_by_user_id(user_id)
 
-    async def update_email_validation_code(self, email_validation_code_id: str):
+    async def invalidate_code_email_validation_code(self, email_validation_code_id: str):
         await self.repo.invalidate_code(email_validation_code_id)
 
     async def delete_email_validation_code(self, email_validation_code_id):

@@ -7,7 +7,7 @@ class PasswordRecoveryTokenRepository(BaseRepository):
         return await self.collection.find_one({"token_hash": token_hash})
 
     async def find_by_user_id(self, user_id: str):
-        return await self.collection.find_one({"_id": ObjectId(user_id)})
+        return await self.collection.find_one({"user_id": ObjectId(user_id)})
 
     async def invalidate_token(self, recovery_token_id: str):
         await self.collection.update_one({"_id": ObjectId(recovery_token_id)}, {"$set": {"is_used": True}})

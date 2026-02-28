@@ -1,27 +1,29 @@
 from fastapi import APIRouter, Depends, BackgroundTasks
-from app.schemas.user_schema import UserSignUpSchema, UserSignInSchema, UserLogOutSchema
+
+from app.core.config import Settings
+from app.database.motor import db
+from app.models.dependencies_model.authentication_dependencies import AuthenticationDependencies
+from app.repositories.authentication_repositories.email_validation_code_repository import EmailValidationCodeRepository
+from app.repositories.authentication_repositories.password_recovery_token_repository import (
+    PasswordRecoveryTokenRepository,
+)
+from app.repositories.authentication_repositories.refresh_token_repository import RefreshTokenRepository
+from app.repositories.authentication_repositories.user_repository import UserRepository
 from app.schemas.email_validation_code_schema import (
     EmailValidationCodeSubmit,
     EmailValidationCodeRetry,
 )
-from app.schemas.refresh_token_schema import RefreshTokenSchema
 from app.schemas.password_recovery_token_schema import (
     PasswordRecoveryConfirmEmailSchema,
     PasswordRecoveryResetPasswordSchema,
 )
-from app.repositories.base_repository import BaseRepository
-from app.repositories.authentication_repositories.user_repository import UserRepository
-from app.repositories.authentication_repositories.refresh_token_repository import RefreshTokenRepository
-from app.repositories.authentication_repositories.password_recovery_token_repository import (
-    PasswordRecoveryTokenRepository,
-)
+from app.schemas.refresh_token_schema import RefreshTokenSchema
+from app.schemas.user_schema import UserSignUpSchema, UserSignInSchema, UserLogOutSchema
 from app.services.core_services.authentication.authentication_service import AuthenticationService
-from app.services.model_schema_services.user_service import UserService
-from app.services.model_schema_services.refresh_token_service import RefreshTokenService
-from app.services.model_schema_services.password_recovery_token_service import PasswordRecoveryTokenService
-
-from app.core.config import Settings
-from app.database.motor import db
+from app.services.model_services.email_validation_code_service import EmailValidationCodeService
+from app.services.model_services.password_recovery_token_service import PasswordRecoveryTokenService
+from app.services.model_services.refresh_token_service import RefreshTokenService
+from app.services.model_services.user_service import UserService
 from app.utils.resources import api_response
 
 # from app.utils.jwt import verify_access_token
@@ -31,7 +33,7 @@ router = APIRouter(prefix=f"{Settings.API_PREFIX}/authenticate")
 
 # Dependency: base repository
 def get_email_validation_repository():
-    return BaseRepository(db.email_validation_code)
+    return EmailValidationCodeRepository(db.email_validation_code)
 
 
 # Dependency: user repository
@@ -47,6 +49,13 @@ def get_refresh_token_repository():
 # Dependency: passwordRecoveryToken repository
 def get_password_recovery_token_repository():
     return PasswordRecoveryTokenRepository(db.password_recovery_tokens)
+
+
+# Dependency: emailValidation Service
+def get_email_validation_code_service(
+        repo: EmailValidationCodeRepository = Depends(get_email_validation_repository)
+):
+    return EmailValidationCodeService(repo)
 
 
 # Dependency: user service
@@ -75,15 +84,19 @@ def get_password_recovery_token_service(
 
 # Dependency: authentication service
 def get_auth_service(
+        background_tasks: BackgroundTasks = Depends(BackgroundTasks()),
         user_service: UserService = Depends(get_user_service),
-        refresh_token: RefreshTokenService = Depends(get_refresh_token_service),
-        email_validation_repository: BaseRepository = Depends(get_email_validation_repository),
+        refresh_token_service: RefreshTokenService = Depends(get_refresh_token_service),
         password_recovery_token_service: PasswordRecoveryTokenService = Depends(
             get_password_recovery_token_service
         ),
+        email_validation_code_service: EmailValidationCodeService = Depends(get_email_validation_code_service),
 ):
     return AuthenticationService(
-        user_service, refresh_token, password_recovery_token_service, email_validation_repository
+        AuthenticationDependencies(user_service=user_service, refresh_token_service=refresh_token_service,
+                                   password_recovery_token_service=password_recovery_token_service,
+                                   email_validation_code_service=email_validation_code_service,
+                                   background_tasks=background_tasks)
     )
 
 
@@ -95,10 +108,9 @@ def get_auth_service(
 @router.post("/register", response_model=dict)
 async def user_registration(
         user: UserSignUpSchema,
-        background_tasks: BackgroundTasks,
         authentication_service: AuthenticationService = Depends(get_auth_service)
 ):
-    user_id = await authentication_service.user_registration(user.model_dump(), background_tasks)
+    user_id = await authentication_service.user_registration(user.model_dump())
     return api_response(
         success=True, data={"user_id": user_id}, message="User created successfully"
     )
@@ -208,7 +220,8 @@ async def password_reset(
         password_recovery_reset_password: PasswordRecoveryResetPasswordSchema,
         authentication_service: AuthenticationService = Depends(get_auth_service),
 ):
-    result = await authentication_service.password_recovery_reset_password(password_recovery_reset_password.model_dump())
+    result = await authentication_service.password_recovery_reset_password(
+        password_recovery_reset_password.model_dump())
 
     return api_response(
         success=True,

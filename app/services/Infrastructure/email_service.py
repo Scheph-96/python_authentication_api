@@ -4,6 +4,9 @@ from app.core.logging.logger import get_logger
 import aiosmtplib
 
 class EmailService:
+    """
+        This class aim to contain everything we need to send email
+    """
     def __init__(self):
         self.logger = get_logger("email_processing")
 

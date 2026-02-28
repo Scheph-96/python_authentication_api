@@ -9,6 +9,9 @@ class BaseRepository:
     async def create(self, data: dict):
         result = await self.collection.insert_one(data)
         return str(result.inserted_id)
+
+    async def find(self, data: dict):
+        return await self.collection.find_one(data)
     
     async def find_by_id(self, id: str):
         return await self.collection.find_one({"_id": ObjectId(id)})
