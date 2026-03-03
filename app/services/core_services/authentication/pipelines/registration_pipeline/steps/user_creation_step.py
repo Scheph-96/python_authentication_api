@@ -5,7 +5,7 @@ from app.core.logging.logger import get_logger
 from app.models.core_model.user_model import User
 from app.models.dependencies_model.authentication_dependencies import AuthenticationDependencies
 from app.models.pipelines_context.registration_context import RegistrationContext
-from app.services.Infrastructure.feature_step import FeatureStep
+from app.models.dependencies_model.feature_step import FeatureStep
 
 
 class UserCreationStep(FeatureStep):

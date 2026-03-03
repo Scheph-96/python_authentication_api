@@ -18,7 +18,7 @@ class User:
             auth_version: int = 0,
             _id: ObjectId = None,
             hashed_password: str | None = None,
-            effective_permissions: list = None,
+            effective_permissions: list | None = list(),
             is_verified: bool = False,
             created_at: datetime | None = None):
         self.username = username

@@ -35,7 +35,7 @@ class AuthenticationService:
         ctx = RegistrationContext(data)
         registration_pipeline = build_registration_pipeline(self.auth_depends)
         ctx = await registration_pipeline.run(ctx)
-        return ctx.user._id
+        return str(ctx.user._id)
 
         # # One email per user, no duplication
         # if await self.auth_depends.user_service.get_by_email(data["email"]):

@@ -1,10 +1,8 @@
 from app.core.config import Settings
 from app.core.logging.logger import get_logger
-from app.models.core_model.email_validation_code_model import EmailValidationCode
 from app.models.dependencies_model.authentication_dependencies import AuthenticationDependencies
 from app.services.Infrastructure.email_service import EmailService
-from app.services.Infrastructure.feature_step import FeatureStep
-from app.utils.jwt import hash_token
+from app.models.dependencies_model.feature_step import FeatureStep
 
 
 class EmailVerificationStep(FeatureStep):
@@ -16,6 +14,7 @@ class EmailVerificationStep(FeatureStep):
     async def run(self, ctx):
         # Send email to validate the user email address in background
         self.auth_depends.background_tasks.add_task(self.send_validation_email, ctx)
+        return ctx
 
     async def send_validation_email(self, ctx):
         # Generate validation code

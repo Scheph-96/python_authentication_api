@@ -29,6 +29,7 @@ from app.utils.resources import api_response
 # from app.utils.jwt import verify_access_token
 
 router = APIRouter(prefix=f"{Settings.API_PREFIX}/authenticate")
+background_tasks = BackgroundTasks()
 
 
 # Dependency: base repository
@@ -84,13 +85,14 @@ def get_password_recovery_token_service(
 
 # Dependency: authentication service
 def get_auth_service(
-        background_tasks: BackgroundTasks = Depends(BackgroundTasks()),
+        background_tasks: BackgroundTasks = background_tasks,
         user_service: UserService = Depends(get_user_service),
         refresh_token_service: RefreshTokenService = Depends(get_refresh_token_service),
         password_recovery_token_service: PasswordRecoveryTokenService = Depends(
             get_password_recovery_token_service
         ),
-        email_validation_code_service: EmailValidationCodeService = Depends(get_email_validation_code_service),
+        email_validation_code_service: EmailValidationCodeService = Depends(
+            get_email_validation_code_service),
 ):
     return AuthenticationService(
         AuthenticationDependencies(user_service=user_service, refresh_token_service=refresh_token_service,

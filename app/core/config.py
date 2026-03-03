@@ -22,7 +22,7 @@ class Settings:
     OPERATION_SUCCESS_EVENT_LABEL = "OperationSuccess"
 
     #################### REGISTRATION PIPELINE SETTINGS ####################
-    EMAIL_VERIFICATION: bool = True
-    ROLE_ASSIGNMENT: bool = True
+    EMAIL_VERIFICATION: bool = False
+    ROLE_ASSIGNMENT: bool = False
 
 settings = Settings()
