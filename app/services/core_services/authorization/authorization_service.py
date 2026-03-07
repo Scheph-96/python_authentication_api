@@ -1,10 +1,13 @@
-from app.services.model_schema_services.role_service import RoleService
-from app.services.model_schema_services.permission_service import PermissionService
+from app.core.logging.logger import get_logger
+from app.models.dependencies_model.authorization_dependencies import AuthorizationDependencies
+from app.services.core_services.authorization.model_services.permission_service import PermissionService
+from app.services.core_services.authorization.model_services.role_service import RoleService
+
 
 class AuthorizationService:
-    def __init__(self, role_service: RoleService, permission_service: PermissionService):
-        self.role_service = role_service,
-        self.permission_service = permission_service
+    def __init__(self, autho_depends: AuthorizationDependencies):
+        self.autho_depends = autho_depends
+        self.logger = get_logger("AuthorizationService")
     
     def assign_role(self):
         pass

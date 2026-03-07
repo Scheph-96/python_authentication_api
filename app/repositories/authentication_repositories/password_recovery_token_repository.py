@@ -1,5 +1,7 @@
 from bson import ObjectId
+
 from app.repositories.base_repository import BaseRepository
+
 
 class PasswordRecoveryTokenRepository(BaseRepository):
 

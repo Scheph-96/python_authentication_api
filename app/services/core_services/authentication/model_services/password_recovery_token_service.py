@@ -5,7 +5,7 @@ from fastapi import HTTPException
 
 from app.core.config import Settings
 from app.core.logging.logger import get_logger
-from app.models.core_model.password_recovery_token_model import PasswordRecoveryToken
+from app.models.core_model.authentication_model.password_recovery_token_model import PasswordRecoveryToken
 from app.repositories.authentication_repositories.password_recovery_token_repository import \
     PasswordRecoveryTokenRepository
 from app.utils.jwt import hash_token

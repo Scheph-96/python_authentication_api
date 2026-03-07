@@ -21,8 +21,11 @@ class Settings:
     SECURITY_EVENT_LABEL = "AuthSecurityEvent"
     OPERATION_SUCCESS_EVENT_LABEL = "OperationSuccess"
 
-    #################### REGISTRATION PIPELINE SETTINGS ####################
-    EMAIL_VERIFICATION: bool = False
+    #################### PIPELINE SETTINGS ####################
+    # Set to true to enable or false to disable
+
+    # -------------- REGISTRATION -------------- #
+    EMAIL_VALIDATION: bool = False
     ROLE_ASSIGNMENT: bool = False
 
 settings = Settings()

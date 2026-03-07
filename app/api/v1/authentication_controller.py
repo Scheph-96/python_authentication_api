@@ -20,10 +20,10 @@ from app.schemas.password_recovery_token_schema import (
 from app.schemas.refresh_token_schema import RefreshTokenSchema
 from app.schemas.user_schema import UserSignUpSchema, UserSignInSchema, UserLogOutSchema
 from app.services.core_services.authentication.authentication_service import AuthenticationService
-from app.services.model_services.email_validation_code_service import EmailValidationCodeService
-from app.services.model_services.password_recovery_token_service import PasswordRecoveryTokenService
-from app.services.model_services.refresh_token_service import RefreshTokenService
-from app.services.model_services.user_service import UserService
+from app.services.core_services.authentication.model_services.email_validation_code_service import EmailValidationCodeService
+from app.services.core_services.authentication.model_services.password_recovery_token_service import PasswordRecoveryTokenService
+from app.services.core_services.authentication.model_services.refresh_token_service import RefreshTokenService
+from app.services.core_services.authentication.model_services.user_service import UserService
 from app.utils.resources import api_response
 
 # from app.utils.jwt import verify_access_token
@@ -32,7 +32,10 @@ router = APIRouter(prefix=f"{Settings.API_PREFIX}/authenticate")
 background_tasks = BackgroundTasks()
 
 
-# Dependency: base repository
+########################################### DEPENDENCIES ###########################################
+
+
+# Dependency: emailValidation repository
 def get_email_validation_repository():
     return EmailValidationCodeRepository(db.email_validation_code)
 
@@ -85,7 +88,6 @@ def get_password_recovery_token_service(
 
 # Dependency: authentication service
 def get_auth_service(
-        background_tasks: BackgroundTasks = background_tasks,
         user_service: UserService = Depends(get_user_service),
         refresh_token_service: RefreshTokenService = Depends(get_refresh_token_service),
         password_recovery_token_service: PasswordRecoveryTokenService = Depends(
@@ -100,6 +102,9 @@ def get_auth_service(
                                    email_validation_code_service=email_validation_code_service,
                                    background_tasks=background_tasks)
     )
+
+
+########################################### ENDPOINTS ###########################################
 
 
 """

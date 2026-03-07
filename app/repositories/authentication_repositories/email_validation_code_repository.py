@@ -1,6 +1,3 @@
-from bson import ObjectId
-from motor.motor_asyncio import AsyncIOMotorCollection
-
 from app.repositories.authentication_repositories.password_recovery_token_repository import \
     PasswordRecoveryTokenRepository
 

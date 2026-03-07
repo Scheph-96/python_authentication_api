@@ -4,7 +4,7 @@ from fastapi import HTTPException
 
 from app.core.config import Settings
 from app.core.logging.logger import get_logger
-from app.models.core_model.email_validation_code_model import EmailValidationCode
+from app.models.core_model.authentication_model.email_validation_code_model import EmailValidationCode
 from app.repositories.authentication_repositories.email_validation_code_repository import EmailValidationCodeRepository
 from app.utils.jwt import hash_token
 from app.utils.resources import code_generator
@@ -24,6 +24,12 @@ class EmailValidationCodeService:
         # Create the model
         email_validation_code = EmailValidationCode(user_id=str(user_id), code_hash=code_hash)
         email_validation_code_id = await self.repo.create(email_validation_code.to_dict())
+
+        self.logger.info(
+            f"{Settings.OPERATION_SUCCESS_EVENT_LABEL}: Email Validation Code Created",
+            user_id=str(user_id),
+            code_hash=code_hash
+        )
 
         return {"raw_code": raw_code, "email_validation_code_id": email_validation_code_id}
 

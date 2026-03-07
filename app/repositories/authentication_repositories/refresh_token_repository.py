@@ -1,21 +1,19 @@
 from datetime import datetime, timezone
-from bson import ObjectId
-from motor.motor_asyncio import AsyncIOMotorCollection
 
-class RefreshTokenRepository:
-    def __init__(self, collection: AsyncIOMotorCollection):
-        self.collection = collection
-        
-    async def create(self, refresh_token_entry: dict):
-        result = await self.collection.insert_one(refresh_token_entry)
-        return result.inserted_id
-    
+from bson import ObjectId
+
+from app.repositories.base_repository import BaseRepository
+
+
+class RefreshTokenRepository(BaseRepository):
+
     async def find_by_hash(self, token_hash: str):
         return await self.collection.find_one({"token_hash": token_hash})
-    
+
     async def revoke(self, token_id: str, replaced_by: str = None):
-        await self.collection.update_one({"_id": ObjectId(token_id)}, {"$set": {"revoked": True, "replaced_by": replaced_by}})
-        
+        await self.collection.update_one({"_id": ObjectId(token_id)},
+                                         {"$set": {"revoked": True, "replaced_by": replaced_by}})
+
     async def delete_expired_revoked(self):
         await self.collection.delete_many({
             "revoke": True,

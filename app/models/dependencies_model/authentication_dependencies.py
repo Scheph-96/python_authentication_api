@@ -1,9 +1,9 @@
 from fastapi import BackgroundTasks
 
-from app.services.model_services.email_validation_code_service import EmailValidationCodeService
-from app.services.model_services.password_recovery_token_service import PasswordRecoveryTokenService
-from app.services.model_services.refresh_token_service import RefreshTokenService
-from app.services.model_services.user_service import UserService
+from app.services.core_services.authentication.model_services.email_validation_code_service import EmailValidationCodeService
+from app.services.core_services.authentication.model_services.password_recovery_token_service import PasswordRecoveryTokenService
+from app.services.core_services.authentication.model_services.refresh_token_service import RefreshTokenService
+from app.services.core_services.authentication.model_services.user_service import UserService
 
 
 class AuthenticationDependencies:

@@ -4,8 +4,8 @@ from fastapi import HTTPException, BackgroundTasks
 from app.core.config import Settings
 from app.core.factories.authentication_factory import build_registration_pipeline
 from app.core.logging.logger import get_logger
-from app.models.core_model.email_validation_code_model import EmailValidationCode
-from app.models.core_model.user_model import User
+from app.models.core_model.authentication_model.email_validation_code_model import EmailValidationCode
+from app.models.core_model.authentication_model.user_model import User
 from app.models.dependencies_model.authentication_dependencies import AuthenticationDependencies
 from app.models.pipelines_context.registration_context import RegistrationContext
 from app.services.Infrastructure.email_service import EmailService
@@ -14,83 +14,42 @@ from app.utils.jwt import create_access_token, hash_token
 
 class AuthenticationService:
     """
-        Here lies all or authentication process. If we want to add other type of authentication it will be here
+        Here lies every authentication process.
+        If we want to add other type of authentication it will be here
 
-        The data here is safe to process, we already went through the sanitization and validation with the Schemas in the controller
+        The data here is safe to process,
+        we already went through the sanitization
+        and validation with the Schemas in the controller
     """
 
-    def __init__(
-            self,
-            auth_depends: AuthenticationDependencies
-    ):
+    def __init__(self, auth_depends: AuthenticationDependencies):
         self.auth_depends = auth_depends
         self.logger = get_logger("AuthenticationService")
 
-    """
-        Create an account for the user
-    """
-
     async def user_registration(self, data: dict):
+        """
+            Create an account for the user
+        :param data: Request data
+        :return: Created user id
+        """
 
+        # Initialize context attributes
         ctx = RegistrationContext(data)
+        # Register all the steps
         registration_pipeline = build_registration_pipeline(self.auth_depends)
+        # Run each step
         ctx = await registration_pipeline.run(ctx)
+
         return str(ctx.user._id)
 
-        # # One email per user, no duplication
-        # if await self.auth_depends.user_service.get_by_email(data["email"]):
-        #     self.logger.warning(
-        #         Settings.SECURITY_EVENT_LABEL,
-        #         detail=f"EMAIL {data["email"]} ALREADY EXIST"
-        #     )
-        #
-        #     raise HTTPException(400, "Invalid Credential")
-        #
-        # # Unique username
-        # if await self.auth_depends.user_service.get_by_username(data["username"]):
-        #     self.logger.warning(
-        #         Settings.SECURITY_EVENT_LABEL,
-        #         detail=f"USERNAME {data["username"]} ALREADY EXIST"
-        #     )
-        #
-        #     raise HTTPException(400, "Invalid Credential")
-        #
-        # user = User(username=data["username"], email=data["email"])
-        #
-        # # This method hash the password
-        # user.set_password(data["password"])
-        #
-        # # Create user and get the id
-        # user_id = await self.auth_depends.user_service.create_user(user.to_dict())
-        # user._id = user_id
-
-        # Send email to validate the user email address in background
-        # background_tasks.add_task(email_processing, user, self.email_validation_repository)
-        #
-        # self.logger.info(
-        #     Settings.SECURITY_EVENT_LABEL,
-        #     detail=f"USER CREATED SUCCESSFULLY",
-        #     user_id=str(user._id)
-        # )
-
-        # retrieve user id
-        # return user._id
-
-    """
-        Authenticate a user
-        
-        We want to log our users in whether with the 
-        email or the username
-
-        Raises:
-            HTTPException: the request body has to contain email or username otherwise the request is rejected
-            
-            HTTPException: if no record match with the provided data we reject the request. No user match thus invalid email or username
-            
-            HTTPException: password verification failed. Invalid password
-    """
-
     async def login(self, data: dict):
+        """
+            Authenticate a user. We want to log our users in whether with the
+            email or the username
+
+        :param data: Request data
+        :return: access_token and refresh_token
+        """
 
         user = None
 
@@ -98,7 +57,7 @@ class AuthenticationService:
         if data.get("username"):
             user = await self.auth_depends.user_service.get_by_username(data["username"])
 
-        # If the request provide a email attribute, the login is performed with the email
+        # If the request provide an email attribute, the login is performed with the email
         elif data.get("email"):
             user = await self.auth_depends.user_service.get_by_email(data["email"])
 
@@ -123,7 +82,7 @@ class AuthenticationService:
         except InvalidHashError:
             self.logger.warning(
                 Settings.SECURITY_EVENT_LABEL,
-                detail="THE HASH IS INVALIDE. EXPIRED OR WRONG ISSUER",
+                detail="THE HASH IS INVALID. EXPIRED OR WRONG ISSUER",
             )
 
             raise HTTPException(401, "Invalid credentials")
@@ -139,11 +98,13 @@ class AuthenticationService:
 
         return {"access_token": access_token, "refresh_token": result["raw_token"]}
 
-    """
-        Validate users account by validating the code sent to their email address
-    """
-
     async def refresh_token(self, data: dict):
+        """
+            Validate users account by validating the code sent to their email address
+
+        :param data: Request data
+        :return: new access_token and new refresh_token
+        """
 
         refresh_token = await self.auth_depends.refresh_token_service.is_refresh_token_valid(data["refresh_token"])
 
@@ -169,6 +130,9 @@ class AuthenticationService:
     async def validate_verification_code(self, data: dict):
         """
             This function is used to validate the code users send to verify their email
+
+        :param data: Request data
+        :return: Confirmation String
         """
 
         # First we hash the code
@@ -187,22 +151,20 @@ class AuthenticationService:
 
         # The code is verified, we mark it as used
         await self.auth_depends.email_validation_code_service.invalidate_code_email_validation_code(
-            email_validation_code._id)
+            str(email_validation_code._id))
 
         # And finally we update user status
         await self.auth_depends.user_service.update_user(data.get("user_id"), {"is_verified": True})
 
         return {"status": "verified"}
 
-    """
-        Users can request a new code that will be sent to their email address
-    """
-
-    async def resend_validation_code(
-            self, data: dict, background_tasks: BackgroundTasks
-    ):
+    async def resend_validation_code(self, data: dict, background_tasks: BackgroundTasks):
         """
-            When the user want a new validation code
+            Users can request a new code that will be sent to their email address
+
+        :param data: Request data
+        :param background_tasks: Object that perform background tasks
+        :return: Confirmation String
         """
 
         # Retrieve user data
@@ -246,12 +208,15 @@ class AuthenticationService:
                                   email_service.verification_email_template_plain_text(result["raw_code"]),
                                   email_service.verification_email_template_html(result["raw_code"]))
 
-        return "Email Resent"
+        return {"status": "Email Resent"}
 
     async def password_recovery_confirm_email(self, data: dict):
         """
             Users provide an email to recover their account and update the password.
             First, we confirm the email and return the recovery process token
+
+        :param data: Request data
+        :return: password_recovery_token
         """
 
         user = await self.auth_depends.user_service.get_by_email(data["email"])
@@ -279,8 +244,10 @@ class AuthenticationService:
 
     async def password_recovery_reset_password(self, data: dict):
         """
-            Second, we receive the token with new password. The token is then marked as used
+            Second, we receive the token with new password. The token is then marked as used,
             and we update user's password
+        :param data: Request data
+        :return: Confirmation message
         """
 
         # Get the user id
@@ -313,13 +280,16 @@ class AuthenticationService:
             auth_version=str(user.auth_version),
         )
 
-        return {"message": "Password updated successfully"}
-
-    """
-        Users login, they have to logout
-    """
+        return {"status": "Password updated"}
 
     async def logout(self, data: dict):
+        """
+            Users login, they have to log out
+
+        :param data: Request data
+        :return:
+        """
+
         refresh_token = await self.auth_depends.refresh_token_service.is_refresh_token_valid(
             data["refresh_token"]
         )
@@ -338,4 +308,4 @@ class AuthenticationService:
             refresh_token_id=str(refresh_token._id),
         )
 
-        return {"logged_out": True}
+        return {"status": "Logged Out"}

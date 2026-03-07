@@ -2,7 +2,7 @@ from fastapi import HTTPException
 
 from app.core.config import Settings
 from app.core.logging.logger import get_logger
-from app.models.core_model.user_model import User
+from app.models.core_model.authentication_model.user_model import User
 from app.models.dependencies_model.authentication_dependencies import AuthenticationDependencies
 from app.models.pipelines_context.registration_context import RegistrationContext
 from app.models.dependencies_model.feature_step import FeatureStep
