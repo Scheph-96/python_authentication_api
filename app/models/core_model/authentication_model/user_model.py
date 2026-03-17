@@ -26,7 +26,7 @@ class User:
         self.auth_version = auth_version
         self._id = _id
         self.hashed_password = hashed_password
-        self.effective_permissions = effective_permissions
+        self.effective_permissions = effective_permissions # this is a cache of permissions related to the user role
         self.is_verified = is_verified
         self.created_at = created_at or datetime.now(timezone.utc)
 

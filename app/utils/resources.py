@@ -1,6 +1,9 @@
 import secrets
 
-def api_response(success, data=None, message="Success"):
+from bson import ObjectId
+
+
+def api_response(success=True, data=None, message="Success"):
     """
         Api response structure
     """
@@ -15,6 +18,30 @@ def code_generator():
         Generate 6 digit code for email validation
     """
     return f"{secrets.randbelow(1_000_000):06}"
+
+def dict_string_to_objectid(data: dict):
+    """
+        convert a dictionary of id strings to ObjectId
+    :param data: dictionary
+    :return:
+    """
+
+    new_dict = {}
+
+    for key, value in data.items():
+        new_dict[key] = ObjectId(value)
+
+    return new_dict
+
+def string_to_objectid(value: str):
+    """
+        convert a string of id to ObjectId
+    :param value: string
+    :return:
+    """
+
+    return ObjectId(value)
+
 
 class DictObj:
     """

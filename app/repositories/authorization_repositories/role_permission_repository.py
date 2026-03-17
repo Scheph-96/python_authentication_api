@@ -5,8 +5,14 @@ from app.repositories.base_repository import BaseRepository
 
 class RolePermissionRepository(BaseRepository):
     
-    def find_by_role_id(self, role_id: str):
-        return self.collection.find({"role_id": ObjectId(role_id)})
+    async def find_by_role_id(self, role_id: str):
+        result = self.collection.find({"role_id": ObjectId(role_id)})
+        return await result.to_list()
+
+    async def find_by_role_ids(self, role_ids: list, options: dict = None):
+        result = self.collection.find({"role_id": {"$in": role_ids}}, options)
+        return await result.to_list()
     
-    def find_by_permission_id(self, permission_id: str):
-        return self.collection.find({"permission_id": ObjectId(permission_id)})
+    async def find_by_permission_id(self, permission_id: str):
+        result = self.collection.find({"permission_id": ObjectId(permission_id)})
+        return await result.to_list()

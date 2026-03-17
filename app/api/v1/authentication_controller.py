@@ -9,16 +9,16 @@ from app.repositories.authentication_repositories.password_recovery_token_reposi
 )
 from app.repositories.authentication_repositories.refresh_token_repository import RefreshTokenRepository
 from app.repositories.authentication_repositories.user_repository import UserRepository
-from app.schemas.email_validation_code_schema import (
+from app.schemas.authentication_schemas.email_validation_code_schema import (
     EmailValidationCodeSubmit,
     EmailValidationCodeRetry,
 )
-from app.schemas.password_recovery_token_schema import (
+from app.schemas.authentication_schemas.password_recovery_token_schema import (
     PasswordRecoveryConfirmEmailSchema,
     PasswordRecoveryResetPasswordSchema,
 )
-from app.schemas.refresh_token_schema import RefreshTokenSchema
-from app.schemas.user_schema import UserSignUpSchema, UserSignInSchema, UserLogOutSchema
+from app.schemas.authentication_schemas.refresh_token_schema import RefreshTokenSchema
+from app.schemas.authentication_schemas.user_schema import UserSignUpSchema, UserSignInSchema, UserLogOutSchema
 from app.services.core_services.authentication.authentication_service import AuthenticationService
 from app.services.core_services.authentication.model_services.email_validation_code_service import EmailValidationCodeService
 from app.services.core_services.authentication.model_services.password_recovery_token_service import PasswordRecoveryTokenService
@@ -186,7 +186,7 @@ async def retry(
 """
 
 
-@router.post("/refresh")
+@router.post("/refresh/tokens")
 async def refresh_token(
         refresh_token: RefreshTokenSchema,
         authentication_service: AuthenticationService = Depends(get_auth_service),

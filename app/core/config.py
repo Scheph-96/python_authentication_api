@@ -26,6 +26,6 @@ class Settings:
 
     # -------------- REGISTRATION -------------- #
     EMAIL_VALIDATION: bool = False
-    ROLE_ASSIGNMENT: bool = False
+    ROLE_ASSIGNMENT: bool = True
 
 settings = Settings()
