@@ -63,7 +63,7 @@ class AuthenticationService:
 
         if not user:
             self.logger.warning(
-                Settings.SECURITY_EVENT_LABEL, detail="INCORRECT EMAIL OR PASSWORD"
+                Settings.SECURITY_EVENT_LABEL, detail="INCORRECT EMAIL OR USERNAME"
             )
 
             raise HTTPException(401, "Invalid credentials")

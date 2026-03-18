@@ -9,7 +9,7 @@ from app.repositories.authorization_repositories.permission_repository import Pe
 from app.repositories.authorization_repositories.role_permission_repository import RolePermissionRepository
 from app.repositories.authorization_repositories.role_repository import RoleRepository
 from app.repositories.authorization_repositories.user_role_repository import UserRoleRepository
-from app.schemas.authorization_schema.assign_role_schema import AssignRoleSchema
+from app.schemas.authorization_schema.role_schema import AssignRoleSchema, CreateRoleSchema
 from app.services.core_services.authentication.model_services.user_service import UserService
 from app.services.core_services.authorization.authorization_service import AuthorizationService
 from app.services.core_services.authorization.model_services.permission_service import PermissionService
@@ -81,8 +81,14 @@ def get_autho_service(
 
 ########################################### ENDPOINTS ###########################################
 
+@router.post("/create_role", response_model=dict)
+async def create_role(create_role_schema: CreateRoleSchema, authorization_service: AuthorizationService = Depends(get_autho_service)):
+    result = await authorization_service.create_role(create_role_schema.model_dump())
+
+    return api_response(data=result, message="Role Created Successfully")
+
 @router.post("/assign_role", response_model=dict)
 async def assign_role(assign_role_schema: AssignRoleSchema, authorization_service: AuthorizationService = Depends(get_autho_service)):
-    result = await authorization_service.assign_role(assign_role_schema.model_dump())
+    result = await authorization_service.assign_role_to_user(assign_role_schema.model_dump())
 
     return api_response(data=result, message="Role Assigned Successfully")

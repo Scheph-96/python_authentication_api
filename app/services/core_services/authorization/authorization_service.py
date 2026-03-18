@@ -12,7 +12,42 @@ class AuthorizationService:
         self.autho_depends = autho_depends
         self.logger = get_logger("AuthorizationService")
 
-    async def assign_role(self, data: dict):
+    async def create_role(self, data: dict):
+        """
+            Creation of a role.
+
+            We allow the creation of roles without permission
+            but to assign that role permission(s) has/ve to
+            be created first.
+
+            A role cannot be assigned without permission
+        :param data:
+        :return:
+        """
+
+        role = await self.autho_depends.role_service.find_role_by_name(data["role_name"])
+
+        # If a role already exist with this name stop the process
+        if role:
+            self.logger.warning(
+                Settings.SECURITY_EVENT_LABEL,
+                role_id=role["_id"],
+                detail="THIS ROLE ALREADY EXIST"
+            )
+            raise HTTPException(401, "Invalid data")
+
+        # Create role and insert in database
+        role_id = await self.autho_depends.role_service.create_role(data)
+
+        self.logger.info(
+            Settings.OPERATION_SUCCESS_EVENT_LABEL,
+            role_id=role_id,
+            detail="ROLE CREATED SUCCESSFULLY"
+        )
+
+        return {"role_id": role_id}
+
+    async def assign_role_to_user(self, data: dict):
 
         # Get the role
         role = await self.autho_depends.role_service.find_role_by_id(data["role_id"])
@@ -22,6 +57,17 @@ class AuthorizationService:
             self.logger.warning(
                 Settings.SECURITY_EVENT_LABEL,
                 detail="ROLE DOES NOT EXIST"
+            )
+            raise HTTPException(400, "Unable to proceed")
+
+        # Does that role has permission(s) ?
+        permission = await self.autho_depends.role_permission_service.find_role_permission_by_role_id(str(role["_id"]))
+
+        # If it doesn't it cannot be assigned
+        if not permission:
+            self.logger.warning(
+                Settings.SECURITY_EVENT_LABEL,
+                detail="ROLE HAS NO PERMISSION THUS CANNOT BE ASSIGNED"
             )
             raise HTTPException(400, "Unable to proceed")
 
@@ -36,7 +82,7 @@ class AuthorizationService:
             )
             raise HTTPException(400, "Unable to proceed")
 
-        # Now we check if the user has the role assigned to it
+        # Now we check if the user has the role assigned to him
         user_role = await self.autho_depends.user_role_service.find_user_role({"role_id": string_to_objectid(data["role_id"]), "user_id": string_to_objectid(data["user_id"])})
 
         # If user_role then the role is already assigned to the user, there is nothing to do
@@ -48,7 +94,7 @@ class AuthorizationService:
             )
             raise HTTPException(400, "Unable to proceed")
 
-        # Now we assign the role to the user
+        # Now we can assign the role to the user
         user_role_id = await self.autho_depends.user_role_service.create_user_role(dict_string_to_objectid(data))
 
         self.logger.info(
@@ -59,14 +105,26 @@ class AuthorizationService:
         )
 
         # Recompute user permissions
-        self.autho_depends.background_tasks.add_task(self._recompute_permission, data["user_id"])
+        self.autho_depends.background_tasks.add_task(self._recompute_permissions, data["user_id"])
 
         return {"user_role_id": user_role_id}
+
+    async def remove_role_from_user(self):
+        pass
+
+    async def delete_role(self):
+        pass
+
+    async def create_permission(self):
+        pass
 
     async def assign_permission_to_role(self):
         pass
 
-    async def _recompute_permission(self, user_id: str):
+    async def remove_permission_from_role(self):
+        pass
+
+    async def _recompute_permissions(self, user_id: str):
         """
             How it works
 
@@ -81,7 +139,6 @@ class AuthorizationService:
             So permission resolution happens at mutation time not at request time
 
         :param user_id: the user to update
-        :return:
         """
 
         user_roles = await self.autho_depends.user_role_service.find_user_role_by_user_id(user_id, options={"_id": 0, "role_id": 1})
@@ -124,10 +181,10 @@ class AuthorizationService:
         # With the permission_id list we get permissions name
         # For each permission_id the name or the label of that
         # permission is returned
-        permissions = await self.autho_depends.permission_service.find_permission_by_ids(permission_ids, {"_id": 0, "name": 1})
+        permissions = await self.autho_depends.permission_service.find_permission_by_ids(permission_ids, {"_id": 0, "permission_name": 1})
 
         # Create a list of permission names
-        permissions = [permission["name"] for permission in permissions]
+        permissions = [permission["permission_name"] for permission in permissions]
 
         # Assign the permissions name list to the user
         # effective_permissions represent a cache of user permissions
