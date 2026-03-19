@@ -9,7 +9,7 @@ class AssignRoleSchema(BaseSchema):
     role_id: str
     user_id: str
 
-class RemoveRoleSchema(AssignRoleSchema):
+class RemoveUserRoleSchema(AssignRoleSchema):
     pass
 
 class DeleteRoleSchema(CreateRoleSchema):

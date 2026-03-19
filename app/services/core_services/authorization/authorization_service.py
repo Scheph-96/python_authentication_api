@@ -17,10 +17,10 @@ class AuthorizationService:
             Creation of a role.
 
             We allow the creation of roles without permission
-            but to assign that role permission(s) has/ve to
+            but to assign that role, permission(s) ha(s/ve) to
             be created first.
 
-            A role cannot be assigned without permission
+            A role cannot be assigned if it doesn't have permission(s)
         :param data:
         :return:
         """
@@ -48,6 +48,13 @@ class AuthorizationService:
         return {"role_id": role_id}
 
     async def assign_role_to_user(self, data: dict):
+        """
+            Assign a role to a user
+
+            A role can only be assigned if it has permission(s)
+        :param data:
+        :return:
+        """
 
         # Get the role
         role = await self.autho_depends.role_service.find_role_by_id(data["role_id"])
@@ -109,8 +116,56 @@ class AuthorizationService:
 
         return {"user_role_id": user_role_id}
 
-    async def remove_role_from_user(self):
-        pass
+    async def remove_user_role(self, data: dict):
+        """
+            Remove a role from a user
+        :param data:
+        :return:
+        """
+
+        # Get the role
+        role = await self.autho_depends.role_service.find_role_by_id(data["role_id"])
+
+        # If the role does not exist we can't proceed
+        if not role:
+            self.logger.warning(
+                Settings.SECURITY_EVENT_LABEL,
+                detail="ROLE DOES NOT EXIST"
+            )
+            raise HTTPException(400, "Unable to proceed")
+
+        # Get the user
+        user = await self.autho_depends.user_service.get_by_id(data["user_id"])
+
+        # If the user does not exist we can't proceed
+        if not user:
+            self.logger.warning(
+                Settings.SECURITY_EVENT_LABEL,
+                detail="USER DOES NOT EXIST"
+            )
+            raise HTTPException(400, "Unable to proceed")
+
+        # Now we check if the user has the role assigned to him
+        user_role = await self.autho_depends.user_role_service.find_user_role(
+            {"role_id": string_to_objectid(data["role_id"]), "user_id": string_to_objectid(data["user_id"])})
+
+        # If no user_role then the user doesn't have this role, there is nothing to do
+        if not user_role:
+            self.logger.warning(
+                Settings.SECURITY_EVENT_LABEL,
+                role_id=data["role_id"],
+                user_id=data["user_id"],
+                detail="USER DOES NOT HAVE THIS ROLE"
+            )
+            raise HTTPException(400, "Unable to proceed")
+
+        # Delete user_role record of that user and the role
+        await self.autho_depends.user_role_service.delete_user_role(str(user_role["_id"]))
+
+        # Recompute user permissions
+        self.autho_depends.background_tasks.add_task(self._recompute_permissions, data["user_id"])
+
+        return {"user_role_id": str(user_role["_id"])}
 
     async def delete_role(self):
         pass
