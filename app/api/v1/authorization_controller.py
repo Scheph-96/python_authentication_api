@@ -9,7 +9,8 @@ from app.repositories.authorization_repositories.permission_repository import Pe
 from app.repositories.authorization_repositories.role_permission_repository import RolePermissionRepository
 from app.repositories.authorization_repositories.role_repository import RoleRepository
 from app.repositories.authorization_repositories.user_role_repository import UserRoleRepository
-from app.schemas.authorization_schema.role_schema import AssignRoleSchema, CreateRoleSchema, RemoveUserRoleSchema
+from app.schemas.authorization_schema.role_schema import AssignRoleSchema, CreateRoleSchema, RemoveUserRoleSchema, \
+    DeleteRoleSchema
 from app.services.core_services.authentication.model_services.user_service import UserService
 from app.services.core_services.authorization.authorization_service import AuthorizationService
 from app.services.core_services.authorization.model_services.permission_service import PermissionService
@@ -99,3 +100,8 @@ async def remove_user_role(remove_user_role_schema: RemoveUserRoleSchema, author
 
     return api_response(data=result, message="Role Removed Successfully")
 
+@router.post("/delete_role", response_model=dict)
+async def delete_role(delete_role_schema: DeleteRoleSchema, authorization_service: AuthorizationService = Depends(get_autho_service)):
+    result = await authorization_service.delete_role(delete_role_schema.model_dump())
+
+    return api_response(data=result, message="Role Deleted Successfully")

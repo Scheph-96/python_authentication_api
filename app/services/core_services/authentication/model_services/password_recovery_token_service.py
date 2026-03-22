@@ -81,4 +81,4 @@ class PasswordRecoveryTokenService:
         await self.repo.invalidate_token(password_recovery_instance_id)
 
     async def delete_password_recovery_token(self, password_recovery_instance_id):
-        await self.repo.delete(password_recovery_instance_id)
+        await self.repo.delete_one(password_recovery_instance_id)

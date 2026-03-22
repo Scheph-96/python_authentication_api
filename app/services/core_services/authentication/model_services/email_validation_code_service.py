@@ -88,4 +88,4 @@ class EmailValidationCodeService:
         await self.repo.invalidate_code(email_validation_code_id)
 
     async def delete_email_validation_code(self, email_validation_code_id):
-        await self.repo.delete(email_validation_code_id)
+        await self.repo.delete_one(email_validation_code_id)

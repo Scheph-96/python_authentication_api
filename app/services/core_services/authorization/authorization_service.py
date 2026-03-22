@@ -167,8 +167,52 @@ class AuthorizationService:
 
         return {"user_role_id": str(user_role["_id"])}
 
-    async def delete_role(self):
-        pass
+    async def delete_role(self, data: dict):
+        """
+            Delete a role
+        :param data:
+        :return:
+        """
+
+        # Get the role
+        role = await self.autho_depends.role_service.find_role_by_id(data["role_id"])
+
+        # If role is null then there is no role to delete, we can't proceed
+        if not role:
+            self.logger.warning(
+                Settings.SECURITY_EVENT_LABEL,
+                role_id=data["role_id"],
+                detail="THIS ROLE DOES NOT EXIST"
+            )
+
+            raise HTTPException(400, "Unable to proceed")
+
+        # Get role_permissions
+        role_permissions = await self.autho_depends.role_permission_service.find_role_permission_by_role_id(data["role_id"])
+
+        # If role_permissions is not null it means that there are permissions
+        # on this role. So before we delete the role we first have the delete
+        # the relation role_permissions, permissions and finally the role
+        if role_permissions:
+            # Create a list of permission_id
+            permissions_ids = [role_permission["permission_id"] for role_permission in role_permissions]
+
+            # Delete role_permissions
+            await self.autho_depends.role_permission_service.delete_many_role_permissions_by_role_id(data["role_id"])
+
+            # Delete permissions
+            await self.autho_depends.permission_service.delete_permissions_in(permissions_ids)
+
+        # Delete role
+        await self.autho_depends.role_service.delete_role(data["role_id"])
+
+        self.logger.info(
+            Settings.OPERATION_SUCCESS_EVENT_LABEL,
+            role_id=data["role_id"],
+            detail="ROLE DELETED SUCCESSFULLY"
+        )
+
+        return {"role_id": data["role_id"]}
 
     async def create_permission(self):
         pass

@@ -5,7 +5,7 @@ from app.repositories.authorization_repositories.user_role_repository import Use
 
 class UserRoleService:
     """
-        The service work with a collection equivalent to a "many-to-many" table
+        The service work with a _collection equivalent to a "many-to-many" table
         {
             "role_id": ObjectId(...)
             "user_id": ObjectId(...)
@@ -58,4 +58,4 @@ class UserRoleService:
         await self.user_role_repository.update(user_role_id, data)
 
     async def delete_user_role(self, user_role_id: str):
-        await self.user_role_repository.delete(user_role_id)
+        await self.user_role_repository.delete_one(user_role_id)

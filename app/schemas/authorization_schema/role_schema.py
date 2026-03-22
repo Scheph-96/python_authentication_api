@@ -12,5 +12,5 @@ class AssignRoleSchema(BaseSchema):
 class RemoveUserRoleSchema(AssignRoleSchema):
     pass
 
-class DeleteRoleSchema(CreateRoleSchema):
-    pass
+class DeleteRoleSchema(BaseSchema):
+    role_id: str

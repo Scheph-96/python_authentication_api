@@ -18,4 +18,4 @@ class RoleService:
         await self.role_repository.update(role_id, updated_data)
 
     async def delete_role(self, role_id: str):
-        await self.role_repository.delete(role_id)
+        await self.role_repository.delete_one(role_id)

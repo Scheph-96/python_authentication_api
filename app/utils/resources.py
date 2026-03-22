@@ -42,6 +42,19 @@ def string_to_objectid(value: str):
 
     return ObjectId(value)
 
+def string_list_to_objectid(values: list) -> list:
+    """
+        convert a list of id string to ObjectId
+    :param values: List containing string ids
+    :return: a list where each string is converted to ObjectId
+    """
+
+    for value in values:
+        if isinstance(value, str):
+            values[values.index(value)] = ObjectId(value)
+
+    return values
+
 
 class DictObj:
     """

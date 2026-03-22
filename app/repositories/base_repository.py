@@ -8,7 +8,7 @@ class BaseRepository:
 
         FYI: In some children repositories we can see this:
 
-            result = self.collection.find({...})
+            result = self._collection.find({...})
             return await result.to_list()
 
         First of all `find` is not awaited, as mentioned in the documentation:
@@ -28,24 +28,30 @@ class BaseRepository:
     """
 
     def __init__(self, collection: AsyncIOMotorCollection):
-        self.collection = collection
+        self._collection = collection
         
     async def create(self, data: dict):
-        result = await self.collection.insert_one(data)
+        result = await self._collection.insert_one(data)
         return str(result.inserted_id)
 
     async def find(self, data: dict, options: dict = None):
-        return await self.collection.find_one(data, options)
+        return await self._collection.find_one(data, options)
     
     async def find_by_id(self, id: str, options: dict = None):
-        return await self.collection.find_one({"_id": ObjectId(id)}, options)
+        return await self._collection.find_one({"_id": ObjectId(id)}, options)
     
     async def find_all(self, options: dict = None):
-        result = self.collection.find({}, options)
+        result = self._collection.find({}, options)
         return await result.to_list()
     
     async def update(self, id: str, data: dict):
-        return await self.collection.update_one({"_id": ObjectId(id)}, {"$set": data})
+        return await self._collection.update_one({"_id": ObjectId(id)}, {"$set": data})
         
-    async def delete(self, id: str):
-        await self.collection.delete_one({"_id": ObjectId(id)})
+    async def delete_one(self, id: str):
+        await self._collection.delete_one({"_id": ObjectId(id)})
+
+    async def delete_many(self, id: str):
+        await self._collection.delete_many({"_id": ObjectId(id)})
+
+    async def delete_many_in(self, ids: list):
+        await self._collection.delete_many({"_id": {"$in": ids}})
