@@ -8,6 +8,9 @@ class RolePermissionService:
     async def create_role_permission(self, data: dict):
         return await self._role_permission_repository.create(data)
 
+    async def create_role_permissions(self, data: list):
+        return await self._role_permission_repository.create_many(data)
+
     async def find_all_role_permissions(self, options: dict = None):
         return await self._role_permission_repository.find_all(options)
 

@@ -34,6 +34,10 @@ class BaseRepository:
         result = await self._collection.insert_one(data)
         return str(result.inserted_id)
 
+    async def create_many(self, data: list):
+        result = await self._collection.insert_many(data)
+        return result.inserted_ids
+
     async def find(self, data: dict, options: dict = None):
         return await self._collection.find_one(data, options)
     

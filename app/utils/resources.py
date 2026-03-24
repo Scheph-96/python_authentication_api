@@ -55,6 +55,28 @@ def string_list_to_objectid(values: list) -> list:
 
     return values
 
+def build_insert_many_document_list(key_name: str, list_of_values: list):
+    """
+        To insert many documents when we only have a list of values\r
+        we have to convert that list of values into a list\r
+        documents.\r
+
+        [value1, value2, ..., valuen] \n
+        to\n
+        [{"key_name": value1}, {"key_name": value2}, ..., {key_name": valuen}]
+
+    :param key_name: the name of the document key
+    :param list_of_values: list of values to process
+    :return: list of documents
+    """
+
+    documents = []
+
+    for value in list_of_values:
+        documents.append({f"{key_name}": value})
+
+    return documents
+
 
 class DictObj:
     """

@@ -4,8 +4,9 @@ from app.core.config import Settings
 from app.core.logging.logger import get_logger
 from app.models.core_model.authentication_model.user_model import User
 from app.models.dependencies_model.authorization_dependencies import AuthorizationDependencies
-from app.utils.resources import dict_string_to_objectid, string_to_objectid
+from app.utils.resources import dict_string_to_objectid, string_to_objectid, build_insert_many_document_list
 
+########### REMEMBER TO ADD THE FEATURE THAT ALLOW PERMISSION CREATION ON ROLE CREATION
 
 class AuthorizationService:
     def __init__(self, autho_depends: AuthorizationDependencies):
@@ -214,8 +215,59 @@ class AuthorizationService:
 
         return {"role_id": data["role_id"]}
 
-    async def create_permission(self):
-        pass
+    async def create_permissions(self, data: dict):
+        """
+            Create one or many permissions
+        :param data:
+        :return:
+        """
+
+        # Get the role
+        role = await self.autho_depends.role_service.find_role_by_id(data["role_id"])
+
+        # If there is no role we can't proceed
+        if not role:
+            self.logger.warning(
+                Settings.SECURITY_EVENT_LABEL,
+                role_id=data["role_id"],
+                detail="THIS ROLE DOES NOT EXIST"
+            )
+
+            raise HTTPException(400, "Unable to proceed")
+
+        # Get permissions
+        permissions = await self.autho_depends.permission_service.find_permission_by_name_in(data["permissions_names"])
+        # Create a list of permission name
+        perm = [permission["permission_name"] for permission in permissions]
+
+        # if the list is not empty then at least one permission already exist, we can't proceed
+        if permissions:
+            self.logger.warning(
+                Settings.SECURITY_EVENT_LABEL,
+                permissions=perm,
+                detail="PERMISSION ALREADY EXIST"
+            )
+            raise HTTPException(400, f"Permission {perm} Already Exist!")
+
+        # Insert all the permissions and retrieve ids
+        permission_ids = await self.autho_depends.permission_service.create_permissions(build_insert_many_document_list("permission_name", data["permissions_names"]))
+
+        # Create role permission list for insertion with the role id and the newly inserted permissions ids
+        role_permissions = [{"role_id": role["_id"], "permission_id": permission_id} for permission_id in permission_ids]
+
+        # Insert role permissions and retrieve ids
+        role_permissions_ids = await self.autho_depends.role_permission_service.create_role_permissions(role_permissions)
+
+        # Convert role permission ids to string
+        role_permissions_ids = [str(role_permission_id) for role_permission_id in role_permissions_ids]
+
+        self.logger.info(
+            Settings.OPERATION_SUCCESS_EVENT_LABEL,
+            role_permissions=role_permissions_ids,
+            detail="PERMISSIONS CREATED SUCCESSFULLY"
+        )
+
+        return {"role_permission_ids": role_permissions_ids}
 
     async def assign_permission_to_role(self):
         pass
