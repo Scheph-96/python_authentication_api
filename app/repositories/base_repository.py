@@ -50,6 +50,9 @@ class BaseRepository:
     
     async def update(self, id: str, data: dict):
         return await self._collection.update_one({"_id": ObjectId(id)}, {"$set": data})
+
+    async def delete(self, data: dict):
+        await self._collection.delete_many(data)
         
     async def delete_one(self, id: str):
         await self._collection.delete_one({"_id": ObjectId(id)})

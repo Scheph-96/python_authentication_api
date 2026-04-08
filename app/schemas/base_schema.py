@@ -65,10 +65,10 @@ class BaseSchema(BaseModel):
     def validate(cls, v):
         return cls._validate(v)
 
-    # @field_validator("permission_name", "role_name", mode="after")
-    # @classmethod
-    # def to_lower_case(cls, v: str):
-    #     return v.lower()
+    @field_validator("permission_name", "role_name", mode="after", check_fields=False)
+    @classmethod
+    def to_lower_case(cls, v: str):
+        return v.lower()
 
     model_config = {
         "extra": "forbid", # reject unknown fields

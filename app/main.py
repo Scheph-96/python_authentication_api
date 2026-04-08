@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from app.api.v1.authentication_controller import router as authentication_router
 from app.api.v1.authorization_controller import router as authorization_router
 from app.core.config import Settings
+from app.core.errors.domain_errors import DomainErrors
 from app.core.exception_config import ExceptionConfig
 from app.core.logging.logger import get_logger
 from app.core.logging.logging_config import logging_config
@@ -43,6 +44,11 @@ my_app.include_router(authentication_router)
 # Authorization endpoints are accessible only when role assignment is enabled
 if Settings.ROLE_ASSIGNMENT:
     my_app.include_router(authorization_router)
+
+
+@my_app.exception_handler(DomainErrors)
+async def domain_error_handler(request, exc: DomainErrors):
+    return exc.http()
 
 
 @my_app.get("/")

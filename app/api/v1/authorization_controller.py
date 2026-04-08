@@ -9,7 +9,8 @@ from app.repositories.authorization_repositories.permission_repository import Pe
 from app.repositories.authorization_repositories.role_permission_repository import RolePermissionRepository
 from app.repositories.authorization_repositories.role_repository import RoleRepository
 from app.repositories.authorization_repositories.user_role_repository import UserRoleRepository
-from app.schemas.authorization_schema.permission_schema import CreatePermissionSchema
+from app.schemas.authorization_schema.permission_schema import CreatePermissionSchema, AssignPermissionToRoleSchema, \
+    RemovePermissionFromRoleSchema
 from app.schemas.authorization_schema.role_schema import AssignRoleSchema, CreateRoleSchema, RemoveUserRoleSchema, \
     DeleteRoleSchema
 from app.services.core_services.authentication.model_services.user_service import UserService
@@ -97,7 +98,7 @@ async def assign_role(assign_role_schema: AssignRoleSchema, authorization_servic
 
 @router.post("/remove_user_role", response_model=dict)
 async def remove_user_role(remove_user_role_schema: RemoveUserRoleSchema, authorization_service: AuthorizationService = Depends(get_autho_service)):
-    result = await authorization_service.remove_user_role(remove_user_role_schema.model_dump())
+    result = await authorization_service.remove_role_from_user(remove_user_role_schema.model_dump())
 
     return api_response(data=result, message="Role Removed Successfully")
 
@@ -112,3 +113,15 @@ async def create_permissions(create_permission_schema: CreatePermissionSchema, a
     result = await authorization_service.create_permissions(create_permission_schema.model_dump())
 
     return api_response(data=result, message="Permission Created Successfully")
+
+@router.post("/assign_permission_to_role", response_model=dict)
+async def assign_permission(assign_permission_schema: AssignPermissionToRoleSchema, authorization_service: AuthorizationService = Depends(get_autho_service)):
+    result = await authorization_service.assign_permission_to_role(assign_permission_schema.model_dump())
+
+    return api_response(data=result, message="Permission Assigned Successfully")
+
+@router.post("/remove_permission_from_role", response_model=dict)
+async def remove_permission_from_role(remove_permission_schema: RemovePermissionFromRoleSchema, authorization_service: AuthorizationService = Depends(get_autho_service)):
+    result = await authorization_service.remove_permission_from_role(remove_permission_schema.model_dump())
+
+    return api_response(data=result, message="Permission Removed Successfully")

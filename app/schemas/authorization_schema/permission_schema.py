@@ -11,18 +11,16 @@ class Base(BaseSchema):
 
 
 class CreatePermissionSchema(Base):
-    role_id: str
-    permissions_names: list
+    permission_name: str
 
 
-class AssignPermissionToRole(BaseSchema):
+class AssignPermissionToRoleSchema(BaseSchema):
     role_id: str
     permission_id: str
 
-
-class RemovePermissionFromRole(AssignPermissionToRole):
+class RemovePermissionFromRoleSchema(AssignPermissionToRoleSchema):
     pass
 
 
-class DeletePermission(BaseSchema):
+class DeletePermissionSchema(BaseSchema):
     pass

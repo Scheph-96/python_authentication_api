@@ -14,6 +14,9 @@ class RolePermissionService:
     async def find_all_role_permissions(self, options: dict = None):
         return await self._role_permission_repository.find_all(options)
 
+    async def find_role_permission(self, data: dict, options: dict = None):
+        return await self._role_permission_repository.find(data, options)
+
     async def find_role_permission_by_id(self, role_permission_id: str):
         return await self._role_permission_repository.find_by_id(role_permission_id)
 
@@ -29,7 +32,10 @@ class RolePermissionService:
     async def update_role_permission(self, role_permission_id: str, data: dict):
         await self._role_permission_repository.update(role_permission_id, data)
 
-    async def delete_one_role_permission(self, role_permission_id: str):
+    async def delete_one_role_permission(self, role_permission: dict):
+        await self._role_permission_repository.delete(role_permission)
+
+    async def delete_one_role_permission_by_id(self, role_permission_id: str):
         await self._role_permission_repository.delete_one(role_permission_id)
 
     async def delete_many_role_permissions_by_role_id(self, role_id: str):

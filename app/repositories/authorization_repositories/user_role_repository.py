@@ -12,3 +12,6 @@ class UserRoleRepository(BaseRepository):
     async def find_by_user_id(self, user_id: str, options: dict = None):
         result = self._collection.find({"user_id": ObjectId(user_id)}, options)
         return await result.to_list()
+
+    async def delete_many_by_role_id(self, role_id: str):
+        await self._collection.delete_many({"role_id": ObjectId(role_id)})
