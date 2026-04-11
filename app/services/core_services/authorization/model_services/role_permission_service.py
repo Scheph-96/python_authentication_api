@@ -40,3 +40,6 @@ class RolePermissionService:
 
     async def delete_many_role_permissions_by_role_id(self, role_id: str):
         await self._role_permission_repository.delete_many_by_role_id(role_id)
+
+    async def delete_many_role_permissions_by_permission_id(self, permission_id: str):
+        await self._role_permission_repository.delete_many_by_permission_id(permission_id)

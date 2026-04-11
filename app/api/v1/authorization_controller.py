@@ -10,7 +10,7 @@ from app.repositories.authorization_repositories.role_permission_repository impo
 from app.repositories.authorization_repositories.role_repository import RoleRepository
 from app.repositories.authorization_repositories.user_role_repository import UserRoleRepository
 from app.schemas.authorization_schema.permission_schema import CreatePermissionSchema, AssignPermissionToRoleSchema, \
-    RemovePermissionFromRoleSchema
+    RemovePermissionFromRoleSchema, DeletePermissionSchema
 from app.schemas.authorization_schema.role_schema import AssignRoleSchema, CreateRoleSchema, RemoveUserRoleSchema, \
     DeleteRoleSchema
 from app.services.core_services.authentication.model_services.user_service import UserService
@@ -125,3 +125,9 @@ async def remove_permission_from_role(remove_permission_schema: RemovePermission
     result = await authorization_service.remove_permission_from_role(remove_permission_schema.model_dump())
 
     return api_response(data=result, message="Permission Removed Successfully")
+
+@router.post("/delete_permission", response_model=dict)
+async def delete_permission(delete_permission_schema: DeletePermissionSchema, authorization_service: AuthorizationService = Depends(get_autho_service)):
+    result = await authorization_service.delete_permission(delete_permission_schema.model_dump())
+
+    return api_response(data=result, message="Permission Deleted Successfully")

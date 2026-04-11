@@ -19,3 +19,6 @@ class RolePermissionRepository(BaseRepository):
 
     async def delete_many_by_role_id(self, role_id: str):
         await self._collection.delete_many({"role_id": ObjectId(role_id)})
+
+    async def delete_many_by_permission_id(self, permission_id: str):
+        await self._collection.delete_many({"permission_id": ObjectId(permission_id)})

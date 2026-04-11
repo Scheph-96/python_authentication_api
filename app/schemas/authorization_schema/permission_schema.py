@@ -23,4 +23,4 @@ class RemovePermissionFromRoleSchema(AssignPermissionToRoleSchema):
 
 
 class DeletePermissionSchema(BaseSchema):
-    pass
+    permission_id: str

@@ -10,8 +10,6 @@ from app.models.dependencies_model.authorization_dependencies import Authorizati
 from app.utils.resources import dict_string_to_objectid, string_to_objectid, build_insert_many_document_list
 
 
-########### REMEMBER TO ADD THE FEATURE THAT ALLOW PERMISSION CREATION ON ROLE CREATION
-
 class AuthorizationService:
     def __init__(self, autho_depends: AuthorizationDependencies):
         self.autho_depends = autho_depends
@@ -160,7 +158,7 @@ class AuthorizationService:
         """
             Delete a role
         :param data:
-        :return:
+        :return: The deleted role id
         """
 
         # Get the role
@@ -289,14 +287,6 @@ class AuthorizationService:
             permission_id=data["permission_id"]
         )
 
-        # Get the user_roles that have the role_id
-        user_roles = await self.autho_depends.user_role_service.find_user_role_by_role_id(data["role_id"])
-
-        # From the user_roles we get the user_id. So each user that has the specified role
-        for user_role in user_roles:
-            # Recompute user permissions
-            self.autho_depends.background_tasks.add_task(self._recompute_permissions, user_role["user_id"])
-
         return {"role_permission_id": role_permission_id}
 
     async def remove_permission_from_role(self, data: dict):
@@ -354,18 +344,48 @@ class AuthorizationService:
             permission_id=data["permission_id"]
         )
 
-        # Get the user_roles that have the role_id
-        user_roles = await self.autho_depends.user_role_service.find_user_role_by_role_id(data["role_id"])
-
-        # From the user_roles we get the user_id. So each user that has the specified role
-        for user_role in user_roles:
-            # Recompute user permissions
-            self.autho_depends.background_tasks.add_task(self._recompute_permissions, user_role["user_id"])
-
         return {"role_permission_id": role_permission["_id"]}
 
-    async def delete_permission(self):
-        pass
+    async def delete_permission(self, data: dict):
+        """
+            Delete a permission
+        :param data:
+        :return: The deleted permission id
+        """
+
+        # Get the permission
+        permission = await self.autho_depends.permission_service.find_permission_by_id(data["permission_id"])
+
+        # If permission is null then there is no permission to delete, we can't proceed
+        if not permission:
+            self.logger.warning(
+                Settings.SECURITY_EVENT_LABEL,
+                permission_id=data["permission_id"],
+                detail="PERMISSION DOES NOT EXIST"
+            )
+
+            raise PermissionNotFound(data["permission_id"])
+
+        # Get role_permissions
+        role_permissions = await self.autho_depends.role_permission_service.find_role_permission_by_permission_id(data["permission_id"])
+
+        # If role_permissions is not null it means that the permission is assigned
+        # to some roles. SO before we delete the permission we first have to delete
+        # the relation role_permissions and finally the permission
+        if role_permissions:
+            # Delete role_permissions
+            await self.autho_depends.role_permission_service.delete_many_role_permissions_by_permission_id(data["permission_id"])
+
+        # Delete permission
+        await self.autho_depends.permission_service.delete_permission(data["permission_id"])
+
+        self.logger.info(
+            Settings.OPERATION_SUCCESS_EVENT_LABEL,
+            permission_id=data["permission_id"],
+            detail="PERMISSION DELETED SUCCESSFULLY"
+        )
+
+        return {"permission_id": data["permission_id"]}
 
     async def _recompute_permissions(self, user_id: str):
         """
@@ -404,7 +424,7 @@ class AuthorizationService:
         # Like return the role_permission entry for each
         # role_id in the list
         role_permissions = await (self.autho_depends.role_permission_service
-                                  .find_role_permission_by_role_ids(role_ids, options={"_id": 0, "role_permission": 1}))
+                                  .find_role_permission_by_role_ids(role_ids, options={"_id": 0, "permission_id": 1}))
 
         # If there is no role_permission it means that
         # the role doesn't have permissions assigned
