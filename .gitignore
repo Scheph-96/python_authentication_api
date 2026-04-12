@@ -4,6 +4,6 @@ py_modules/
 test.py
 app/keys/*.pem
 app/logs/*
-app/*/__pycache__/
+__pycache__/
 *.py[cod]
 *$py.class
