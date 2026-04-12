@@ -6,7 +6,7 @@ To create an account users provide username,email and password, after validation
 ## User creation Flow
 1. User provide data
 2. Data validation
-3. Password hashe
+3. Password hash
 4. User credentials store in database
 5. User create
 6. Return user id and send validaiton email
