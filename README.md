@@ -1,20 +1,6 @@
-```
-app/
- ├── controllers/
- │     ├── auth_controller.py
- │     └── authorization_controller.py
- │
- ├── services/
- │     ├── auth_service.py
- │     ├── authorization_service.py
- │     └── models/
- │           ├── user_service.py
- │           ├── role_service.py
- │           ├── permission_service.py
- │           └── refresh_token_service.py
- │
- ├── repositories/
- ├── models/
- ├── schemas/
- └── core/
-```
+# Authentication API
+
+
+>Doc coming soon ;)
+
+If you pass by and want to visit check [archictures](architecture/) for details
