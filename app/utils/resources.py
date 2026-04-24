@@ -1,5 +1,6 @@
 import secrets
 
+import bson
 from bson import ObjectId
 
 
@@ -28,10 +29,13 @@ def dict_string_to_objectid(data: dict):
 
     new_dict = {}
 
-    for key, value in data.items():
-        new_dict[key] = ObjectId(value)
+    for key, value in data.copy().items():
+        try:
+            new_dict[key] = ObjectId(value)
+        except bson.errors.InvalidId:
+            new_dict[key] = value
 
-    return new_dict
+    return new_dict.copy()
 
 def string_to_objectid(value: str):
     """
@@ -76,6 +80,8 @@ def build_insert_many_document_list(key_name: str, list_of_values: list):
         documents.append({f"{key_name}": value})
 
     return documents
+
+
 
 
 class DictObj:

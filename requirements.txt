@@ -17,7 +17,8 @@ pyasn1==0.6.2
 pycparser==3.0
 pydantic==2.12.5
 pydantic_core==2.41.5
-pymongo==4.16.0
+pymongo==4.17.0
+pymongo-amplidata==3.6.0.post1
 python-dotenv==1.2.1
 python-jose==3.5.0
 rsa==4.9.1

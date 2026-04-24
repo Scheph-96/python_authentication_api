@@ -1,6 +1,8 @@
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorCollection
 
+from app.utils.resources import dict_string_to_objectid
+
 
 class BaseRepository:
     """
@@ -39,7 +41,7 @@ class BaseRepository:
         return result.inserted_ids
 
     async def find(self, data: dict, options: dict = None):
-        return await self._collection.find_one(data, options)
+        return await self._collection.find_one(dict_string_to_objectid(data), options)
     
     async def find_by_id(self, id: str, options: dict = None):
         return await self._collection.find_one({"_id": ObjectId(id)}, options)

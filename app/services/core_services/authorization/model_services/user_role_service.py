@@ -14,10 +14,10 @@ class UserRoleService:
         A role is assigned the many users and many user has the same role
     """
     def __init__(self, user_role_repository: UserRoleRepository):
-        self.user_role_repository = user_role_repository
+        self._user_role_repository = user_role_repository
 
     async def create_user_role(self, data: dict):
-        return await self.user_role_repository.create(data)
+        return await self._user_role_repository.create(data)
 
     async def find_user_role(self, data: dict, options: dict = None):
         """
@@ -32,18 +32,19 @@ class UserRoleService:
         :param options:
         :return:
         """
-        return await self.user_role_repository.find(data, options)
+        return await self._user_role_repository.find(data, options)
 
     async def find_user_role_by_id(self, user_role_id: str):
-        return await self.user_role_repository.find_by_id(user_role_id)
+        return await self._user_role_repository.find_by_id(user_role_id)
 
-    async def find_user_role_by_role_id(self, role_id: str) -> list:
+    async def find_user_role_by_role_id(self, role_id: str, options: dict = None) -> list:
         """
             Retrieve every user_role entries with the specified role_id
+        :param options:
         :param role_id:
         :return:
         """
-        return await self.user_role_repository.find_by_role_id(role_id)
+        return await self._user_role_repository.find_by_role_id(role_id, options)
 
     async def find_user_role_by_user_id(self, user_id: str, options: dict = None) -> list:
         """
@@ -52,13 +53,33 @@ class UserRoleService:
         :param options:
         :return:
         """
-        return await self.user_role_repository.find_by_user_id(user_id, options)
+        return await self._user_role_repository.find_by_user_id(user_id, options)
+
+    async def find_user_role_by_user_ids(self, user_id: list, options: dict = None) -> list:
+        """
+            Retrieve every user_role entries with all the specified user_ids
+        :param user_id:
+        :param options:
+        :return:
+        """
+        return await self._user_role_repository.find_by_user_ids(user_id, options)
+
+    async def get_user_role_user_ids_by_role_id(self, role_id: str):
+        """
+            Return a list of user_ids. Users that have the provided role
+        :param role_id:
+        :return:
+        """
+        return await self._user_role_repository.get_user_ids_by_role_id(role_id)
 
     async def update_user_role(self, user_role_id: str, data: dict):
-        await self.user_role_repository.update(user_role_id, data)
+        await self._user_role_repository.update(user_role_id, data)
 
     async def delete_user_role(self, user_role_id: str):
-        await self.user_role_repository.delete_one(user_role_id)
+        await self._user_role_repository.delete_one(user_role_id)
 
     async def delete_many_user_role_by_role_id(self, role_id: str):
-        await self.user_role_repository.delete_many_by_role_id(role_od)
+        await self._user_role_repository.delete_many_by_role_id(role_id)
+
+    async def recompute_user_permissions_by_ids(self, user_ids: list):
+        return await self._user_role_repository.get_users_and_permissions(user_ids)

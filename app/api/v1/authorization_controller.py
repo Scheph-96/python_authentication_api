@@ -3,7 +3,7 @@ from fastapi.params import Depends
 
 from app.api.v1.authentication_controller import get_user_service
 from app.core.config import Settings
-from app.database.motor import db
+from app.database.db_motor import db
 from app.models.dependencies_model.authorization_dependencies import AuthorizationDependencies
 from app.repositories.authorization_repositories.permission_repository import PermissionRepository
 from app.repositories.authorization_repositories.role_permission_repository import RolePermissionRepository
