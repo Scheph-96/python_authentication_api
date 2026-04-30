@@ -3,6 +3,8 @@ async def init_indexes(db):
     ####################### UNIQUE INDEXES #######################
     # The "1" stand for the order of sorting. 1 Ascending order -1 Descending order
     # token_hash must be unique
+    await db.users.create_index({"email": 1}, unique=True)
+    await db.users.create_index({"username": 1}, unique=True)
     await db.refresh_tokens.create_index({"token_hash": 1}, unique=True)
     await db.roles.create_index({"role_name": 1}, unique=True)
     await db.permissions.create_index({"permission_name": 1}, unique=True)
@@ -38,7 +40,7 @@ async def init_indexes(db):
         value5-  doc3
         
         When a `find` query is done, instead of looking
-        for each document in the collection mongodb
+        for each document in the collection, mongodb
         jump to indexes and resolve the query by just
         picking the corresponding index
     """

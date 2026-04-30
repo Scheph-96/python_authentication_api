@@ -27,10 +27,14 @@ Password change invalidates sessions
 
 ## Authentication Flow
 1. Credentials are sent to Auth API
-2. Auth API validate credentials
-3. Auth API returns:
+2. Optional steps:
+    - email validation
+    - role assignment
+3. Auth API validate credentials and log user in
+4. Auth API returns:
     - Access Token (15 min)
     - Refresh Token (30 days)
+
 
 ## Protected Route Flow
 Frontend → Backend\

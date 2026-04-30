@@ -9,7 +9,7 @@ To create an account users provide username,email and password, after validation
 3. Password hash
 4. User credentials store in database
 5. User create
-6. Return user id and send validaiton email
+6. Return user id and send validation email
 
 After registration the user has to login
 

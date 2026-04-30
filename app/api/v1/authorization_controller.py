@@ -29,22 +29,22 @@ router = APIRouter(prefix=f"{Settings.API_PREFIX}/authorize")
 
 # Dependency: role repository
 def get_role_repository():
-    return RoleRepository(db.roles)
+    return RoleRepository(db[Settings.ROLES_COLLECTION])
 
 
 # Dependency: permission repository
 def get_permission_repository():
-    return PermissionRepository(db.permissions)
+    return PermissionRepository(db[Settings.PERMISSIONS_COLLECTION])
 
 
 # Dependency: rolePermission repository
 def get_role_permission_repository():
-    return RolePermissionRepository(db.role_permissions)
+    return RolePermissionRepository(db[Settings.ROLE_PERMISSIONS_COLLECTION])
 
 
 # Dependency: userRole repository
 def get_user_role_repository():
-    return UserRoleRepository(db.user_roles)
+    return UserRoleRepository(db[Settings.USER_ROLES_COLLECTION])
 
 
 # Dependency: role service

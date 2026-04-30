@@ -37,22 +37,22 @@ background_tasks = BackgroundTasks()
 
 # Dependency: emailValidation repository
 def get_email_validation_repository():
-    return EmailValidationCodeRepository(db.email_validation_code)
+    return EmailValidationCodeRepository(db[Settings.EMAIL_VALIDATION_CODE_COLLECTION])
 
 
 # Dependency: user repository
 def get_user_repository():
-    return UserRepository(db.users)
+    return UserRepository(db[Settings.USERS_COLLECTION])
 
 
 # Dependency: refreshToken repository
 def get_refresh_token_repository():
-    return RefreshTokenRepository(db.refresh_tokens)
+    return RefreshTokenRepository(db[Settings.REFRESH_TOKENS_COLLECTION])
 
 
 # Dependency: passwordRecoveryToken repository
 def get_password_recovery_token_repository():
-    return PasswordRecoveryTokenRepository(db.password_recovery_tokens)
+    return PasswordRecoveryTokenRepository(db[Settings.PASSWORD_RECOVERY_TOKENS_COLLECTION])
 
 
 # Dependency: emailValidation Service

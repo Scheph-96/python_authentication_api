@@ -21,6 +21,19 @@ class Settings:
     SECURITY_EVENT_LABEL = "AuthSecurityEvent"
     OPERATION_SUCCESS_EVENT_LABEL = "OperationSuccess"
 
+    #################### COLLECTIONS NAME ####################
+
+    # -------------- AUTHENTICATION -------------- #
+    USERS_COLLECTION: str = "users"
+    EMAIL_VALIDATION_CODE_COLLECTION: str = "email_validation_code"
+    REFRESH_TOKENS_COLLECTION: str = "refresh_tokens"
+    PASSWORD_RECOVERY_TOKENS_COLLECTION: str = "password_recovery_tokens"
+    # -------------- AUTHORIZATION -------------- #
+    ROLES_COLLECTION: str = "roles"
+    PERMISSIONS_COLLECTION: str = "permissions"
+    ROLE_PERMISSIONS_COLLECTION: str = "role_permissions"
+    USER_ROLES_COLLECTION: str = "user_roles"
+
     #################### PIPELINE SETTINGS ####################
     # Set to true to enable or false to disable
 
