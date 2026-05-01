@@ -64,7 +64,7 @@ A cached list of permissions computed from user roles.
 - Permissions are assigned to roles
 - Effective permissions are computed and stored on the user
 
-Authorization is excepted to be enforced by the consumer backend. [Learn more](docs/authrization.md)
+Authorization is excepted to be enforced by the consumer backend. [Learn more](docs/authorization.md)
 
 ## API Endpoints
 

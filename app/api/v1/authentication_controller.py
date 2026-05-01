@@ -235,7 +235,7 @@ async def password_reset(
         message=result,
     )
 
-# Used this endpoint to test tokens. Remember this api is a standalone login api, it does nothing else. Protected endpoints will in YOUR backend. The backend of your app
+# # Used this endpoint to test tokens. Remember this api is a standalone login api, it does nothing else. Protected endpoints will in YOUR backend. The backend of your app
 # @router.get("/protected")
-# async def protected(user_id: str = Depends(verify_access_token)):
-#     return api_response(success=True, data={"user_id": user_id}, message="ACCESS GRANTED")
+# async def protected(jwt: str = Depends(verify_access_token)):
+#     return api_response(success=True, data={"jwt": jwt}, message="ACCESS GRANTED")

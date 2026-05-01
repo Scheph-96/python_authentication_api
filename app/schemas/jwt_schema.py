@@ -7,6 +7,7 @@ class JWTSchema(BaseModel):
     sub: str
     iss: str
     exp: datetime
+    effective_permissions: list
     
     @field_validator("*")
     @classmethod

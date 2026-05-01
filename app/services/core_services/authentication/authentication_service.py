@@ -87,7 +87,7 @@ class AuthenticationService:
 
             raise HTTPException(401, "Invalid credentials")
 
-        access_token = create_access_token(str(user._id))
+        access_token = create_access_token(str(user._id), user.effective_permissions)
         result = await self.auth_depends.refresh_token_service.create_refresh_token(str(user._id))
 
         self.logger.info(
