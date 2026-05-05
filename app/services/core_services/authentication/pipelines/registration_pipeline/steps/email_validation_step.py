@@ -2,10 +2,10 @@ from app.core.config import Settings
 from app.core.logging.logger import get_logger
 from app.models.dependencies_model.authentication_dependencies import AuthenticationDependencies
 from app.services.Infrastructure.email_service import EmailService
-from app.models.dependencies_model.feature_step import FeatureStep
+from app.models.dependencies_model.step import Step
 
 
-class EmailVerificationStep(FeatureStep):
+class EmailVerificationStep(Step):
     def __init__(self, auth_depends: AuthenticationDependencies, email_service: EmailService):
         self.email_service = email_service
         self.auth_depends = auth_depends
@@ -34,7 +34,7 @@ class EmailVerificationStep(FeatureStep):
         )
 
         self.logger.info(
-            f"{Settings.OPERATION_SUCCESS_EVENT_LABEL}: email_sent",
+            f"{Settings.OPERATION_SUCCESS_EVENT_LABEL}: Email Sent",
             user_id=str(ctx.user._id),
             email_validation_code_id=result["email_validation_code_id"],
         )

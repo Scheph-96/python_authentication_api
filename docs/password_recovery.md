@@ -18,7 +18,7 @@ The recovery process include:
 > POST users/auth/password_recovery/forgot
 
 1. User provide email
-2. Auth API validate user exisente with email
+2. Auth API validate user existence with email
 3. A token is generated
 4. Store hash token
 5. Return raw token

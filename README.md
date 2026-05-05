@@ -24,10 +24,10 @@ The following features are available in the project:
     - Password hashing
     - Access and Refresh token handler
     - Email validation process
-    - Password recovery
-    - Clean logout
+    - [Password recovery](docs/password_recovery.md)
+    - [Clean logout](docs/logout.md)
 - Authorization
-    - Role and permissions management
+    - Role and permissions interface
 - Console and File logging
 - Error handler
 
@@ -45,8 +45,6 @@ A granular action (e.g `user.create`, `article.delete`).
 ### Effective Permissions
 A cached list of permissions computed from user roles.
 
-[Learn more](docs/core_concepts.md)
-
 ## Authentication Flow
 1. Credentials are sent to Auth API
 2. Optional steps:
@@ -59,7 +57,7 @@ A cached list of permissions computed from user roles.
 
 [Learn more](docs/authentication.md)
 
-## Authorization Model
+## Authorization Interface
 - Roles are assigned to users
 - Permissions are assigned to roles
 - Effective permissions are computed and stored on the user
@@ -135,6 +133,7 @@ For a standalone authentication api there are only a few collections to validate
         "message": "Role already exists"
       }
 ```
+Check [logging](docs/logging.md)
 
 ## Integration Notes
 
@@ -142,7 +141,11 @@ For a standalone authentication api there are only a few collections to validate
 - Consumer backend must check permissions
 - Tokens contain user_id and permissions
 
+## FileSystem
+[Check it out](docs/project_filesystem.md)
 
+
+## Conclusion
 Keep in mind that this api is a standalone reusable authentication api,
 all it does is authentication and provide an authorization
 interface **IT DOES NOTHING MORE** all the processing and

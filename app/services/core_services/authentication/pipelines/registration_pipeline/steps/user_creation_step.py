@@ -5,10 +5,10 @@ from app.core.logging.logger import get_logger
 from app.models.core_model.authentication_model.user_model import User
 from app.models.dependencies_model.authentication_dependencies import AuthenticationDependencies
 from app.models.pipelines_context.registration_context import RegistrationContext
-from app.models.dependencies_model.feature_step import FeatureStep
+from app.models.dependencies_model.step import Step
 
 
-class UserCreationStep(FeatureStep):
+class UserCreationStep(Step):
     def __init__(self, auth_depends: AuthenticationDependencies):
         self.auth_depends = auth_depends
         self.logger = get_logger("UserCreationStep")

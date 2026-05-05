@@ -29,7 +29,6 @@ from app.utils.resources import api_response
 # from app.utils.jwt import verify_access_token
 
 router = APIRouter(prefix=f"{Settings.API_PREFIX}/authenticate")
-background_tasks = BackgroundTasks()
 
 
 ########################################### DEPENDENCIES ###########################################
@@ -88,6 +87,7 @@ def get_password_recovery_token_service(
 
 # Dependency: authentication service
 def get_auth_service(
+        background_tasks: BackgroundTasks,
         user_service: UserService = Depends(get_user_service),
         refresh_token_service: RefreshTokenService = Depends(get_refresh_token_service),
         password_recovery_token_service: PasswordRecoveryTokenService = Depends(
@@ -173,10 +173,9 @@ async def validate_email(
 @router.post("/validate_email/retry", response_model=dict)
 async def retry(
         data: EmailValidationCodeRetry,
-        background_tasks: BackgroundTasks,
         authentication_service: AuthenticationService = Depends(get_auth_service),
 ):
-    result = await authentication_service.resend_validation_code(data.model_dump(), background_tasks)
+    result = await authentication_service.resend_validation_code(data.model_dump())
 
     return api_response(success=True, message=result)
 

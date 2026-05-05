@@ -35,8 +35,10 @@ class AuthenticationService:
 
         # Initialize context attributes
         ctx = RegistrationContext(data)
+
         # Register all the steps
         registration_pipeline = build_registration_pipeline(self.auth_depends)
+
         # Run each step
         ctx = await registration_pipeline.run(ctx)
 
@@ -158,12 +160,11 @@ class AuthenticationService:
 
         return {"status": "verified"}
 
-    async def resend_validation_code(self, data: dict, background_tasks: BackgroundTasks):
+    async def resend_validation_code(self, data: dict):
         """
             Users can request a new code that will be sent to their email address
 
         :param data: Request data
-        :param background_tasks: Object that perform background tasks
         :return: Confirmation String
         """
 
@@ -204,7 +205,7 @@ class AuthenticationService:
         result = await self.auth_depends.email_validation_code_service.create_email_validation_code(str(user._id))
 
         # Send email to validate the user email address in background
-        background_tasks.add_task(email_service.send, user.email, "Email Validation",
+        self.auth_depends.background_tasks.add_task(email_service.send, user.email, "Email Validation",
                                   email_service.verification_email_template_plain_text(result["raw_code"]),
                                   email_service.verification_email_template_html(result["raw_code"]))
 

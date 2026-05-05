@@ -20,6 +20,7 @@ class Settings:
     SMTP_FROM: str = os.getenv("SMTP_FROM")
     SECURITY_EVENT_LABEL = "AuthSecurityEvent"
     OPERATION_SUCCESS_EVENT_LABEL = "OperationSuccess"
+    ACTIVATE_AUTHORIZATION_INTERFACE = True
 
     #################### COLLECTIONS NAME ####################
 
@@ -38,7 +39,7 @@ class Settings:
     # Set to true to enable or false to disable
 
     # -------------- REGISTRATION -------------- #
-    EMAIL_VALIDATION: bool = False
-    ROLE_ASSIGNMENT: bool = True
+    EMAIL_VALIDATION: bool = True
+    ROLE_ASSIGNMENT: bool = False
 
 settings = Settings()

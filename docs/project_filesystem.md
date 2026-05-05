@@ -17,10 +17,12 @@
 │   │       ├── logger.py
 │   │       └── logging_config.py
 │   ├── database
-│   │   ├── init_indexes.py
-│   │   └── motor.py
+│   │   ├── db_motor.py
+│   │   └── init_indexes.py
 │   ├── keys
+│   │   ├── private.pem
 │   │   ├── private.pem.txt
+│   │   ├── public.pem
 │   │   └── public.pem.txt
 │   ├── logs
 │   │   └── app.log
@@ -42,8 +44,9 @@
 │   │   ├── dependencies_model
 │   │   │   ├── authentication_dependencies.py
 │   │   │   ├── authorization_dependencies.py
-│   │   │   └── feature_step.py
+│   │   │   └── step.py
 │   │   └── pipelines_context
+│   │       ├── global_context.py
 │   │       └── registration_context.py
 │   ├── repositories
 │   │   ├── authentication_repositories
@@ -92,23 +95,27 @@
 │   │   │           └── user_role_service.py
 │   │   └── Infrastructure
 │   │       ├── email_service.py
-│   │       └── task_pipeline.py
+│   │       └── pipeline_tasks.py
 │   └── utils
 │       ├── jwt.py
 │       └── resources.py
-├── architecture
+├── docs
 │   ├── authentication.md
+│   ├── authorization.md
 │   ├── database.md
+│   ├── endpoints.md
 │   ├── logging.md
 │   ├── logout.md
 │   ├── password_recovery.md
 │   ├── pipeline.md
-│   ├── project_tree.md
+│   ├── project_filesystem.md
 │   └── user_creation.md
+├── .env
 ├── env.txt
+├── .gitignore
 ├── launcher.py
 ├── README.md
 └── requirements.txt
 
-37 directories, 74 files
+37 directories, 81 files
 ```

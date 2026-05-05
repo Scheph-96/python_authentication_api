@@ -20,7 +20,7 @@ like 'User Creation'. Others can be enabled or disabled in [settings](../app/cor
 Pipelines are built in [factories](../app/core/factories).
 
 [Authentication_Factory](../app/core/factories/authentication_factory.py) contains pipeline builders for authentication tasks.
-The factory build a list of enabled steps that have to be executed for the task, then [TaskPipeline](../app/services/Infrastructure/task_pipeline.py) 
+The factory build a list of enabled steps that have to be executed for the task, then [PipelineTasks](../app/services/Infrastructure/pipeline_tasks.py) 
 receive the list and run each step.
 
 ## How to use?

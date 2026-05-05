@@ -42,7 +42,7 @@ my_app.add_middleware(LoggingMiddleware)
 my_app.include_router(authentication_router)
 
 # Authorization endpoints are accessible only when role assignment is enabled
-if Settings.ROLE_ASSIGNMENT:
+if Settings.ACTIVATE_AUTHORIZATION_INTERFACE:
     my_app.include_router(authorization_router)
 
 

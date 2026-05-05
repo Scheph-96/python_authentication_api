@@ -15,10 +15,10 @@ Incrementing auth_version immediately invalidates all existing refresh tokens an
 
 The rule is:
 
->A token is valid ony if\
+>A token is valid only if:\
 refresh_token.auth_version == user.auth_version
 
-## When is this used?
+### When is this used?
 
 auth_version is usefull when we want to:
 

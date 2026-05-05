@@ -1,7 +1,7 @@
-from app.utils.resources import DictObj
+from app.models.pipelines_context.global_context import GlobalContext
 
 
-class RegistrationContext:
+class RegistrationContext(GlobalContext):
     def __init__(self, request_data):
-        self.request_data = DictObj(request_data)
+        super().__init__(request_data)
         self.user = None

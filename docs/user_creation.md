@@ -11,6 +11,5 @@ To create an account users provide username,email and password, after validation
 5. User create
 6. Return user id and send validation email
 
-After registration the user has to login
+After registration the user has to log in.
 
-(I might make the email validation optional for quick tests and lightweight apps) => AND I DID IT. With [pipelines](./pipeline.md)
