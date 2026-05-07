@@ -84,16 +84,48 @@ Response:
 ### POST /auth_api/v1/process/authenticate/refresh/tokens/
 ```
 --------Refresh Tokens--------
+
+Request:
+{
+    "refresh_token": "..."
+}
+
+Response:
+{
+    "access_token": "...",
+    "refresh_token": "..."
+}
 ```
 
 ### POST /auth_api/v1/process/authenticate/password_recovery/forgot/
 ```
 --------Password Forgotten--------
+
+Request:
+{
+    "email": "..."
+}
+
+Response:
+{
+    "password_recovery_token": "..."
+}
 ```
 
 ### POST /auth_api/v1/process/authenticate/password_recovery/reset
 ```
 --------Resetting Password--------
+
+Request:
+{
+    "token": "...",
+    "new_password": "..."
+}
+
+Response:
+{
+    "status": "Password updated"
+}
 ```
 
 ## Authorization
