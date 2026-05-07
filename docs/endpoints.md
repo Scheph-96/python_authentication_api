@@ -53,11 +53,32 @@ Response:
 ### POST /auth_api/v1/process/authenticate/validate_email/
 ```
 --------Validate Email--------
+
+Request:
+{
+    "user_id": "...",
+    "code": "..."
+}
+
+Response:
+{
+    {"status": "verified"}
+}
 ```
 
 ### POST /auth_api/v1/process/authenticate/validate_email/retry/
 ```
 --------Retry Email Validation--------
+
+Request:
+{
+    "user_id": "..."
+}
+
+Response:
+{
+    {"status": "Email Resent"}
+}
 ```
 
 ### POST /auth_api/v1/process/authenticate/refresh/tokens/
