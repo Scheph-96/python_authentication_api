@@ -21,11 +21,33 @@ Response:
 ### POST /auth_api/v1/process/authenticate/login/
 ```
 --------Login--------
+
+Request:
+{
+    "email": "..." or "username": "...",
+    "password": "..."
+}
+
+Response:
+{
+    "access_token": "...",
+    "refresh_token": "..."
+}
 ```
 
 ### POST /auth_api/v1/process/authenticate/logout/
 ```
 --------Logout--------
+
+Request:
+{
+    "refresh_token": "..."
+}
+
+Response:
+{
+    "status": "Logged Out"
+}
 ```
 
 ### POST /auth_api/v1/process/authenticate/validate_email/
