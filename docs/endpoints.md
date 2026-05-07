@@ -80,12 +80,12 @@ Response:
 --------Create Permission--------
 ```
 
-### POST /auth_api/v1/process/authorize/assign_permission_to_role/
+### POST /auth_api/v1/process/authorize/assign_permission/
 ```
 --------Assign Permission To Role--------
 ```
 
-### POST /auth_api/v1/process/authorize/remove_permission_from_role/
+### POST /auth_api/v1/process/authorize/remove_role_permission/
 ```
 --------Remove Permission From Role--------
 ```
