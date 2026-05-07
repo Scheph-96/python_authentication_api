@@ -102,7 +102,7 @@ class AuthenticationService:
 
     async def refresh_token(self, data: dict):
         """
-            Validate users account by validating the code sent to their email address
+            Issue a new access token and a new Refresh token when the old access token expire and mark the old refresh token as revoked
 
         :param data: Request data
         :return: new access_token and new refresh_token
