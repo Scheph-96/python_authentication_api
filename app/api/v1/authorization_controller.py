@@ -114,13 +114,13 @@ async def create_permissions(create_permission_schema: CreatePermissionSchema, a
 
     return api_response(data=result, message="Permission Created Successfully")
 
-@router.post("/assign_permission_to_role", response_model=dict)
+@router.post("/assign_permission", response_model=dict)
 async def assign_permission(assign_permission_schema: AssignPermissionToRoleSchema, authorization_service: AuthorizationService = Depends(get_autho_service)):
     result = await authorization_service.assign_permission_to_role(assign_permission_schema.model_dump())
 
     return api_response(data=result, message="Permission Assigned Successfully")
 
-@router.post("/remove_permission_from_role", response_model=dict)
+@router.post("/remove_role_permission", response_model=dict)
 async def remove_permission_from_role(remove_permission_schema: RemovePermissionFromRoleSchema, authorization_service: AuthorizationService = Depends(get_autho_service)):
     result = await authorization_service.remove_permission_from_role(remove_permission_schema.model_dump())
 
