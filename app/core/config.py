@@ -13,7 +13,7 @@ class Settings:
     ENV: str = os.getenv("ENV")
     API_PREFIX: str = os.getenv("API_PREFIX")
     PRIVATE_KEY_PATH: str = os.path.join(Path(__file__).resolve().parent.parent, os.getenv("PRIVATE_KEY_PATH"))
-    PUBLIC_KEY_PATH: str = os.path.join(Path(__file__).resolve().parent.parent, os.getenv("PRIVATE_KEY_PATH"))
+    PUBLIC_KEY_PATH: str = os.path.join(Path(__file__).resolve().parent.parent, os.getenv("PUBLIC_KEY_PATH"))
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
     REFRESH_TOKEN_EXPIRE_DAYS: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS"))
     COMPANY_NAME: str = os.getenv("COMPANY_NAME")
