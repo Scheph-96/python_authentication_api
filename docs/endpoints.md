@@ -133,39 +133,124 @@ Response:
 ### POST /auth_api/v1/process/authorize/create_role/
 ```
 --------Creare Role--------
+
+Request:
+{
+    "description": "..."
+    "role_name": "..."
+}
+
+Response:
+{
+    "role_id": "..."
+}
 ```
 
 ### POST /auth_api/v1/process/authorize/assign_role/
 ```
 --------Assign Role To User--------
+
+Request:
+{
+    "role_id": "..."
+    "user_id": "..."
+}
+
+Response:
+{
+    "user_role_id": "..."
+}
 ```
 
 ### POST /auth_api/v1/process/authorize/remove_user_role/
 ```
 --------Remove Role From User--------
+
+Request:
+{
+    "role_id": "..."
+    "user_id": "..."
+}
+
+Response:
+{
+    "user_role_id": "..."
+}
 ```
 
 ### POST /auth_api/v1/process/authorize/delete_role/
 ```
 --------Delete Role--------
+
+Request:
+{
+    "role_id": "..."
+}
+
+Response:
+{
+    "role_id": "..."
+}
 ```
 
 ### POST /auth_api/v1/process/authorize/create_permissions/
 ```
 --------Create Permission--------
+
+Request:
+{
+    "permission_name": "..."
+}
+
+Response:
+{
+    "permission_id": "..."
+}
 ```
 
 ### POST /auth_api/v1/process/authorize/assign_permission/
 ```
 --------Assign Permission To Role--------
+
+Request:
+{
+    "role_id": "..."
+    "permission_id": "..."
+}
+
+Response:
+{
+    "role_permission_id": "..."
+}
 ```
 
 ### POST /auth_api/v1/process/authorize/remove_role_permission/
 ```
 --------Remove Permission From Role--------
+
+Request:
+{
+    "role_id": "..."
+    "permission_id": "..."
+}
+
+Response:
+{
+    "role_permission_id": "..."
+}
 ```
 
 POST /auth_api/v1/process/authorize/delete_permission/
 ```
 --------Delete Permission--------
+
+Request:
+{
+    "permission_id": "..."
+}
+
+Response:
+{
+    permission_id": "..."
+}
 ```
