@@ -2,7 +2,7 @@
 
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-from app.core.config import settings
+from app.core.config import settings, Settings
 from app.schemas.jwt_schema import JWTSchema
 from jose import jwt, JWTError
 from pathlib import Path
@@ -10,9 +10,6 @@ from datetime import datetime, timezone, timedelta
 import hashlib
 
 ALGORITHM = "RS256"
-BASE_DIR = Path(__file__).resolve().parent.parent
-PRIVATE_KEY_PATH = BASE_DIR / "keys" / "private.pem"
-PUBLIC_KEY_PATH = BASE_DIR / "keys" / "public.pem"
 
 security = HTTPBearer()
 
@@ -27,7 +24,7 @@ def hash_token(token: str):
 """
 def create_access_token(user_id: str, effective_permissions: list):
     # Get the private key from the file
-    with open(PRIVATE_KEY_PATH, "r") as f:
+    with open(Settings.PRIVATE_KEY_PATH, "r") as f:
         PRIVATE_KEY = f.read()
         f.close()
 
@@ -46,7 +43,7 @@ def create_access_token(user_id: str, effective_permissions: list):
 #         token = http_credentials.credentials
 #
 #         # Get the public key from the file
-#         with open(PUBLIC_KEY_PATH, "r") as f:
+#         with open(Settings.PUBLIC_KEY_PATH, "r") as f:
 #             PUBLIC_KEY = f.read()
 #             f.close()
 #

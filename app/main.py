@@ -24,10 +24,18 @@ async def lifespan(app: FastAPI):
     logger = get_logger("startup")
     logger.info("Starting authentication API")
     logger.info(f"Environment: {Settings.ENV}")
-    logger.info(f"Database: {str(db.client.address)}")
-    # Load indexes
-    await init_indexes(db)
-    logger.info("Database indexes initialized")
+
+    await db.client.admin.command("ping")
+    logger.info(f"Database connection established")
+
+    try:
+        # Load indexes
+        await init_indexes(db)
+        logger.info("Database indexes initialized")
+    except Exception as e:
+        logger.error("Index initialization failed", exc_info=True)
+        raise
+
     logger.info("Application Running")
 
     yield
@@ -41,10 +49,9 @@ my_app.add_middleware(LoggingMiddleware)
 
 my_app.include_router(authentication_router)
 
-# Authorization endpoints are accessible only when role assignment is enabled
+# Authorization endpoints are accessible only when authorization interface is enabled
 if Settings.ACTIVATE_AUTHORIZATION_INTERFACE:
     my_app.include_router(authorization_router)
-
 
 @my_app.exception_handler(DomainErrors)
 async def domain_error_handler(request, exc: DomainErrors):
