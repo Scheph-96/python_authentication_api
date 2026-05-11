@@ -66,6 +66,7 @@ username: string
 email: string
 hashed_password: string
 is_verified: boolean
+effective_permissions: list
 created_at: date
 auth_version: integer
 
