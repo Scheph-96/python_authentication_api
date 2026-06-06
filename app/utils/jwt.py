@@ -29,7 +29,7 @@ def create_access_token(user_id: str, effective_permissions: list):
         f.close()
 
     # Expiration now + 15, so the token will last 15 minutes
-    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRATION_MINUTES)
     # We create our token
     payload = JWTSchema(sub=user_id, iss=settings.ISSUER, exp=expire, effective_permissions=effective_permissions)
     return jwt.encode(payload.model_dump(), PRIVATE_KEY, algorithm=ALGORITHM)

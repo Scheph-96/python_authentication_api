@@ -1,4 +1,4 @@
-from app.repositories.authentication_repositories.password_recovery_token_repository import \
+from app.repositories.document.authentication_repositories.password_recovery_token_repository import \
     PasswordRecoveryTokenRepository
 
 

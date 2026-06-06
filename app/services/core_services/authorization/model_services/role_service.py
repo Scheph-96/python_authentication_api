@@ -1,4 +1,4 @@
-from app.repositories.authorization_repositories.role_repository import RoleRepository
+from app.repositories.document.authorization_repositories.role_repository import RoleRepository
 
 
 class RoleService:

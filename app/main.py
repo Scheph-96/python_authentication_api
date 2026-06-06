@@ -9,8 +9,8 @@ from app.core.errors.domain_errors import DomainErrors
 from app.core.exception_config import ExceptionConfig
 from app.core.logging.logger import get_logger
 from app.core.logging.logging_config import logging_config
-from app.database.init_indexes import init_indexes
-from app.database.db_motor import db
+from app.database.document.init_indexes import init_indexes
+from app.database.document.db_motor import db
 from app.middleware.logging_middleware import LoggingMiddleware
 
 

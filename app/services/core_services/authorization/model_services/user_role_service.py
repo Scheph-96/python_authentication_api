@@ -1,6 +1,4 @@
-from motor.motor_asyncio import AsyncIOMotorCursor
-
-from app.repositories.authorization_repositories.user_role_repository import UserRoleRepository
+from app.repositories.document.authorization_repositories.user_role_repository import UserRoleRepository
 
 
 class UserRoleService:

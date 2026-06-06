@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, BackgroundTasks
 
 from app.core.config import Settings
-from app.database.db_motor import db
+from app.database.document.db_motor import db
 from app.models.dependencies_model.authentication_dependencies import AuthenticationDependencies
-from app.repositories.authentication_repositories.email_validation_code_repository import EmailValidationCodeRepository
-from app.repositories.authentication_repositories.password_recovery_token_repository import (
+from app.repositories.document.authentication_repositories.email_validation_code_repository import EmailValidationCodeRepository
+from app.repositories.document.authentication_repositories.password_recovery_token_repository import (
     PasswordRecoveryTokenRepository,
 )
-from app.repositories.authentication_repositories.refresh_token_repository import RefreshTokenRepository
-from app.repositories.authentication_repositories.user_repository import UserRepository
+from app.repositories.document.authentication_repositories.refresh_token_repository import RefreshTokenRepository
+from app.repositories.document.authentication_repositories.user_repository import UserRepository
 from app.schemas.authentication_schemas.email_validation_code_schema import (
     EmailValidationCodeSubmit,
     EmailValidationCodeRetry,

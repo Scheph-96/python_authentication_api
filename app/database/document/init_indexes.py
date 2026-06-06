@@ -1,23 +1,25 @@
+from app.core.config import Settings
+
+
 async def init_indexes(db):
 
     ####################### UNIQUE INDEXES #######################
     # The "1" stand for the order of sorting. 1 Ascending order -1 Descending order
     # token_hash must be unique
-    await db.users.create_index({"email": 1}, unique=True)
-    await db.users.create_index({"username": 1}, unique=True)
-    await db.refresh_tokens.create_index({"token_hash": 1}, unique=True)
-    await db.roles.create_index({"role_name": 1}, unique=True)
-    await db.permissions.create_index({"permission_name": 1}, unique=True)
-    await db.role_permissions.create_index([("role_id", 1), ("permission_id", 1)], unique=True)
-    await db.user_roles.create_index([("user_id", 1), ("role_id", 1)], unique=True)
+    await db[f"{Settings.USERS_COLLECTION}"].create_index({"email": 1}, unique=True)
+    await db[f"{Settings.USERS_COLLECTION}"].create_index({"username": 1}, unique=True)
+    await db[f"{Settings.REFRESH_TOKENS_COLLECTION}"].create_index({"token_hash": 1}, unique=True)
+    await db[f"{Settings.ROLES_COLLECTION}"].create_index({"role_name": 1}, unique=True)
+    await db[f"{Settings.ROLE_PERMISSIONS_COLLECTION}"].create_index([("role_id", 1), ("permission_id", 1)], unique=True)
+    await db[f"{Settings.USER_ROLES_COLLECTION}"].create_index([("user_id", 1), ("role_id", 1)], unique=True)
 
     ####################### EXPIRATION INDEXES #######################
     # Delete the document as soon as the date stored in that field is reached.
     # current_time >= expire_at
     # expireAfterSeconds=0. Delete time is exactly the time set in the document
-    await db.refresh_tokens.create_index({"expire_at": 1}, expireAfterSeconds=0)
-    await db.email_validation_code.create_index({"expire_at": 1}, expireAfterSeconds=0)
-    await db.password_recovery_token.create_index({"expire_at": 1}, expireAfterSeconds=0)
+    await db[f"{Settings.REFRESH_TOKENS_COLLECTION}"].create_index({"expire_at": 1}, expireAfterSeconds=0)
+    await db[f"{Settings.EMAIL_VALIDATION_CODE_COLLECTION}"].create_index({"expire_at": 1}, expireAfterSeconds=0)
+    await db[f"{Settings.PASSWORD_RECOVERY_TOKENS_COLLECTION}"].create_index({"expire_at": 1}, expireAfterSeconds=0)
 
     ####################### LOOKUP INDEXES #######################
     # Without an index Mongo does a collection scan (checks every document).
@@ -44,8 +46,8 @@ async def init_indexes(db):
         jump to indexes and resolve the query by just
         picking the corresponding index
     """
-    await db.refresh_tokens.create_index({"user_id": 1})
-    await db.role_permissions.create_index({"role_id": 1})
-    await db.role_permissions.create_index({"permission_id": 1})
-    await db.user_roles.create_index({"user_id": 1})
-    await db.user_roles.create_index({"role_id": 1})
+    await db[f"{Settings.REFRESH_TOKENS_COLLECTION}"].create_index({"user_id": 1})
+    await db[f"{Settings.ROLE_PERMISSIONS_COLLECTION}"].create_index({"role_id": 1})
+    await db[f"{Settings.ROLE_PERMISSIONS_COLLECTION}"].create_index({"permission_id": 1})
+    await db[f"{Settings.USER_ROLES_COLLECTION}"].create_index({"user_id": 1})
+    await db[f"{Settings.USER_ROLES_COLLECTION}"].create_index({"role_id": 1})

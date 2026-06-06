@@ -5,7 +5,7 @@ class PipelineTasks:
         like user registration. Those steps can be
         labeled as features.
     """
-    def __init__(self, steps):
+    def __init__(self, steps: list):
         self.steps = steps
 
     async def run(self, context):

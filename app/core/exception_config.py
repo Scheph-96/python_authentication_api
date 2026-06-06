@@ -52,4 +52,4 @@ class ExceptionConfig:
             exc_info=True,
         )
         
-        return JSONResponse(status_code=500, content={"detail": "Something went wrong. Please retry later!"})
+        return JSONResponse(status_code=500, content={"detail": "Something went wrong. Please try again later!"})

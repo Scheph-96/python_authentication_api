@@ -3,12 +3,12 @@ from fastapi.params import Depends
 
 from app.api.v1.authentication_controller import get_user_service
 from app.core.config import Settings
-from app.database.db_motor import db
+from app.database.document.db_motor import db
 from app.models.dependencies_model.authorization_dependencies import AuthorizationDependencies
-from app.repositories.authorization_repositories.permission_repository import PermissionRepository
-from app.repositories.authorization_repositories.role_permission_repository import RolePermissionRepository
-from app.repositories.authorization_repositories.role_repository import RoleRepository
-from app.repositories.authorization_repositories.user_role_repository import UserRoleRepository
+from app.repositories.document.authorization_repositories.permission_repository import PermissionRepository
+from app.repositories.document.authorization_repositories.role_permission_repository import RolePermissionRepository
+from app.repositories.document.authorization_repositories.role_repository import RoleRepository
+from app.repositories.document.authorization_repositories.user_role_repository import UserRoleRepository
 from app.schemas.authorization_schema.permission_schema import CreatePermissionSchema, AssignPermissionToRoleSchema, \
     RemovePermissionFromRoleSchema, DeletePermissionSchema
 from app.schemas.authorization_schema.role_schema import AssignRoleSchema, CreateRoleSchema, RemoveUserRoleSchema, \

@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
+from uuid import UUID, uuid7
 
 from argon2 import PasswordHasher
-from bson import ObjectId
 
 """
     The user model
@@ -16,7 +16,7 @@ class User:
             username: str,
             email: str,
             auth_version: int = 0,
-            _id: ObjectId = None,
+            _id: UUID = uuid7(),
             hashed_password: str | None = None,
             effective_permissions: list | None = [],
             is_verified: bool = False,
@@ -26,7 +26,7 @@ class User:
         self.auth_version = auth_version
         self._id = _id
         self.hashed_password = hashed_password
-        self.effective_permissions = effective_permissions # this is a cache of permissions related to the user role
+        self.effective_permissions = effective_permissions  # this is a cache of permissions related to the user role
         self.is_verified = is_verified
         self.created_at = created_at or datetime.now(timezone.utc)
 
@@ -48,6 +48,7 @@ class User:
 
     def to_dict(self) -> dict:
         return {
+            "_id": self._id,
             "username": self.username,
             "email": self.email,
             "auth_version": self.auth_version,

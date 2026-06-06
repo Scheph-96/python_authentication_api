@@ -1,4 +1,4 @@
-from app.repositories.base_repository import BaseRepository
+from app.repositories.document.base_repository import BaseRepository
 
 
 class PermissionRepository(BaseRepository):
