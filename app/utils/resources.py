@@ -81,8 +81,13 @@ def build_insert_many_document_list(key_name: str, list_of_values: list):
 
     return documents
 
+async def drop_all_indexes(db):
+    collection_list = await db.list_collection_names()
+    for collection_name in collection_list:
+        collection = db[collection_name]
 
-
+        # drop all indexes except _id
+        await collection.drop_indexes()
 
 class DictObj:
     """

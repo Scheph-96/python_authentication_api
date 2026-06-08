@@ -2,10 +2,10 @@ class BaseRepositoryInterface:
     def __init__(self, collection):
         self._collection = collection
 
-    async def create(self):
+    async def create(self, *args, **kwargs):
         pass
 
-    async def create_many(self):
+    async def create_many(self, *args, **kwargs):
         pass
 
     async def find(self):

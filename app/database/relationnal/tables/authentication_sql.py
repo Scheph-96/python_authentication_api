@@ -1,6 +1,6 @@
 from datetime import timezone, datetime, timedelta
 
-from sqlalchemy import Table, Column, Uuid, Integer, String, Boolean, DateTime, func, ForeignKey
+from sqlalchemy import Table, Column, Uuid, Integer, String, Boolean, DateTime, func, ForeignKey, Index
 
 from app.core.config import Settings
 
@@ -16,7 +16,9 @@ def user_table():
         Column("auth_version", Integer, nullable=False),
         Column("effective_permissions", String, nullable=False, server_default=""),
         Column("is_verified", Boolean, nullable=False, default=False),
-        Column("created_at", DateTime(timezone=True), server_default=func.now())
+        Column("created_at", DateTime(timezone=True), server_default=func.now()),
+        Index("idx_username", "username"),
+        Index("idx_email", "email")
     )
 
 
@@ -32,7 +34,9 @@ def refresh_token_table():
         Column("revoked", Boolean, nullable=False, default=False),
         Column("expire_at", DateTime(timezone=True),
                default=lambda: (datetime.now(timezone.utc) + timedelta(days=Settings.REFRESH_TOKEN_EXPIRATION_DAYS))),
-        Column("created_at", DateTime(timezone=True), server_default=func.now())
+        Column("created_at", DateTime(timezone=True), server_default=func.now()),
+        Index("idx_rf_token_user_id", "user_id"),
+        Index("idx_rf_token_token_hash", "token_hash")
     )
 
 
@@ -46,7 +50,9 @@ def password_recovery_token():
         Column("expire_at", DateTime(timezone=True), default=lambda: (
                 datetime.now(timezone.utc) + timedelta(minutes=Settings.PASSWORD_RECOVERY_TOKEN_EXPIRATION_MINUTES))),
         Column("created_at", DateTime(timezone=True), server_default=func.now()),
-        Column("is_used", Boolean, nullable=False, default=False)
+        Column("is_used", Boolean, nullable=False, default=False),
+        Index("idx_pass_recov_user_id", "user_id"),
+        Index("idx_pass_recov_token_hash", "token_hash")
     )
 
 
@@ -60,5 +66,7 @@ def email_validation_code():
         Column("is_used", Boolean, nullable=False, default=False),
         Column("expire_at", DateTime(timezone=True), default=lambda: (
                 datetime.now(timezone.utc) + timedelta(hours=Settings.EMAIL_VALIDATION_CODE_EXPIRATION_HOURS))),
-        Column("created_at", DateTime(timezone=True), server_default=func.now())
+        Column("created_at", DateTime(timezone=True), server_default=func.now()),
+        Index("idx_email_valid_user_id", "user_id"),
+        Index("idx_email_valid_token_hash", "code_hash")
     )

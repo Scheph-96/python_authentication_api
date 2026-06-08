@@ -9,9 +9,12 @@ from app.core.errors.domain_errors import DomainErrors
 from app.core.exception_config import ExceptionConfig
 from app.core.logging.logger import get_logger
 from app.core.logging.logging_config import logging_config
-from app.database.document.init_indexes import init_indexes
+from app.database.document.app_indexes.integrity_indexes import integrity_indexes
+from app.database.document.app_indexes.lifecycle_indexes import lifecycle_indexes
+from app.database.document.app_indexes.query_indexes import query_indexes
 from app.database.document.db_motor import db
 from app.middleware.logging_middleware import LoggingMiddleware
+from app.utils.resources import drop_all_indexes
 
 
 @asynccontextmanager
@@ -29,8 +32,11 @@ async def lifespan(app: FastAPI):
     logger.info(f"Database connection established")
 
     try:
+        # await drop_all_indexes(db)
         # Load indexes
-        await init_indexes(db)
+        await integrity_indexes(db)
+        await lifecycle_indexes(db)
+        await query_indexes(db)
         logger.info("Database indexes initialized")
     except Exception as e:
         logger.error("Index initialization failed", exc_info=True)
@@ -42,6 +48,7 @@ async def lifespan(app: FastAPI):
     # Execute these lines when the application is stopping
     logger.info("Shutting down authentication API")
 
+
 my_app = FastAPI(lifespan=lifespan)
 
 ExceptionConfig(my_app)
@@ -52,6 +59,7 @@ my_app.include_router(authentication_router)
 # Authorization endpoints are accessible only when authorization interface is enabled
 if Settings.ACTIVATE_AUTHORIZATION_INTERFACE:
     my_app.include_router(authorization_router)
+
 
 @my_app.exception_handler(DomainErrors)
 async def domain_error_handler(request, exc: DomainErrors):
