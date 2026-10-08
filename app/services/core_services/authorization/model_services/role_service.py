@@ -1,8 +1,8 @@
-from app.repositories.document.authorization_repositories.role_repository import RoleRepository
+from app.repositories.document.authorization_repositories.role_document_repository import RoleDocumentRepository
 
 
 class RoleService:
-    def __init__(self, role_repository: RoleRepository):
+    def __init__(self, role_repository: RoleDocumentRepository):
         self.role_repository = role_repository
 
     async def create_role(self, data: dict):
@@ -18,4 +18,4 @@ class RoleService:
         await self.role_repository.update(role_id, updated_data)
 
     async def delete_role(self, role_id: str):
-        await self.role_repository.delete_one(role_id)
+        await self.role_repository.delete_one_by_id(role_id)

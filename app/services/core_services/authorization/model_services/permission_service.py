@@ -1,9 +1,9 @@
-from app.repositories.document.authorization_repositories.permission_repository import PermissionRepository
-from app.utils.resources import string_list_to_objectid
+from app.repositories.document.authorization_repositories.permission_document_repository import PermissionDocumentRepository
+from app.utils.resources import string_list_to_uuid
 
 
 class PermissionService:
-    def __init__(self, permission_repository: PermissionRepository):
+    def __init__(self, permission_repository: PermissionDocumentRepository):
         self._permission_repository = permission_repository
 
     async def create_permission(self, data: dict) -> str:
@@ -28,7 +28,7 @@ class PermissionService:
         await self._permission_repository.update(permission_id, updated_data)
 
     async def delete_permission(self, permission_id: str):
-        await self._permission_repository.delete_one(permission_id)
+        await self._permission_repository.delete_one_by_id(permission_id)
 
     async def delete_permissions_in(self, permissions_ids: list):
-        await self._permission_repository.delete_many_in(string_list_to_objectid(permissions_ids))
+        await self._permission_repository.delete_many_in(string_list_to_uuid(permissions_ids))

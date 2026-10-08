@@ -1,10 +1,12 @@
-from bson import ObjectId
+from uuid import UUID
+
 from motor.motor_asyncio import AsyncIOMotorCollection
 
-from app.utils.resources import dict_string_to_objectid
+from app.repositories.interfaces.base_repository_interface import BaseRepositoryInterface
+from app.utils.resources import dict_string_to_uuid
 
 
-class BaseRepository:
+class BaseDocumentRepository(BaseRepositoryInterface):
     """
         Parent repository
 
@@ -30,8 +32,8 @@ class BaseRepository:
     """
 
     def __init__(self, collection: AsyncIOMotorCollection):
-        self._collection = collection
-        
+        super().__init__(collection)
+
     async def create(self, data: dict):
         result = await self._collection.insert_one(data)
         return str(result.inserted_id)
@@ -41,26 +43,26 @@ class BaseRepository:
         return result.inserted_ids
 
     async def find(self, data: dict, options: dict = None):
-        return await self._collection.find_one(dict_string_to_objectid(data), options)
-    
+        return await self._collection.find_one(dict_string_to_uuid(data), options)
+
     async def find_by_id(self, id: str, options: dict = None):
-        return await self._collection.find_one({"_id": ObjectId(id)}, options)
-    
+        return await self._collection.find_one({"_id": UUID(id)}, options)
+
     async def find_all(self, options: dict = None):
         result = self._collection.find({}, options)
         return await result.to_list()
-    
+
     async def update(self, id: str, data: dict):
-        return await self._collection.update_one({"_id": ObjectId(id)}, {"$set": data})
+        await self._collection.update_one({"_id": UUID(id)}, {"$set": data})
 
     async def delete(self, data: dict):
         await self._collection.delete_many(data)
-        
-    async def delete_one(self, id: str):
-        await self._collection.delete_one({"_id": ObjectId(id)})
+
+    async def delete_one_by_id(self, id: str):
+        await self._collection.delete_one({"_id": UUID(id)})
 
     async def delete_many(self, id: str):
-        await self._collection.delete_many({"_id": ObjectId(id)})
+        await self._collection.delete_many({"_id": UUID(id)})
 
     async def delete_many_in(self, ids: list):
         await self._collection.delete_many({"_id": {"$in": ids}})

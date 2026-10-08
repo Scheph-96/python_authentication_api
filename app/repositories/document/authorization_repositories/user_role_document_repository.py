@@ -1,16 +1,18 @@
-from bson import ObjectId
+from uuid import UUID
 
-from app.repositories.document.base_repository import BaseRepository
+from app.repositories.document.base_document_repository import BaseDocumentRepository
+from app.repositories.interfaces.authorization_repositories_interfaces.user_role_repository_interface import \
+    UserRoleRepositoryInterface
 
 
-class UserRoleRepository(BaseRepository):
+class UserRoleDocumentRepository(BaseDocumentRepository, UserRoleRepositoryInterface):
 
     async def find_by_role_id(self, role_id: str, options: dict = None):
-        result = self._collection.find({"role_id": ObjectId(role_id)}, options)
+        result = self._collection.find({"role_id": UUID(role_id)}, options)
         return await result.to_list()
 
     async def find_by_user_id(self, user_id: str, options: dict = None):
-        result = self._collection.find({"user_id": ObjectId(user_id)}, options)
+        result = self._collection.find({"user_id": UUID(user_id)}, options)
         return await result.to_list()
 
     async def find_by_user_ids(self, user_ids: list, options: dict = None):
@@ -18,14 +20,14 @@ class UserRoleRepository(BaseRepository):
         return await result.to_list()
 
     async def delete_many_by_role_id(self, role_id: str):
-        await self._collection.delete_many({"role_id": ObjectId(role_id)})
+        await self._collection.delete_many({"role_id": UUID(role_id)})
 
     async def get_user_ids_by_role_id(self, role_id: str):
         user_role_pipeline = [
             {
             # Get the role very document with this role
                 "$match": {
-                    "role_id": ObjectId(role_id)
+                    "role_id": UUID(role_id)
                 }
             },
             # Group users by nothing, because we just

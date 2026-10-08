@@ -1,4 +1,4 @@
-from app.repositories.document.authorization_repositories.user_role_repository import UserRoleRepository
+from app.repositories.document.authorization_repositories.user_role_document_repository import UserRoleDocumentRepository
 
 
 class UserRoleService:
@@ -11,7 +11,7 @@ class UserRoleService:
 
         A role is assigned the many users and many user has the same role
     """
-    def __init__(self, user_role_repository: UserRoleRepository):
+    def __init__(self, user_role_repository: UserRoleDocumentRepository):
         self._user_role_repository = user_role_repository
 
     async def create_user_role(self, data: dict):
@@ -74,7 +74,7 @@ class UserRoleService:
         await self._user_role_repository.update(user_role_id, data)
 
     async def delete_user_role(self, user_role_id: str):
-        await self._user_role_repository.delete_one(user_role_id)
+        await self._user_role_repository.delete_one_by_id(user_role_id)
 
     async def delete_many_user_role_by_role_id(self, role_id: str):
         await self._user_role_repository.delete_many_by_role_id(role_id)

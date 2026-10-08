@@ -1,6 +1,6 @@
 from bson import ObjectId
-from app.repositories.document.authentication_repositories.refresh_token_repository import RefreshTokenRepository
-from app.repositories.document.authentication_repositories.user_repository import UserRepository
+from app.repositories.document.authentication_repositories.refresh_token_document_repository import RefreshTokenDocumentRepository
+from app.repositories.document.authentication_repositories.user_document_repository import UserDocumentRepository
 from app.core.config import Settings
 from app.core.logging.logger import get_logger
 from app.models.core_model.authentication_model.refresh_token_model import RefreshToken
@@ -11,7 +11,7 @@ import secrets
 
 class RefreshTokenService:
     
-    def __init__(self, refresh_token_repo: RefreshTokenRepository, user_repo: UserRepository):
+    def __init__(self, refresh_token_repo: RefreshTokenDocumentRepository, user_repo: UserDocumentRepository):
         self.refresh_token_repo = refresh_token_repo
         self.user_repo = user_repo
         self.logger = get_logger("RefreshTokenService")

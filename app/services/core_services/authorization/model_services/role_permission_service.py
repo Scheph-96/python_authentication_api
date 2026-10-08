@@ -1,8 +1,8 @@
-from app.repositories.document.authorization_repositories.role_permission_repository import RolePermissionRepository
+from app.repositories.document.authorization_repositories.role_permission_document_repository import RolePermissionDocumentRepository
 
 
 class RolePermissionService:
-    def __init__(self, role_permission_repository: RolePermissionRepository):
+    def __init__(self, role_permission_repository: RolePermissionDocumentRepository):
         self._role_permission_repository = role_permission_repository
 
     async def create_role_permission(self, data: dict):
@@ -39,7 +39,7 @@ class RolePermissionService:
         await self._role_permission_repository.delete(role_permission)
 
     async def delete_one_role_permission_by_id(self, role_permission_id: str):
-        await self._role_permission_repository.delete_one(role_permission_id)
+        await self._role_permission_repository.delete_one_by_id(role_permission_id)
 
     async def delete_many_role_permissions_by_role_id(self, role_id: str):
         await self._role_permission_repository.delete_many_by_role_id(role_id)

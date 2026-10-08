@@ -5,13 +5,15 @@ from fastapi import HTTPException
 from app.core.config import Settings
 from app.core.logging.logger import get_logger
 from app.models.core_model.authentication_model.email_validation_code_model import EmailValidationCode
-from app.repositories.document.authentication_repositories.email_validation_code_repository import EmailValidationCodeRepository
+from app.repositories.interfaces.authentication_repositories_interfaces.email_validation_code_repository_interface import \
+    EmailValidationCodeRepositoryInterface
+from app.repositories.interfaces.base_repository_interface import BaseRepositoryInterface
 from app.utils.jwt import hash_token
 from app.utils.resources import code_generator
 
 
 class EmailValidationCodeService:
-    def __init__(self, repo: EmailValidationCodeRepository):
+    def __init__(self, repo: BaseRepositoryInterface | EmailValidationCodeRepositoryInterface):
         self.repo = repo
         self.logger = get_logger("EmailValidationCodeService")
 
@@ -88,4 +90,4 @@ class EmailValidationCodeService:
         await self.repo.invalidate_code(email_validation_code_id)
 
     async def delete_email_validation_code(self, email_validation_code_id):
-        await self.repo.delete_one(email_validation_code_id)
+        await self.repo.delete_one_by_id(email_validation_code_id)
