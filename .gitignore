@@ -1,6 +1,7 @@
 .idea/
 py_modules/
 .env
+tests/
 test.py
 app/keys/*.pem
 app/logs/*
