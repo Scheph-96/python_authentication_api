@@ -1,7 +1,9 @@
-from app.repositories.document.base_repository import BaseRepository
+from app.repositories.document.document_base_repository import DocumentBaseRepository
+from app.repositories.interfaces.authorization_repositories.permission_repository_interface import \
+    PermissionRepositoryInterface
 
 
-class PermissionRepository(BaseRepository):
+class PermissionRepository(DocumentBaseRepository, PermissionRepositoryInterface):
 
     async def find_by_name(self, permission_name: str, options: dict = None):
         return await self._collection.find_one({"permission_name": permission_name}, options)

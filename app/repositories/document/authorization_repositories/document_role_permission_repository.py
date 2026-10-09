@@ -1,9 +1,9 @@
 from bson import ObjectId
 
-from app.repositories.document.base_repository import BaseRepository
+from app.repositories.document.document_base_repository import DocumentBaseRepository
 
 
-class RolePermissionRepository(BaseRepository):
+class RolePermissionRepository(DocumentBaseRepository):
     
     async def find_by_role_id(self, role_id: str):
         result = self._collection.find({"role_id": ObjectId(role_id)})

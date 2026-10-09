@@ -1,17 +1,20 @@
+import secrets
+from datetime import datetime
+
+from app.repositories.document.authentication_repositories.document_refresh_token_repository import RefreshTokenRepository
+from app.repositories.document.authentication_repositories.document_user_repository import DocumentUserRepository
 from bson import ObjectId
-from app.repositories.document.authentication_repositories.refresh_token_repository import RefreshTokenRepository
-from app.repositories.document.authentication_repositories.user_repository import UserRepository
+from fastapi import HTTPException
+
 from app.core.config import Settings
 from app.core.logging.logger import get_logger
 from app.models.core_model.authentication_model.refresh_token_model import RefreshToken
-from app.utils.jwt import hash_token
-from fastapi import HTTPException
-from datetime import datetime
-import secrets
+from app.utils.app_jwt import hash_token
+
 
 class RefreshTokenService:
-    
-    def __init__(self, refresh_token_repo: RefreshTokenRepository, user_repo: UserRepository):
+
+    def __init__(self, refresh_token_repo: RefreshTokenRepository, user_repo: DocumentUserRepository):
         self.refresh_token_repo = refresh_token_repo
         self.user_repo = user_repo
         self.logger = get_logger("RefreshTokenService")

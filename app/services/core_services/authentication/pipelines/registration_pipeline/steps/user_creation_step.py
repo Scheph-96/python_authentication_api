@@ -4,8 +4,8 @@ from app.core.config import Settings
 from app.core.logging.logger import get_logger
 from app.models.core_model.authentication_model.user_model import User
 from app.models.dependencies_model.authentication_dependencies import AuthenticationDependencies
-from app.models.pipelines_context.registration_context import RegistrationContext
 from app.models.dependencies_model.step import Step
+from app.models.pipelines_context.registration_context import RegistrationContext
 
 
 class UserCreationStep(Step):
@@ -18,7 +18,7 @@ class UserCreationStep(Step):
         if await self.auth_depends.user_service.get_by_email(ctx.request_data.email):
             self.logger.warning(
                 Settings.SECURITY_EVENT_LABEL,
-                detail=f"EMAIL {ctx.request_data.email} ALREADY EXIST"
+                detail=f"EMAIL `{ctx.request_data.email}` ALREADY EXIST"
             )
 
             raise HTTPException(400, "Invalid Credential")
@@ -27,7 +27,7 @@ class UserCreationStep(Step):
         if await self.auth_depends.user_service.get_by_username(ctx.request_data.username):
             self.logger.warning(
                 Settings.SECURITY_EVENT_LABEL,
-                detail=f"USERNAME {ctx.request_data.username} ALREADY EXIST"
+                detail=f"USERNAME `{ctx.request_data.username}` ALREADY EXIST"
             )
 
             raise HTTPException(400, "Invalid Credential")

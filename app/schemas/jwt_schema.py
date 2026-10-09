@@ -1,7 +1,8 @@
 from datetime import datetime
+
 from pydantic import BaseModel
-from fastapi import HTTPException, status
 from pydantic import field_validator
+
 
 class JWTSchema(BaseModel):
     sub: str
@@ -13,5 +14,6 @@ class JWTSchema(BaseModel):
     @classmethod
     def validate(cls, v):
         if v is not None and not v:
-            raise ValueError("Invalid Token")
+            if type(v) is not list:
+                raise ValueError("Invalid Token")
         return v

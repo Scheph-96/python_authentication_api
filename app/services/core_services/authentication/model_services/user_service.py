@@ -1,12 +1,12 @@
-from app.core.logging.logger import get_logger
-from app.repositories.document.authentication_repositories.user_repository import UserRepository
+from app.repositories.document.authentication_repositories.document_user_repository import DocumentUserRepository
 
+from app.core.logging.logger import get_logger
 
 """
     Here is our business logic
 """
 class UserService:
-    def __init__(self, user_repository: UserRepository):
+    def __init__(self, user_repository: DocumentUserRepository):
         self._user_repository = user_repository
         self.logger = get_logger("UserService")
 

@@ -1,7 +1,4 @@
-from app.repositories.document.base_repository import BaseRepository
-
-
-class RoleRepository(BaseRepository):
+class RoleRepositoryInterface:
 
     async def find_by_name(self, role_name: str):
-        return await self._collection.find_one({"role_name": role_name})
+        pass

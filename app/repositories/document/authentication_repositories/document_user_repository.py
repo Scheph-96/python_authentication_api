@@ -1,10 +1,11 @@
 from bson import ObjectId
 from pymongo import UpdateOne
 
-from app.repositories.document.base_repository import BaseRepository
+from app.repositories.document.document_base_repository import DocumentBaseRepository
+from app.repositories.interfaces.authentication_repositories.user_repository_interface import UserRepositoryInterface
 
 
-class UserRepository(BaseRepository):
+class DocumentUserRepository(DocumentBaseRepository, UserRepositoryInterface):
 
     async def find_by_email(self, email: str):
         return await self._collection.find_one({"email": email})

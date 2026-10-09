@@ -8,26 +8,26 @@ class BaseRepositoryInterface:
     async def create_many(self, *args, **kwargs):
         pass
 
-    async def find(self):
+    async def find(self, *args, **kwargs):
         pass
 
-    async def find_by_id(self):
+    async def find_by_id(self, *args, **kwargs):
         pass
 
-    async def find_all(self):
+    async def find_all(self, *args, **kwargs):
         pass
 
-    async def update(self):
+    async def update(self, *args, **kwargs):
         pass
 
-    async def delete(self):
+    async def delete(self, *args, **kwargs):
         pass
 
-    async def delete_one(self):
+    async def delete_one(self, *args, **kwargs):
         pass
 
-    async def delete_many(self):
+    async def delete_many(self, *args, **kwargs):
         pass
 
-    async def delete_many_in(self):
+    async def delete_many_in(self, *args, **kwargs):
         pass

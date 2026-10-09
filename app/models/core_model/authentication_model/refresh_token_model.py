@@ -1,7 +1,7 @@
 from datetime import datetime, timezone, timedelta
 from uuid import UUID, uuid7
 
-from app.core.config import settings
+from app.core.config import Settings
 
 
 class RefreshToken:
@@ -15,7 +15,7 @@ class RefreshToken:
         self.revoked = revoked
         self._id = _id
         self.expire_at = expire_at or datetime.now(timezone.utc) + timedelta(
-            days=settings.REFRESH_TOKEN_EXPIRATION_DAYS)
+            days=Settings.REFRESH_TOKEN_EXPIRATION_DAYS)
         self.created_at = created_at or datetime.now(timezone.utc)
 
     def to_dict(self) -> dict:

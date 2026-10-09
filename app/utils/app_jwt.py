@@ -1,13 +1,13 @@
 # from fastapi import Depends, HTTPException, status
 
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-
-from app.core.config import settings, Settings
-from app.schemas.jwt_schema import JWTSchema
-from jose import jwt, JWTError
-from pathlib import Path
-from datetime import datetime, timezone, timedelta
 import hashlib
+from datetime import datetime, timezone, timedelta
+
+from fastapi.security import HTTPBearer
+from jose import jwt
+
+from app.core.config import Settings
+from app.schemas.jwt_schema import JWTSchema
 
 ALGORITHM = "RS256"
 
@@ -29,9 +29,9 @@ def create_access_token(user_id: str, effective_permissions: list):
         f.close()
 
     # Expiration now + 15, so the token will last 15 minutes
-    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRATION_MINUTES)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=Settings.ACCESS_TOKEN_EXPIRATION_MINUTES)
     # We create our token
-    payload = JWTSchema(sub=user_id, iss=settings.ISSUER, exp=expire, effective_permissions=effective_permissions)
+    payload = JWTSchema(sub=user_id, iss=Settings.ISSUER, exp=expire, effective_permissions=effective_permissions)
     return jwt.encode(payload.model_dump(), PRIVATE_KEY, algorithm=ALGORITHM)
 
 """
@@ -48,7 +48,7 @@ def create_access_token(user_id: str, effective_permissions: list):
 #             f.close()
 #
 #         # Retrieve the payload with the token
-#         payload_dict = jwt.decode(token, PUBLIC_KEY, algorithms=[ALGORITHM], issuer=settings.ISSUER)
+#         payload_dict = jwt.decode(token, PUBLIC_KEY, algorithms=[ALGORITHM], issuer=Settings.ISSUER)
 #
 #         payload = JWTSchema(**payload_dict)
 #

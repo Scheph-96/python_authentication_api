@@ -1,5 +1,5 @@
 from argon2.exceptions import VerifyMismatchError, InvalidHashError
-from fastapi import HTTPException, BackgroundTasks
+from fastapi import HTTPException
 
 from app.core.config import Settings
 from app.core.factories.authentication_factory import build_registration_pipeline
@@ -9,7 +9,7 @@ from app.models.core_model.authentication_model.user_model import User
 from app.models.dependencies_model.authentication_dependencies import AuthenticationDependencies
 from app.models.pipelines_context.registration_context import RegistrationContext
 from app.services.Infrastructure.email_service import EmailService
-from app.utils.jwt import create_access_token, hash_token
+from app.utils.app_jwt import create_access_token, hash_token
 
 
 class AuthenticationService:

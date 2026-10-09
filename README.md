@@ -4,6 +4,73 @@ This project is a standalone authentication service for us who no longer want to
 authentication services for each project, this project is a full **Python** and **MongoDB** based project, using
 **FastAPI** and **Motor**.
 
+## Prerequisites
+
+> Python 3.14+
+
+## Getting Started
+
+Follow these steps to initialize the api before running it\
+
+1. Create jwt private and public keys
+
+```shell
+# In the terminal navigate to app/keys/ in the project folder and run:
+
+# Create the private key
+openssl genrsa -out private.pem 2048
+
+# From that private key, create the public key
+openssl rsa -in private.pem -pubout -out public.pem
+```
+
+Learn more in [Authentication.md](docs/authentication.md)
+
+2. Create a virtual environment and install required package listed in requirements.txt
+
+```shell
+# In the terminal navigate to the project root and run:
+
+# Create a virtual environment:
+python3 -m venv <your_environment_name>
+
+# Activate the virtual environment:
+source <your_environment_name>/bin/activate
+
+# Install required packages:
+pip install -r requirements.txt
+```
+
+3. Update environment variables\
+   These variables are initialized for code in [Settings](app/core/config.py)
+
+```shell
+# In the project root create .env file and update variables.
+# See below for default values:
+
+APP_HOST=127.0.0.1
+APP_PORT=8000
+DATABASE_URI=mongodb://127.0.0.1:27017/rbac_api_db
+DATABASE_NAME=rbac_api_db
+ENV=development
+API_PREFIX=/rbac_api
+COMPANY_NAME="MY_COMPANY INC."
+PRIVATE_KEY_PATH="keys/private.pem" #Settings code resolves keys/... relative to app/
+PUBLIC_KEY_PATH="keys/public.pem" #Settings code resolves keys/... relative to app/
+ACCESS_TOKEN_EXPIRATION_MINUTES=5
+REFRESH_TOKEN_EXPIRATION_DAYS=15
+PASSWORD_RECOVERY_TOKEN_EXPIRATION_MINUTES=30
+EMAIL_VALIDATION_CODE_EXPIRATION_HOURS=1
+ISSUER=APP_RBAC_API
+ # SMTP configs are optional if email validation is not enabled, which is the case by default.
+ # See Settings 
+SMTP_HOST=
+SMTP_PORT=0
+SMTP_USER=
+SMTP_PASSWORD=
+SMTP_FROM=
+```
+
 ## Architecture
 The system follows a layered architecture:
 - Controller → handle HTTP requests
@@ -131,7 +198,7 @@ For a standalone authentication api there are only a few collections to validate
     {
         "error": "ROLE_ALREADY_EXISTS",
         "message": "Role already exists"
-      }
+    }
 ```
 Check [logging](docs/logging.md)
 

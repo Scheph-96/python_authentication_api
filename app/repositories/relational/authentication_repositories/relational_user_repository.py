@@ -1,4 +1,7 @@
-class UserRepositoryInterface:
+from app.repositories.interfaces.authentication_repositories.user_repository_interface import UserRepositoryInterface
+
+
+class RelationalUserRepository(UserRepositoryInterface):
 
     async def find_by_email(self, email: str):
         pass
@@ -14,3 +17,4 @@ class UserRepositoryInterface:
 
     async def update_users_effective_permissions(self, updates: list):
         pass
+

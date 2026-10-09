@@ -14,12 +14,14 @@ from app.database.document.app_indexes.lifecycle_indexes import lifecycle_indexe
 from app.database.document.app_indexes.query_indexes import query_indexes
 from app.database.document.db_motor import db
 from app.middleware.logging_middleware import LoggingMiddleware
-from app.utils.resources import drop_all_indexes
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Execute these lines when the application is starting
+
+    # Add authentication endpoints
+    my_app.include_router(authentication_router)
 
     # Initialize logging
     logging_config()
@@ -30,6 +32,21 @@ async def lifespan(app: FastAPI):
 
     await db.client.admin.command("ping")
     logger.info(f"Database connection established")
+
+    # Authorization endpoints are accessible only when authorization interface is enabled
+    if Settings.ACTIVATE_AUTHORIZATION_INTERFACE:
+        my_app.include_router(authorization_router)
+        logger.info("Authorization routes added")
+
+    # SMTP variables must be defined if email validation is enabled
+    if Settings.EMAIL_VALIDATION:
+        if (not Settings.SMTP_HOST
+                or not Settings.SMTP_PORT
+                or not Settings.SMTP_USER
+                or not Settings.SMTP_PASSWORD
+                or not Settings.SMTP_FROM):
+            logger.error("SMTP variables are not initialized. Check .env")
+            raise
 
     try:
         # await drop_all_indexes(db)
@@ -42,7 +59,7 @@ async def lifespan(app: FastAPI):
         logger.error("Index initialization failed", exc_info=True)
         raise
 
-    logger.info("Application Running")
+    logger.info(f"Application Running at http://{Settings.APP_HOST}:{Settings.APP_PORT}")
 
     yield
     # Execute these lines when the application is stopping
@@ -51,15 +68,9 @@ async def lifespan(app: FastAPI):
 
 my_app = FastAPI(lifespan=lifespan)
 
+# Cannot add middleware after an application has started
 ExceptionConfig(my_app)
 my_app.add_middleware(LoggingMiddleware)
-
-my_app.include_router(authentication_router)
-
-# Authorization endpoints are accessible only when authorization interface is enabled
-if Settings.ACTIVATE_AUTHORIZATION_INTERFACE:
-    my_app.include_router(authorization_router)
-
 
 @my_app.exception_handler(DomainErrors)
 async def domain_error_handler(request, exc: DomainErrors):

@@ -1,9 +1,9 @@
 from bson import ObjectId
 
-from app.repositories.document.base_repository import BaseRepository
+from app.repositories.document.document_base_repository import DocumentBaseRepository
 
 
-class PasswordRecoveryTokenRepository(BaseRepository):
+class PasswordRecoveryTokenRepository(DocumentBaseRepository):
 
     async def find_by_hash(self, token_hash: str):
         return await self._collection.find_one({"token_hash": token_hash})

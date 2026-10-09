@@ -1,10 +1,14 @@
 import logging
+import os
 import sys
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
+
 import structlog
 from structlog.stdlib import ProcessorFormatter
-from logging.handlers import RotatingFileHandler
+
 from app.core.config import Settings
-from pathlib import Path
+
 
 def logging_config():
     """
@@ -13,6 +17,7 @@ def logging_config():
     
     BASE_DIR = Path(__file__).resolve().parent.parent.parent
     LOGS_PATH = BASE_DIR / "logs"
+    os.makedirs(LOGS_PATH, exist_ok=True)
     
     log_level = logging.INFO
     

@@ -1,12 +1,13 @@
 from datetime import datetime
 
+from app.repositories.document.authentication_repositories.document_email_validation_code_repository import \
+    EmailValidationCodeRepository
 from fastapi import HTTPException
 
 from app.core.config import Settings
 from app.core.logging.logger import get_logger
 from app.models.core_model.authentication_model.email_validation_code_model import EmailValidationCode
-from app.repositories.document.authentication_repositories.email_validation_code_repository import EmailValidationCodeRepository
-from app.utils.jwt import hash_token
+from app.utils.app_jwt import hash_token
 from app.utils.resources import code_generator
 
 

@@ -52,12 +52,12 @@ Password Recovery tokens are never stored raw.
 
 Database record:
 
-| Field           | Purpose                                   |
-|-----------------|-------------------------------------------|
-|  token_hash     | SHA256 hash of refresh token              |
-| user_id         | Token owner                               |
-| expire_at       | Expiration time (TTL indexed)             |
-| used            | Whether the token was already used ot not |
-| created_at      | Creation time                             |
+| Field      | Purpose                                   |
+|------------|-------------------------------------------|
+| token_hash | SHA256 hash of the token                  |
+| user_id    | Token owner                               |
+| expire_at  | Expiration time (TTL indexed)             |
+| used       | Whether the token was already used or not |
+| created_at | Creation time                             |
 
-Expired tokens are automatically deleted using a MongoDB TTL index
+Expired tokens are automatically deleted in the database. Thanks to indexes

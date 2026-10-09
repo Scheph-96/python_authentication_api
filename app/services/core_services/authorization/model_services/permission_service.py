@@ -1,4 +1,4 @@
-from app.repositories.document.authorization_repositories.permission_repository import PermissionRepository
+from app.repositories.document.authorization_repositories.document_permission_repository import PermissionRepository
 from app.utils.resources import string_list_to_objectid
 
 

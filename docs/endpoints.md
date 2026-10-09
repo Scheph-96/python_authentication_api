@@ -2,7 +2,7 @@
 
 ## Authentication
 
-### POST /auth_api/v1/process/authenticate/register/
+### POST <Settings.API_PREFIX>/authenticate/register/
 ```
 --------Create a user--------
 
@@ -18,7 +18,7 @@ Response:
 }
 ```
 
-### POST /auth_api/v1/process/authenticate/login/
+### POST <Settings.API_PREFIX>/authenticate/login/
 ```
 --------Login--------
 
@@ -35,7 +35,7 @@ Response:
 }
 ```
 
-### POST /auth_api/v1/process/authenticate/logout/
+### POST <Settings.API_PREFIX>/authenticate/logout/
 ```
 --------Logout--------
 
@@ -50,7 +50,7 @@ Response:
 }
 ```
 
-### POST /auth_api/v1/process/authenticate/validate_email/
+### POST <Settings.API_PREFIX>/authenticate/validate_email/
 ```
 --------Validate Email--------
 
@@ -66,7 +66,7 @@ Response:
 }
 ```
 
-### POST /auth_api/v1/process/authenticate/validate_email/retry/
+### POST <Settings.API_PREFIX>/authenticate/validate_email/retry/
 ```
 --------Retry Email Validation--------
 
@@ -81,7 +81,7 @@ Response:
 }
 ```
 
-### POST /auth_api/v1/process/authenticate/refresh/tokens/
+### POST <Settings.API_PREFIX>/authenticate/refresh/tokens/
 ```
 --------Refresh Tokens--------
 
@@ -97,7 +97,7 @@ Response:
 }
 ```
 
-### POST /auth_api/v1/process/authenticate/password_recovery/forgot/
+### POST <Settings.API_PREFIX>/authenticate/password_recovery/forgot/
 ```
 --------Password Forgotten--------
 
@@ -112,7 +112,7 @@ Response:
 }
 ```
 
-### POST /auth_api/v1/process/authenticate/password_recovery/reset
+### POST <Settings.API_PREFIX>/authenticate/password_recovery/reset
 ```
 --------Resetting Password--------
 
@@ -130,7 +130,7 @@ Response:
 
 ## Authorization
 
-### POST /auth_api/v1/process/authorize/create_role/
+### POST <Settings.API_PREFIX>/authorize/create_role/
 ```
 --------Creare Role--------
 
@@ -146,7 +146,7 @@ Response:
 }
 ```
 
-### POST /auth_api/v1/process/authorize/assign_role/
+### POST <Settings.API_PREFIX>/authorize/assign_role/
 ```
 --------Assign Role To User--------
 
@@ -162,7 +162,7 @@ Response:
 }
 ```
 
-### POST /auth_api/v1/process/authorize/remove_user_role/
+### POST <Settings.API_PREFIX>/authorize/remove_user_role/
 ```
 --------Remove Role From User--------
 
@@ -178,7 +178,7 @@ Response:
 }
 ```
 
-### POST /auth_api/v1/process/authorize/delete_role/
+### POST <Settings.API_PREFIX>/authorize/delete_role/
 ```
 --------Delete Role--------
 
@@ -193,7 +193,7 @@ Response:
 }
 ```
 
-### POST /auth_api/v1/process/authorize/create_permissions/
+### POST <Settings.API_PREFIX>/authorize/create_permissions/
 ```
 --------Create Permission--------
 
@@ -208,7 +208,7 @@ Response:
 }
 ```
 
-### POST /auth_api/v1/process/authorize/assign_permission/
+### POST <Settings.API_PREFIX>/authorize/assign_permission/
 ```
 --------Assign Permission To Role--------
 
@@ -224,7 +224,7 @@ Response:
 }
 ```
 
-### POST /auth_api/v1/process/authorize/remove_role_permission/
+### POST <Settings.API_PREFIX>/authorize/remove_role_permission/
 ```
 --------Remove Permission From Role--------
 
@@ -240,7 +240,7 @@ Response:
 }
 ```
 
-POST /auth_api/v1/process/authorize/delete_permission/
+### POST <Settings.API_PREFIX>/authorize/delete_permission/
 ```
 --------Delete Permission--------
 

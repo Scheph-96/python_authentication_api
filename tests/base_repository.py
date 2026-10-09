@@ -6,7 +6,7 @@ from app.repositories.interfaces.base_repository_interface import BaseRepository
 from app.utils.resources import dict_string_to_objectid
 
 
-class BaseRepository(BaseRepositoryInterface):
+class RelationalBaseRepository(BaseRepositoryInterface):
     """
         Parent repository
 

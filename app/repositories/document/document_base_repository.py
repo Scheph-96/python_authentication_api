@@ -1,10 +1,11 @@
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorCollection
 
+from app.repositories.interfaces.base_repository_interface import BaseRepositoryInterface
 from app.utils.resources import dict_string_to_objectid
 
 
-class BaseRepository:
+class DocumentBaseRepository(BaseRepositoryInterface):
     """
         Parent repository
 
@@ -30,7 +31,7 @@ class BaseRepository:
     """
 
     def __init__(self, collection: AsyncIOMotorCollection):
-        self._collection = collection
+        super().__init__(collection)
         
     async def create(self, data: dict):
         result = await self._collection.insert_one(data)

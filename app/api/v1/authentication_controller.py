@@ -3,12 +3,14 @@ from fastapi import APIRouter, Depends, BackgroundTasks
 from app.core.config import Settings
 from app.database.document.db_motor import db
 from app.models.dependencies_model.authentication_dependencies import AuthenticationDependencies
-from app.repositories.document.authentication_repositories.email_validation_code_repository import EmailValidationCodeRepository
-from app.repositories.document.authentication_repositories.password_recovery_token_repository import (
+from app.repositories.document.authentication_repositories.document_email_validation_code_repository import \
+    EmailValidationCodeRepository
+from app.repositories.document.authentication_repositories.document_password_recovery_token_repository import (
     PasswordRecoveryTokenRepository,
 )
-from app.repositories.document.authentication_repositories.refresh_token_repository import RefreshTokenRepository
-from app.repositories.document.authentication_repositories.user_repository import UserRepository
+from app.repositories.document.authentication_repositories.document_refresh_token_repository import \
+    RefreshTokenRepository
+from app.repositories.document.authentication_repositories.document_user_repository import DocumentUserRepository
 from app.schemas.authentication_schemas.email_validation_code_schema import (
     EmailValidationCodeSubmit,
     EmailValidationCodeRetry,
@@ -20,8 +22,10 @@ from app.schemas.authentication_schemas.password_recovery_token_schema import (
 from app.schemas.authentication_schemas.refresh_token_schema import RefreshTokenSchema
 from app.schemas.authentication_schemas.user_schema import UserSignUpSchema, UserSignInSchema, UserLogOutSchema
 from app.services.core_services.authentication.authentication_service import AuthenticationService
-from app.services.core_services.authentication.model_services.email_validation_code_service import EmailValidationCodeService
-from app.services.core_services.authentication.model_services.password_recovery_token_service import PasswordRecoveryTokenService
+from app.services.core_services.authentication.model_services.email_validation_code_service import \
+    EmailValidationCodeService
+from app.services.core_services.authentication.model_services.password_recovery_token_service import \
+    PasswordRecoveryTokenService
 from app.services.core_services.authentication.model_services.refresh_token_service import RefreshTokenService
 from app.services.core_services.authentication.model_services.user_service import UserService
 from app.utils.resources import api_response
@@ -41,7 +45,7 @@ def get_email_validation_repository():
 
 # Dependency: user repository
 def get_user_repository():
-    return UserRepository(db[Settings.USERS_COLLECTION])
+    return DocumentUserRepository(db[Settings.USERS_COLLECTION])
 
 
 # Dependency: refreshToken repository
@@ -63,7 +67,7 @@ def get_email_validation_code_service(
 
 # Dependency: user service
 def get_user_service(
-        repo: UserRepository = Depends(get_user_repository)
+        repo: DocumentUserRepository = Depends(get_user_repository)
 ):
     return UserService(repo)
 
@@ -71,7 +75,7 @@ def get_user_service(
 # Dependency: refreshToken service
 def get_refresh_token_service(
         refresh_token_repo: RefreshTokenRepository = Depends(get_refresh_token_repository),
-        user_repo: UserRepository = Depends(get_user_repository)
+        user_repo: DocumentUserRepository = Depends(get_user_repository)
 ):
     return RefreshTokenService(refresh_token_repo, user_repo)
 
