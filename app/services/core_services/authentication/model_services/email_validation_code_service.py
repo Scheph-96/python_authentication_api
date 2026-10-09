@@ -8,7 +8,7 @@ from app.models.core_model.authentication_model.email_validation_code_model impo
 from app.repositories.interfaces.authentication_repositories_interfaces.email_validation_code_repository_interface import \
     EmailValidationCodeRepositoryInterface
 from app.repositories.interfaces.base_repository_interface import BaseRepositoryInterface
-from app.utils.jwt import hash_token
+from app.utils.app_jwt import hash_token
 from app.utils.resources import code_generator
 
 
