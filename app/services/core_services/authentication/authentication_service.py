@@ -77,7 +77,7 @@ class AuthenticationService:
         except VerifyMismatchError:
             self.logger.warning(
                 Settings.SECURITY_EVENT_LABEL,
-                detail="THE SECRET DOES NOT MATCH THE HASH",
+                detail="INCORRECT PASSWORD",
             )
 
             raise HTTPException(401, "Invalid credentials")
@@ -121,8 +121,10 @@ class AuthenticationService:
         # Revoke the old token
         await self.auth_depends.refresh_token_service.update_refresh_token(refresh_token._id, new_hash)
 
+        user = await self.auth_depends.user_service.get_by_id(user_id)
+
         # Generate new access token
-        new_access = create_access_token(user_id)
+        new_access = create_access_token(user_id=user_id, effective_permissions=user["effective_permissions"])
 
         return {
             "access_token": new_access,
@@ -297,7 +299,7 @@ class AuthenticationService:
 
         # Increment authentication version
         await self.auth_depends.user_service.update_inc_user(
-            refresh_token.user_id, {"auth_version": 1}
+            str(refresh_token.user_id), {"auth_version": 1}
         )
 
         # Revoke refresh_token

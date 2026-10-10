@@ -6,9 +6,10 @@ from app.core.config import Settings
 
 class RefreshToken:
 
-    def __init__(self, user_id: str, token_hash: str, auth_version: int, replaced_by: str = None, revoked: bool = False,
+    def __init__(self, user_id: str | UUID, token_hash: str, auth_version: int, replaced_by: str = None,
+                 revoked: bool = False,
                  _id: UUID = uuid7(), expire_at: datetime | None = None, created_at: datetime | None = None):
-        self.user_id = UUID(user_id)
+        self.user_id = UUID(user_id) if type(user_id) is str else user_id
         self.token_hash = token_hash
         self.auth_version = auth_version  # The authentication/token version of the user model
         self.replaced_by = replaced_by  # if this refresh token was used, which new token replaced it ?

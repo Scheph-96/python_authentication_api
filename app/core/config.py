@@ -31,9 +31,10 @@ class Settings:
     SMTP_USER: str = os.getenv("SMTP_USER", "")
     SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
     SMTP_FROM: str = os.getenv("SMTP_FROM", "")
+    # -------------- APP PARAMETERS -------------- #
     SECURITY_EVENT_LABEL = "AuthSecurityEvent"
     OPERATION_SUCCESS_EVENT_LABEL = "OperationSuccess"
-    # -------------- APP PARAMETERS -------------- #
+    COLLECTION_EVENT_LABEL = "CollectionEvent"
     SQLALCHEMY_METADATA: MetaData = MetaData()
     ACTIVATE_AUTHORIZATION_INTERFACE = True
 
