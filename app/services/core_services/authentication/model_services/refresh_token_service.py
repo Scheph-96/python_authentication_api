@@ -27,8 +27,8 @@ class RefreshTokenService:
 
         user = await self.user_repo.find_by_id(user_id)
 
-        refreshToken = RefreshToken(user_id=user_id, token_hash=token_hash, auth_version=user["auth_version"])
-        refresh_token_id = await self.refresh_token_repo.create(refreshToken.to_dict())
+        refresh_token = RefreshToken(user_id=user_id, token_hash=token_hash, auth_version=user["auth_version"])
+        refresh_token_id = await self.refresh_token_repo.create(refresh_token.to_dict())
 
         return {"raw_token": raw, "refresh_token_id": refresh_token_id}
     

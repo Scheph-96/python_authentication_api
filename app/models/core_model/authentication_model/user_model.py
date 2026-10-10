@@ -16,7 +16,7 @@ class User:
             username: str,
             email: str,
             auth_version: int = 0,
-            _id: UUID = uuid7(),
+            _id: UUID | None = None ,
             hashed_password: str | None = None,
             effective_permissions: list | None = [],
             is_verified: bool = False,
@@ -24,7 +24,7 @@ class User:
         self.username = username
         self.email = email
         self.auth_version = auth_version
-        self._id = _id
+        self._id = _id or uuid7()
         self.hashed_password = hashed_password
         self.effective_permissions = effective_permissions  # this is a cache of permissions related to the user role
         self.is_verified = is_verified

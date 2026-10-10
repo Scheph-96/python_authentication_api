@@ -3,10 +3,14 @@ from uuid import UUID, uuid7
 
 
 class UserRole:
-    def __init__(self, user_id: str, role_id: str, _id: UUID = uuid7(), created_at: datetime | None = None):
+    def __init__(self,
+                 user_id: str,
+                 role_id: str,
+                 _id: UUID | None = None,
+                 created_at: datetime | None = None):
         self.user_id = user_id
         self.role_id = role_id
-        self._id = _id
+        self._id = _id or uuid7()
         self.created_at = created_at or datetime.now(timezone.utc)
 
     def to_dict(self):

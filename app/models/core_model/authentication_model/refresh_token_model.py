@@ -6,15 +6,21 @@ from app.core.config import Settings
 
 class RefreshToken:
 
-    def __init__(self, user_id: str | UUID, token_hash: str, auth_version: int, replaced_by: str = None,
+    def __init__(self,
+                 user_id: str | UUID,
+                 token_hash: str,
+                 auth_version: int,
+                 replaced_by: str | None = None,
                  revoked: bool = False,
-                 _id: UUID = uuid7(), expire_at: datetime | None = None, created_at: datetime | None = None):
+                 _id: UUID | None = None,
+                 expire_at: datetime | None = None,
+                 created_at: datetime | None = None):
         self.user_id = UUID(user_id) if type(user_id) is str else user_id
         self.token_hash = token_hash
         self.auth_version = auth_version  # The authentication/token version of the user model
         self.replaced_by = replaced_by  # if this refresh token was used, which new token replaced it ?
         self.revoked = revoked
-        self._id = _id
+        self._id = _id or uuid7()
         self.expire_at = expire_at or datetime.now(timezone.utc) + timedelta(
             days=Settings.REFRESH_TOKEN_EXPIRATION_DAYS)
         self.created_at = created_at or datetime.now(timezone.utc)

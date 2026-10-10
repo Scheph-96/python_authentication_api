@@ -6,11 +6,16 @@ from app.core.config import Settings
 
 class PasswordRecoveryToken:
 
-    def __init__(self, user_id: str, token_hash: str, is_used: bool = False, _id: UUID = uuid7(),
-                 expire_at: datetime | None = None, created_at: datetime | None = None):
+    def __init__(self,
+                 user_id: str,
+                 token_hash: str,
+                 is_used: bool = False,
+                 _id: UUID | None = None,
+                 expire_at: datetime | None = None,
+                 created_at: datetime | None = None):
         self.user_id = UUID(user_id)
         self.token_hash = token_hash
-        self._id = _id
+        self._id = _id or uuid7()
         self.expire_at = expire_at or datetime.now(timezone.utc) + timedelta(
             minutes=Settings.PASSWORD_RECOVERY_TOKEN_EXPIRATION_MINUTES)
         self.created_at = created_at or datetime.now(timezone.utc)
