@@ -59,7 +59,7 @@ class PasswordRecoveryTokenService:
             raise HTTPException(400, "Invalid Token")
 
         # Check whether was used or not
-        if password_recovery_token.is_used:
+        if password_recovery_token.revoked:
             self.logger.warning(
                 Settings.SECURITY_EVENT_LABEL,
                 detail="PASSWORD RECOVERY TOKEN USED"
@@ -67,7 +67,7 @@ class PasswordRecoveryTokenService:
 
             raise HTTPException(400, "Invalid Token")
 
-        await self.repo.invalidate_token(str(password_recovery_token._id))
+        await self.update_password_recovery_token(str(password_recovery_token._id))
 
         return password_recovery_token.user_id
 

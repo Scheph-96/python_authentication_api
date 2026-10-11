@@ -56,7 +56,6 @@ Response:
 
 Request:
 {
-    "user_id": "...",
     "code": "..."
 }
 

@@ -7,13 +7,16 @@ from app.core.logging.logger import get_logger
 from app.models.core_model.authentication_model.email_validation_code_model import EmailValidationCode
 from app.repositories.interfaces.authentication_repositories_interfaces.email_validation_code_repository_interface import \
     EmailValidationCodeRepositoryInterface
+from app.repositories.interfaces.authentication_repositories_interfaces.password_recovery_token_repository_interface import \
+    PasswordRecoveryTokenRepositoryInterface
 from app.repositories.interfaces.base_repository_interface import BaseRepositoryInterface
 from app.utils.app_jwt import hash_token
 from app.utils.resources import code_generator
 
 
 class EmailValidationCodeService:
-    def __init__(self, repo: BaseRepositoryInterface | EmailValidationCodeRepositoryInterface):
+    # The EmailValidationCodeRepositoryInterface only has one method
+    def __init__(self, repo: EmailValidationCodeRepositoryInterface | PasswordRecoveryTokenRepositoryInterface):
         self.repo = repo
         self.logger = get_logger("EmailValidationCodeService")
 
@@ -65,7 +68,7 @@ class EmailValidationCodeService:
             raise HTTPException(400, "Invalid Code")
 
         # Check whether was used or not
-        if email_validation_code.is_used:
+        if email_validation_code.revoked:
             self.logger.warning(
                 Settings.SECURITY_EVENT_LABEL,
                 detail="EMAIL VALIDATION CODE USED"
@@ -73,9 +76,28 @@ class EmailValidationCodeService:
 
             raise HTTPException(400, "Invalid Code")
 
-        await self.repo.invalidate_code(str(email_validation_code._id))
+        await self.update_code_email_validation_code(str(email_validation_code._id))
 
         return email_validation_code.user_id
+
+    async def check_email_validation_code_integrity(self, user_id: str):
+
+        # Retrieve validation code record
+        email_validation_code = await self.get_by_user_id(str(user_id))
+        email_validation_code = EmailValidationCode(
+            **email_validation_code) if email_validation_code is not None else None
+
+        # If the code is marked as used block the request
+        # If a code already exist for this user we let it be
+        # Every existing code is revoked when a new one is verify and validate
+        # And if not the expiration time index will delete it
+        if email_validation_code and email_validation_code.revoked:
+            self.logger.warning(
+                Settings.SECURITY_EVENT_LABEL,
+                detail="EMAIL SENDING: CODE ALREADY USED"
+            )
+            raise HTTPException(400, "Unable to proceed")
+
 
     async def get(self, data: dict):
         return await self.repo.find(data)
@@ -86,7 +108,7 @@ class EmailValidationCodeService:
     async def get_by_user_id(self, user_id: str):
         return await self.repo.find_by_user_id(user_id)
 
-    async def invalidate_code_email_validation_code(self, email_validation_code_id: str):
+    async def update_code_email_validation_code(self, email_validation_code_id: str):
         await self.repo.invalidate_code(email_validation_code_id)
 
     async def delete_email_validation_code(self, email_validation_code_id):

@@ -139,26 +139,10 @@ class AuthenticationService:
         :return: Confirmation String
         """
 
-        # First we hash the code
-        code_hash = hash_token(data.get("code"))
-
-        # Now we compare the hashed code and the user with our database record
-        email_validation_code = await self.auth_depends.email_validation_code_service.get(
-            {"user_id": data.get("user_id"), "code_hash": code_hash}
-        )
-        email_validation_code = EmailValidationCode(
-            **email_validation_code) if email_validation_code is not None else None
-
-        # If there is no match reject the request
-        if not email_validation_code:
-            raise HTTPException(400, "Invalid or expired code")
-
-        # The code is verified, we mark it as used
-        await self.auth_depends.email_validation_code_service.invalidate_code_email_validation_code(
-            str(email_validation_code._id))
+        user_id = await self.auth_depends.email_validation_code_service.invalidate_code(data["code"])
 
         # And finally we update user status
-        await self.auth_depends.user_service.update_user(data.get("user_id"), {"is_verified": True})
+        await self.auth_depends.user_service.update_user(user_id, {"is_verified": True})
 
         return {"status": "verified"}
 
@@ -189,18 +173,7 @@ class AuthenticationService:
             )
             raise HTTPException(400, "Unable to proceed")
 
-        # Retrieve validation code record
-        email_validation_code = await self.auth_depends.email_validation_code_service.get_by_user_id(str(user._id))
-        email_validation_code = EmailValidationCode(
-            **email_validation_code) if email_validation_code is not None else None
-
-        # If the code is marked as used block the request
-        if email_validation_code and email_validation_code.is_used:
-            self.logger.warning(
-                Settings.SECURITY_EVENT_LABEL,
-                detail="EMAIL SENDING: CODE ALREADY USED"
-            )
-            raise HTTPException(400, "Unable to proceed")
+        await self.auth_depends.email_validation_code_service.check_email_validation_code_integrity(user._id)
 
         email_service = EmailService()
 
@@ -228,7 +201,7 @@ class AuthenticationService:
         if not user:
             self.logger.warning(
                 Settings.SECURITY_EVENT_LABEL,
-                detail="PASSWORD RECOVERY: EMAIL VALIDATION FAILED",
+                detail="PASSWORD RECOVERY: THERE IS NO RECORD FOR THE SPECIFIED EMAIL IN USER COLLECTION",
             )
 
             # Do not reveal whether the email exists

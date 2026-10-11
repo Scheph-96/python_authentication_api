@@ -50,7 +50,7 @@ def password_recovery_token():
         Column("expire_at", DateTime(timezone=True), default=lambda: (
                 datetime.now(timezone.utc) + timedelta(minutes=Settings.PASSWORD_RECOVERY_TOKEN_EXPIRATION_MINUTES))),
         Column("created_at", DateTime(timezone=True), server_default=func.now()),
-        Column("is_used", Boolean, nullable=False, default=False),
+        Column("revoked", Boolean, nullable=False, default=False),
         Index("idx_pass_recov_user_id", "user_id"),
         Index("idx_pass_recov_token_hash", "token_hash")
     )
@@ -63,7 +63,7 @@ def email_validation_code():
         Column("_id", Uuid, primary_key=True, unique=True, nullable=False),
         Column("user_id", Uuid, ForeignKey(f"{Settings.USERS_COLLECTION}._id")),
         Column("code_hash", String, nullable=False, unique=True),
-        Column("is_used", Boolean, nullable=False, default=False),
+        Column("revoked", Boolean, nullable=False, default=False),
         Column("expire_at", DateTime(timezone=True), default=lambda: (
                 datetime.now(timezone.utc) + timedelta(hours=Settings.EMAIL_VALIDATION_CODE_EXPIRATION_HOURS))),
         Column("created_at", DateTime(timezone=True), server_default=func.now()),

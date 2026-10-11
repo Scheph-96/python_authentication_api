@@ -8,8 +8,8 @@ class UserRole:
                  role_id: str,
                  _id: UUID | None = None,
                  created_at: datetime | None = None):
-        self.user_id = user_id
-        self.role_id = role_id
+        self.user_id = UUID(user_id) if user_id is str else user_id
+        self.role_id = UUID(role_id) if role_id is str else role_id
         self._id = _id or uuid7()
         self.created_at = created_at or datetime.now(timezone.utc)
 
