@@ -6,7 +6,7 @@ from app.repositories.interfaces.base_repository_interface import BaseRepository
 from app.utils.resources import dict_string_to_uuid
 
 
-class BaseDocumentRepository(BaseRepositoryInterface):
+class BaseDocumentRepository(BaseRepositoryInterface[AsyncIOMotorCollection]):
     """
         Parent repository
 
@@ -30,9 +30,6 @@ class BaseDocumentRepository(BaseRepositoryInterface):
 
         For more information: https://motor.readthedocs.io/en/stable/index.html
     """
-
-    def __init__(self, collection: AsyncIOMotorCollection):
-        super().__init__(collection)
 
     async def create(self, data: dict):
         result = await self._collection.insert_one(data)

@@ -1,6 +1,11 @@
-class BaseRepositoryInterface:
-    def __init__(self, collection):
-        self._collection = collection
+from typing import TypeVar, Generic
+
+T = TypeVar("T")
+
+
+class BaseRepositoryInterface(Generic[T]):
+    def __init__(self, collection: T):
+        self._collection: T = collection
 
     async def create(self, *args, **kwargs):
         pass

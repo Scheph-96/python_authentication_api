@@ -30,6 +30,10 @@ class PasswordRecoveryTokenService:
         return {"raw_token": raw_token, "password_recovery_token_id": password_recovery_token_id}
 
     async def invalidate_token(self, token: str):
+        """
+            This function check the integrity of the provided
+            recovery token and return the user id
+        """
         token_hash = hash_token(token)
 
         password_recovery_token = await self.repo.find_by_hash(token_hash)
@@ -67,9 +71,12 @@ class PasswordRecoveryTokenService:
 
             raise HTTPException(400, "Invalid Token")
 
-        await self.update_password_recovery_token(str(password_recovery_token._id))
+        await self.revoke_all_password_recovery_tokens(str(password_recovery_token.user_id))
 
         return password_recovery_token.user_id
+
+    async def revoke_all_password_recovery_tokens(self, user_id: str):
+        return await self.repo.revoke_all_password_recovery_tokens(user_id)
 
     async def get_by_hash(self, token_hash: str):
         return await self.repo.find_by_hash(token_hash)
@@ -78,7 +85,7 @@ class PasswordRecoveryTokenService:
         return await self.repo.find_by_user_id(user_id)
 
     async def update_password_recovery_token(self, password_recovery_instance_id: str):
-        await self.repo.invalidate_token(password_recovery_instance_id)
+        await self.repo.revoke_password_recovery_token(password_recovery_instance_id)
 
     async def delete_password_recovery_token(self, password_recovery_instance_id):
         await self.repo.delete_one_by_id(password_recovery_instance_id)

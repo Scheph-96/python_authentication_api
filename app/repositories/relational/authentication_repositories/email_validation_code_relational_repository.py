@@ -6,5 +6,5 @@ from app.repositories.relational.base_relational_repository import BaseRelationa
 
 
 class EmailValidationCodeRelationalRepository(BaseRelationalRepository, EmailValidationCodeRepositoryInterface, PasswordRecoveryTokenRelationalRepository):
-    async def invalidate_code(self, email_validation_code_id: str):
-        return await super().invalidate_token(email_validation_code_id)
+    async def revoke_email_validation_code(self, email_validation_code_id: str):
+        return await super().revoke_password_recovery_token(email_validation_code_id)

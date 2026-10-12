@@ -10,5 +10,5 @@ class PasswordRecoveryTokenRelationalRepository(BaseRelationalRepository, Passwo
     async def find_by_user_id(self, user_id: str):
         pass
 
-    async def invalidate_token(self, recovery_token_id: str):
+    async def revoke_password_recovery_token(self, recovery_token_id: str):
         pass

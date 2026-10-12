@@ -7,5 +7,8 @@ from app.repositories.interfaces.authentication_repositories_interfaces.email_va
 # If we try to inherit it anyway it will trigger a TypeError
 # Cannot create a consistent method resolution order (MRO)
 class EmailValidationCodeDocumentRepository(PasswordRecoveryTokenDocumentRepository, EmailValidationCodeRepositoryInterface):
-    async def invalidate_code(self, email_validation_code_id: str):
-        return await super().invalidate_token(email_validation_code_id)
+    async def revoke_email_validation_code(self, email_validation_code_id: str):
+        return await super().revoke_password_recovery_token(email_validation_code_id)
+
+    async def revoke_all_password_recovery_tokens(self, user_id: str):
+        return await super().revoke_all_password_recovery_tokens(user_id)

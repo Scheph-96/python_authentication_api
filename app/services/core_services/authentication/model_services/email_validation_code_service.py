@@ -109,7 +109,7 @@ class EmailValidationCodeService:
         return await self.repo.find_by_user_id(user_id)
 
     async def update_code_email_validation_code(self, email_validation_code_id: str):
-        await self.repo.invalidate_code(email_validation_code_id)
+        await self.repo.revoke_email_validation_code(email_validation_code_id)
 
     async def delete_email_validation_code(self, email_validation_code_id):
         await self.repo.delete_one_by_id(email_validation_code_id)

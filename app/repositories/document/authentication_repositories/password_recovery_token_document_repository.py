@@ -13,5 +13,9 @@ class PasswordRecoveryTokenDocumentRepository(BaseDocumentRepository, PasswordRe
     async def find_by_user_id(self, user_id: str):
         return await self._collection.find_one({"user_id": UUID(user_id)})
 
-    async def invalidate_token(self, recovery_token_id: str):
+    async def revoke_password_recovery_token(self, recovery_token_id: str):
         await self._collection.update_one({"_id": UUID(recovery_token_id)}, {"$set": {"revoked": True}})
+
+    async def revoke_all_password_recovery_tokens(self, user_id: str):
+        await self._collection.update_many({"user_id": UUID(user_id)}, {"$set": {"revoked": True}})
+

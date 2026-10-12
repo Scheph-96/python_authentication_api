@@ -220,7 +220,7 @@ class AuthenticationService:
 
     async def password_recovery_reset_password(self, data: dict):
         """
-            Second, we receive the token with new password. The token is then marked as used,
+            Second, we receive the token with new password. The token is then revoked,
             and we update user's password
         :param data: Request data
         :return: Confirmation message

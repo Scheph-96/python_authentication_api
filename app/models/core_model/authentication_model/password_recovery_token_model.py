@@ -13,7 +13,7 @@ class PasswordRecoveryToken:
                  _id: UUID | None = None,
                  expire_at: datetime | None = None,
                  created_at: datetime | None = None):
-        self.user_id = UUID(user_id) if user_id is str else user_id
+        self.user_id = UUID(user_id) if type(user_id) is str else user_id
         self.token_hash = token_hash
         self._id = _id or uuid7()
         self.expire_at = expire_at or datetime.now(timezone.utc) + timedelta(
