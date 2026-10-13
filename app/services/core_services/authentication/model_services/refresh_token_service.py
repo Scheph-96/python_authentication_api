@@ -54,7 +54,7 @@ class RefreshTokenService:
         
         if refresh_token.expire_at < now:
             # Since the token has expired. We just revoke it
-            await self.update_refresh_token(refresh_token._id)
+            await self.revoke_refresh_token(refresh_token._id)
             
             self.logger.warning(
             Settings.SECURITY_EVENT_LABEL,
@@ -67,7 +67,7 @@ class RefreshTokenService:
         
         if refresh_token.auth_version != user["auth_version"]:
             # Since the token version doesn't match. We just revoke it
-            await self.update_refresh_token(refresh_token._id)
+            await self.revoke_refresh_token(refresh_token._id)
             
             self.logger.warning(
             Settings.SECURITY_EVENT_LABEL,
@@ -81,9 +81,11 @@ class RefreshTokenService:
     async def get_by_hash(self, token_hash: str):
         return await self.refresh_token_repo.find_by_hash(token_hash)
     
-    async def update_refresh_token(self, token_id: UUID, replaced_by: str = None):
+    async def revoke_refresh_token(self, token_id: UUID, replaced_by: str = None):
         await self.refresh_token_repo.revoke(str(token_id), replaced_by)
     
-    async def delete_refresh_token(self):
+    async def remove_expired_refresh_token(self):
         await self.refresh_token_repo.delete_expired_revoked()
-        
+
+    async def revoke_and_expire_all_refresh_tokens_by_user(self, user_id: str):
+        await self.refresh_token_repo.revoke_and_expire_all_refresh_tokens_by_user(user_id)

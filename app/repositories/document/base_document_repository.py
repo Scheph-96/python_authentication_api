@@ -31,6 +31,9 @@ class BaseDocumentRepository(BaseRepositoryInterface[AsyncIOMotorCollection]):
         For more information: https://motor.readthedocs.io/en/stable/index.html
     """
 
+    def __init__(self, collection: AsyncIOMotorCollection):
+        super().__init__(collection)
+
     async def create(self, data: dict):
         result = await self._collection.insert_one(data)
         return str(result.inserted_id)

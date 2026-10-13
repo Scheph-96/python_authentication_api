@@ -119,7 +119,7 @@ class AuthenticationService:
         new_hash = hash_token(new_refresh["raw_token"])
 
         # Revoke the old token
-        await self.auth_depends.refresh_token_service.update_refresh_token(refresh_token._id, new_hash)
+        await self.auth_depends.refresh_token_service.revoke_refresh_token(refresh_token._id, new_hash)
 
         user = await self.auth_depends.user_service.get_by_id(user_id)
 
@@ -253,7 +253,14 @@ class AuthenticationService:
         self.logger.info(
             f"{Settings.OPERATION_SUCCESS_EVENT_LABEL}: password_updated",
             user_id=str(user_id),
-            auth_version=str(user.auth_version),
+            new_auth_version=str(user.auth_version),
+        )
+
+        await self.auth_depends.refresh_token_service.revoke_and_expire_all_refresh_tokens_by_user(str(user._id))
+
+        self.logger.info(
+            f"{Settings.OPERATION_SUCCESS_EVENT_LABEL}: all_user_refresh_tokens_revoked",
+            user_id=str(user_id),
         )
 
         return {"status": "Password updated"}
@@ -276,7 +283,7 @@ class AuthenticationService:
         )
 
         # Revoke refresh_token
-        await self.auth_depends.refresh_token_service.update_refresh_token(refresh_token._id)
+        await self.auth_depends.refresh_token_service.revoke_refresh_token(refresh_token._id)
 
         self.logger.info(
             f"{Settings.OPERATION_SUCCESS_EVENT_LABEL}: user_logout",
