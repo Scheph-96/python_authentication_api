@@ -16,13 +16,14 @@ from app.utils.resources import code_generator
 
 class EmailValidationCodeService:
     # The EmailValidationCodeRepositoryInterface only has one method
-    def __init__(self, repo: EmailValidationCodeRepositoryInterface | PasswordRecoveryTokenRepositoryInterface):
+    def __init__(self, repo: EmailValidationCodeRepositoryInterface):
         self.repo = repo
         self.logger = get_logger("EmailValidationCodeService")
 
     async def create_email_validation_code(self, user_id: str):
         # Generate the recovery token
         raw_code = code_generator()
+        print("RAW CODE: ", raw_code)
         # Hash the token
         code_hash = hash_token(raw_code)
 
@@ -38,10 +39,10 @@ class EmailValidationCodeService:
 
         return {"raw_code": raw_code, "email_validation_code_id": email_validation_code_id}
 
-    async def invalidate_code(self, code: str):
+    async def invalidate_code(self, user_id: str, code: str):
         code_hash = hash_token(code)
 
-        email_validation_code = await self.repo.find_by_hash(code_hash)
+        email_validation_code = await self.get({"user_id": user_id, "code_hash": code_hash})
 
         if not email_validation_code:
             self.logger.warning(
@@ -49,7 +50,7 @@ class EmailValidationCodeService:
                 detail="EMAIL VALIDATION CODE NOT FOUND"
             )
 
-            raise HTTPException(400, "Invalid Code")
+            raise HTTPException(400, "Invalid Data")
 
         email_validation_code = EmailValidationCode(**email_validation_code)
 
@@ -76,7 +77,7 @@ class EmailValidationCodeService:
 
             raise HTTPException(400, "Invalid Code")
 
-        await self.update_code_email_validation_code(str(email_validation_code._id))
+        await self.revoke_all_email_recovery_tokens(str(email_validation_code.user_id))
 
         return email_validation_code.user_id
 
@@ -87,17 +88,20 @@ class EmailValidationCodeService:
         email_validation_code = EmailValidationCode(
             **email_validation_code) if email_validation_code is not None else None
 
-        # If the code is marked as used block the request
+        # If the code is revoked block the request
         # If a code already exist for this user we let it be
-        # Every existing code is revoked when a new one is verify and validate
+        # Every existing code is revoked when a new one is verified and validate
         # And if not the expiration time index will delete it
         if email_validation_code and email_validation_code.revoked:
             self.logger.warning(
                 Settings.SECURITY_EVENT_LABEL,
-                detail="EMAIL SENDING: CODE ALREADY USED"
+                detail="EMAIL VALIDATE: CODE ALREADY USED"
             )
             raise HTTPException(400, "Unable to proceed")
 
+
+    async def revoke_all_email_recovery_tokens(self, user_id: str):
+        return await self.repo.revoke_all_email_recovery_tokens(user_id)
 
     async def get(self, data: dict):
         return await self.repo.find(data)

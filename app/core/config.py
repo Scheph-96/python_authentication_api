@@ -36,7 +36,7 @@ class Settings:
     OPERATION_SUCCESS_EVENT_LABEL = "OperationSuccess"
     COLLECTION_EVENT_LABEL = "CollectionEvent"
     SQLALCHEMY_METADATA: MetaData = MetaData()
-    ACTIVATE_AUTHORIZATION_INTERFACE = True
+    ACTIVATE_AUTHORIZATION_INTERFACE = False
 
     #################### COLLECTIONS NAME ####################
 

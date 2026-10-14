@@ -139,10 +139,10 @@ class AuthenticationService:
         :return: Confirmation String
         """
 
-        user_id = await self.auth_depends.email_validation_code_service.invalidate_code(data["code"])
+        user_id = await self.auth_depends.email_validation_code_service.invalidate_code(data["user_id"], data["code"])
 
         # And finally we update user status
-        await self.auth_depends.user_service.update_user(user_id, {"is_verified": True})
+        await self.auth_depends.user_service.update_user(str(user_id), {"is_verified": True})
 
         return {"status": "verified"}
 
