@@ -1,8 +1,9 @@
-from app.repositories.document.authorization_repositories.role_document_repository import RoleDocumentRepository
+from app.repositories.interfaces.authorization_repositories_interfaces.role_repository_interface import \
+    RoleRepositoryInterface
 
 
 class RoleService:
-    def __init__(self, role_repository: RoleDocumentRepository):
+    def __init__(self, role_repository: RoleRepositoryInterface):
         self.role_repository = role_repository
 
     async def create_role(self, data: dict):

@@ -4,7 +4,7 @@ from uuid import UUID, uuid7
 
 
 class Role:
-    def __init(self,
+    def __init__(self,
                role_name: str,
                description: str,
                _id: UUID | None = None ,

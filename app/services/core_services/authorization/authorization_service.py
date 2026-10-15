@@ -5,6 +5,7 @@ from app.core.errors.authorization.authorization_errors import RoleAlreadyExists
     RoleAlreadyAssigned, RoleNotAssigned, PermissionAlreadyExists, PermissionNotFound, PermissionAlreadyAssigned, \
     PermissionNotAssigned
 from app.core.logging.logger import get_logger
+from app.models.core_model.authorization_model.role_model import Role
 from app.models.dependencies_model.authorization_dependencies import AuthorizationDependencies
 from app.utils.resources import dict_string_to_uuid, string_to_uuid
 
@@ -32,8 +33,10 @@ class AuthorizationService:
             )
             raise RoleAlreadyExists(role["role_name"])
 
+        role = Role(**data)
+
         # Create role and insert in database
-        role_id = await self.autho_depends.role_service.create_role(data)
+        role_id = await self.autho_depends.role_service.create_role(role.to_dict())
 
         self.logger.info(
             Settings.OPERATION_SUCCESS_EVENT_LABEL,

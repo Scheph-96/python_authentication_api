@@ -8,7 +8,7 @@ class RolePermission:
                  permission_id: str,
                  _id: UUID | None= None,
                  created_at: datetime | None = None):
-        self.role_id = UUID(role_id) if role_id is str else role_id
+        self.role_id = UUID(role_id) if type(role_id) is str else role_id
         self.permission_id = permission_id
         self._id = _id or uuid7()
         self.created_at = created_at or datetime.now(timezone.utc)

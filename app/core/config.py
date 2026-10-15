@@ -36,7 +36,7 @@ class Settings:
     OPERATION_SUCCESS_EVENT_LABEL = "OperationSuccess"
     COLLECTION_EVENT_LABEL = "CollectionEvent"
     SQLALCHEMY_METADATA: MetaData = MetaData()
-    ACTIVATE_AUTHORIZATION_INTERFACE = False
+    ACTIVATE_AUTHORIZATION_INTERFACE = True # Setting this parameter to `True` include authorization routes to the api (Disabled by default)
 
     #################### COLLECTIONS NAME ####################
 

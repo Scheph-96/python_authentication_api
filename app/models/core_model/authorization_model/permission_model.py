@@ -3,7 +3,7 @@ from uuid import UUID, uuid7
 
 
 class Permission:
-    def __init(self,
+    def __init__(self,
                permission_name: str,
                _id: UUID | None = None,
                created_at: datetime | None = None):
