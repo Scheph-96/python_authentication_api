@@ -1,4 +1,6 @@
-from bson import ObjectId
+from uuid import UUID
+
+import sys
 
 from app.core.config import Settings
 from app.core.errors.authorization.authorization_errors import RoleAlreadyExists, RoleNotFound, UserNotFound, \
@@ -77,7 +79,7 @@ class AuthorizationService:
 
         # Now we check if the user has the role assigned to him
         user_role = await self.autho_depends.user_role_service.find_user_role(
-            {"role_id": string_to_uuid(data["role_id"]), "user_id": string_to_uuid(data["user_id"])})
+            {"role_id": data["role_id"], "user_id": data["user_id"]})
 
         # If user_role then the role is already assigned to the user, there is nothing to do
         if user_role:
@@ -430,14 +432,16 @@ class AuthorizationService:
         :param user_id_s: the user to update
         """
 
-        # If the user_id is passed as a unique string we convert it to a list of ObjectId
+        # If the user_id is passed as a unique string we convert it to a list of UUID
         # Otherwise (when it's a list) we keep it like that for the query
-        user_id_s = [ObjectId(user_id_s)] if isinstance(user_id_s, str) else user_id_s
+        user_id_s = [UUID(user_id_s)] if isinstance(user_id_s, str) else user_id_s
 
         # We get the list of permissions group by user_id. The query will return each
         # user with his permissions
         user_permissions = await self.autho_depends.user_role_service.recompute_user_permissions_by_ids(user_id_s)
 
+        print(user_permissions)
+        sys.exit()
         # Now we bulk update every user and their effective permissions
         await self.autho_depends.user_service.update_effective_permissions(user_permissions)
 

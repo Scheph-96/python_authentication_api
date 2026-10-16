@@ -136,7 +136,7 @@ Response:
 
 Request:
 {
-    "description": "..."
+    "description": "...",
     "role_name": "..."
 }
 
@@ -152,7 +152,7 @@ Response:
 
 Request:
 {
-    "role_id": "..."
+    "role_id": "...",
     "user_id": "..."
 }
 
@@ -168,7 +168,7 @@ Response:
 
 Request:
 {
-    "role_id": "..."
+    "role_id": "...",
     "user_id": "..."
 }
 
@@ -214,7 +214,7 @@ Response:
 
 Request:
 {
-    "role_id": "..."
+    "role_id": "...",
     "permission_id": "..."
 }
 
@@ -230,7 +230,7 @@ Response:
 
 Request:
 {
-    "role_id": "..."
+    "role_id": "...",
     "permission_id": "..."
 }
 
