@@ -1,7 +1,5 @@
 from uuid import UUID
 
-import sys
-
 from app.core.config import Settings
 from app.core.errors.authorization.authorization_errors import RoleAlreadyExists, RoleNotFound, UserNotFound, \
     RoleAlreadyAssigned, RoleNotAssigned, PermissionAlreadyExists, PermissionNotFound, PermissionAlreadyAssigned, \
@@ -438,10 +436,9 @@ class AuthorizationService:
 
         # We get the list of permissions group by user_id. The query will return each
         # user with his permissions
+        # Only users that have a permission will be return
         user_permissions = await self.autho_depends.user_role_service.recompute_user_permissions_by_ids(user_id_s)
 
-        print(user_permissions)
-        sys.exit()
         # Now we bulk update every user and their effective permissions
         await self.autho_depends.user_service.update_effective_permissions(user_permissions)
 
