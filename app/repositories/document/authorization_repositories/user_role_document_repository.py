@@ -53,7 +53,7 @@ class UserRoleDocumentRepository(BaseDocumentRepository, UserRoleRepositoryInter
         return await result.to_list()
 
     async def get_users_and_permissions(self, user_ids: list):
-        print("USER IDS: ", user_ids)
+
         pipeline = [
             # Get a list users matching the ids
             {
