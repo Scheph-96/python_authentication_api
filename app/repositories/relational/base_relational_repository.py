@@ -2,7 +2,7 @@ from uuid import UUID
 
 from sqlalchemy import Table
 
-from app.database.relationnal.db_r import app_execute, app_execute_many, app_execute_and_fetch_one, \
+from app.database.relationnal.relational_db import app_execute, app_execute_many, app_execute_and_fetch_one, \
     app_execute_and_fetch_all
 from app.repositories.interfaces.base_repository_interface import BaseRepositoryInterface
 from app.utils.resources import build_sql_expression_from_dict

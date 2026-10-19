@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, BackgroundTasks
 
 from app.api.v1.authentication_controller import get_user_service
 from app.core.config import Settings
-from app.database.document.db_motor import db
+from app.database.document.document_db import document_db
 from app.models.dependencies_model.authorization_dependencies import AuthorizationDependencies
 from app.repositories.document.authorization_repositories.permission_document_repository import PermissionDocumentRepository
 from app.repositories.document.authorization_repositories.role_permission_document_repository import \
@@ -29,22 +29,22 @@ router = APIRouter(prefix=f"{Settings.API_PREFIX}/authorize")
 
 # Dependency: role repository
 def get_role_repository():
-    return RoleDocumentRepository(db[Settings.ROLES_COLLECTION])
+    return RoleDocumentRepository(document_db[Settings.ROLES_COLLECTION])
 
 
 # Dependency: permission repository
 def get_permission_repository():
-    return PermissionDocumentRepository(db[Settings.PERMISSIONS_COLLECTION])
+    return PermissionDocumentRepository(document_db[Settings.PERMISSIONS_COLLECTION])
 
 
 # Dependency: rolePermission repository
 def get_role_permission_repository():
-    return RolePermissionDocumentRepository(db[Settings.ROLE_PERMISSIONS_COLLECTION])
+    return RolePermissionDocumentRepository(document_db[Settings.ROLE_PERMISSIONS_COLLECTION])
 
 
 # Dependency: userRole repository
 def get_user_role_repository():
-    return UserRoleDocumentRepository(db[Settings.USER_ROLES_COLLECTION])
+    return UserRoleDocumentRepository(document_db[Settings.USER_ROLES_COLLECTION])
 
 
 # Dependency: role service

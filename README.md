@@ -50,7 +50,9 @@ pip install -r requirements.txt
 
 APP_HOST=127.0.0.1
 APP_PORT=8000
-DATABASE_URI=mongodb://127.0.0.1:27017/rbac_api_db
+DATABASE_TYPE="document" # or relational
+DOCUMENT_DATABASE_URI=mongodb://127.0.0.1:27017/rbac_api_db
+RELATIONAL_DATABASE_URI=""
 DATABASE_NAME=rbac_api_db
 ENV=development
 API_PREFIX=/rbac_api

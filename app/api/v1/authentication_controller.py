@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, BackgroundTasks
 
 from app.core.config import Settings
-from app.database.document.db_motor import db
+from app.database.document.document_db import document_db
 from app.models.dependencies_model.authentication_dependencies import AuthenticationDependencies
 from app.repositories.document.authentication_repositories.email_validation_code_document_repository import EmailValidationCodeDocumentRepository
 from app.repositories.document.authentication_repositories.password_recovery_token_document_repository import (
@@ -36,22 +36,22 @@ router = APIRouter(prefix=f"{Settings.API_PREFIX}/authenticate")
 
 # Dependency: emailValidation repository
 def get_email_validation_repository():
-    return EmailValidationCodeDocumentRepository(db[Settings.EMAIL_VALIDATION_CODE_COLLECTION])
+    return EmailValidationCodeDocumentRepository(document_db[Settings.EMAIL_VALIDATION_CODE_COLLECTION])
 
 
 # Dependency: user repository
 def get_user_repository():
-    return UserDocumentRepository(db[Settings.USERS_COLLECTION])
+    return UserDocumentRepository(document_db[Settings.USERS_COLLECTION])
 
 
 # Dependency: refreshToken repository
 def get_refresh_token_repository():
-    return RefreshTokenDocumentRepository(db[Settings.REFRESH_TOKENS_COLLECTION])
+    return RefreshTokenDocumentRepository(document_db[Settings.REFRESH_TOKENS_COLLECTION])
 
 
 # Dependency: passwordRecoveryToken repository
 def get_password_recovery_token_repository():
-    return PasswordRecoveryTokenDocumentRepository(db[Settings.PASSWORD_RECOVERY_TOKENS_COLLECTION])
+    return PasswordRecoveryTokenDocumentRepository(document_db[Settings.PASSWORD_RECOVERY_TOKENS_COLLECTION])
 
 
 # Dependency: emailValidation Service

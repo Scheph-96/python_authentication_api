@@ -4,7 +4,7 @@ from app.core.config import Settings
 
 # Using motor for non-blocking database operations
 client = AsyncIOMotorClient(
-            Settings.DATABASE_URI,
+            Settings.DOCUMENT_DATABASE_URI,
             uuidRepresentation="standard" # This line define the binary encoding for uuids
         )
-db = client[Settings.DATABASE_NAME]
+document_db = client[Settings.DATABASE_NAME]

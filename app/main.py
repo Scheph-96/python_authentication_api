@@ -12,7 +12,7 @@ from app.core.logging.logging_config import logging_config
 from app.database.document.app_indexes.integrity_indexes import integrity_indexes
 from app.database.document.app_indexes.lifecycle_indexes import lifecycle_indexes
 from app.database.document.app_indexes.query_indexes import query_indexes
-from app.database.document.db_motor import db
+from app.database.document.document_db import document_db
 from app.middleware.logging_middleware import LoggingMiddleware
 
 
@@ -30,8 +30,15 @@ async def lifespan(app: FastAPI):
     logger.info("Starting authentication API")
     logger.info(f"Environment: {Settings.ENV}")
 
-    await db.client.admin.command("ping")
-    logger.info(f"Database connection established")
+    if Settings.DATABASE_TYPE == "document":
+        await document_db.client.admin.command("ping")
+        logger.info("Database connection established")
+    elif Settings.DATABASE_TYPE == "relational":
+        # relational db check code...
+        logger.info("Database connection established")
+    else:
+        logger.error("Unsupported database type")
+        raise
 
     # Authorization endpoints are accessible only when authorization interface is enabled
     if Settings.ACTIVATE_AUTHORIZATION_INTERFACE:
@@ -51,9 +58,9 @@ async def lifespan(app: FastAPI):
     try:
         # await drop_all_indexes(db)
         # Load indexes
-        await integrity_indexes(db)
-        await lifecycle_indexes(db)
-        await query_indexes(db)
+        await integrity_indexes(document_db)
+        await lifecycle_indexes(document_db)
+        await query_indexes(document_db)
         logger.info("Database indexes initialized")
     except Exception as e:
         logger.error("Index initialization failed", exc_info=True)
