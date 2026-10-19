@@ -11,6 +11,7 @@ class ExceptionConfig:
         
         my_app.add_exception_handler(HTTPException, self.http_exception_handler)
         my_app.add_exception_handler(Exception, self.unhandled_exception_handler)
+        my_app.add_exception_handler(ValueError, self.invalid_uuid)
 
     """     
         When this runs:
@@ -52,4 +53,18 @@ class ExceptionConfig:
             exc_info=True,
         )
         
+        return JSONResponse(status_code=500, content={"detail": "Something went wrong. Please try again later!"})
+
+    async def invalid_uuid(self, request: Request, exc: ValueError):
+        self.logger.error(
+            "InvalidUUID",
+            path=request.url.path,
+            method=request.method,
+            error=str(exc),
+            exc_info=True,
+        )
+
+        if exc.args[0] == 'badly formed hexadecimal UUID string':
+            return JSONResponse(status_code=422, content={"detail": "Invalid UUID"})
+
         return JSONResponse(status_code=500, content={"detail": "Something went wrong. Please try again later!"})

@@ -5,9 +5,11 @@ from app.core.errors.authorization.authorization_errors import RoleAlreadyExists
     RoleAlreadyAssigned, RoleNotAssigned, PermissionAlreadyExists, PermissionNotFound, PermissionAlreadyAssigned, \
     PermissionNotAssigned
 from app.core.logging.logger import get_logger
+from app.models.core_model.authorization_model.permission_model import Permission
 from app.models.core_model.authorization_model.role_model import Role
+from app.models.core_model.authorization_model.role_permission_model import RolePermission
+from app.models.core_model.authorization_model.user_role_model import UserRole
 from app.models.dependencies_model.authorization_dependencies import AuthorizationDependencies
-from app.utils.resources import dict_string_to_uuid, string_to_uuid
 
 
 class AuthorizationService:
@@ -88,8 +90,10 @@ class AuthorizationService:
             )
             raise RoleAlreadyAssigned(data["role_id"])
 
+        user_role = UserRole(**data)
+
         # Now we can assign the role to the user
-        user_role_id = await self.autho_depends.user_role_service.create_user_role(dict_string_to_uuid(data))
+        user_role_id = await self.autho_depends.user_role_service.create_user_role(user_role.to_dict())
 
         self.logger.info(
             Settings.OPERATION_SUCCESS_EVENT_LABEL,
@@ -136,7 +140,7 @@ class AuthorizationService:
 
         # Now we check if the user has the role assigned to him
         user_role = await self.autho_depends.user_role_service.find_user_role(
-            {"role_id": string_to_uuid(data["role_id"]), "user_id": string_to_uuid(data["user_id"])})
+            {"role_id": data["role_id"], "user_id": data["user_id"]})
 
         # If no user_role then the user doesn't have this role, there is nothing to do
         if not user_role:
@@ -229,8 +233,10 @@ class AuthorizationService:
             )
             raise PermissionAlreadyExists(data["permission_name"])
 
+        permission = Permission(**data)
+
         # Insert all the permissions and retrieve ids
-        permission_id = await self.autho_depends.permission_service.create_permission(data)
+        permission_id = await self.autho_depends.permission_service.create_permission(permission.to_dict())
 
         self.logger.info(
             Settings.OPERATION_SUCCESS_EVENT_LABEL,
@@ -271,8 +277,8 @@ class AuthorizationService:
 
         # Now we check if the role has the permission assigned
         role_permission = await self.autho_depends.role_permission_service.find_role_permission(
-            {"role_id": string_to_uuid(data["role_id"]),
-             "permission_id": string_to_uuid(data["permission_id"])})
+            {"role_id": data["role_id"],
+             "permission_id": data["permission_id"]})
 
         # If role_permission then the permission is already assigned to the role, there is nothing to do
         if role_permission:
@@ -283,9 +289,10 @@ class AuthorizationService:
             )
             raise PermissionAlreadyAssigned(data["permission_id"])
 
+        role_permission = RolePermission(**data)
+
         # Now we can assign the role to the user
-        role_permission_id = await self.autho_depends.role_permission_service.create_role_permission(
-            dict_string_to_uuid(data))
+        role_permission_id = await self.autho_depends.role_permission_service.create_role_permission(role_permission.to_dict())
 
         # Get the user_role
         user_roles = await self.autho_depends.user_role_service.get_user_role_user_ids_by_role_id(data["role_id"])
@@ -349,7 +356,7 @@ class AuthorizationService:
             raise PermissionNotAssigned(data["permission_id"])
 
         # Delete role_permission record of that permission and role
-        await self.autho_depends.role_permission_service.delete_one_role_permission_by_id(role_permission["_id"])
+        await self.autho_depends.role_permission_service.delete_one_role_permission_by_id(str(role_permission["_id"]))
 
         # Get the user_role
         user_roles = await self.autho_depends.user_role_service.get_user_role_user_ids_by_role_id(data["role_id"])

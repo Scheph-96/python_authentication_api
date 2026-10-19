@@ -33,7 +33,7 @@ def dict_string_to_uuid(data: dict):
 
     for key, value in data.items():
         try:
-            new_dict[key] = UUID(value)
+            new_dict[key] = UUID(value) if type(value) is str else value
         except ValueError:
             new_dict[key] = value
 

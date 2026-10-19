@@ -1,4 +1,5 @@
 from app.repositories.document.authorization_repositories.role_permission_document_repository import RolePermissionDocumentRepository
+from app.utils.resources import dict_string_to_uuid
 
 
 class RolePermissionService:
@@ -6,7 +7,7 @@ class RolePermissionService:
         self._role_permission_repository = role_permission_repository
 
     async def create_role_permission(self, data: dict):
-        return await self._role_permission_repository.create(data)
+        return await self._role_permission_repository.create(dict_string_to_uuid(data))
 
     async def create_role_permissions(self, data: list):
         return await self._role_permission_repository.create_many(data)
@@ -15,7 +16,7 @@ class RolePermissionService:
         return await self._role_permission_repository.find_all(options)
 
     async def find_role_permission(self, data: dict, options: dict = None):
-        return await self._role_permission_repository.find(data, options=options)
+        return await self._role_permission_repository.find(dict_string_to_uuid(data), options=options)
 
     async def find_role_permission_by_id(self, role_permission_id: str):
         return await self._role_permission_repository.find_by_id(role_permission_id)

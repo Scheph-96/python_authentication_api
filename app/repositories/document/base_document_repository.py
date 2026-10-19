@@ -43,7 +43,7 @@ class BaseDocumentRepository(BaseRepositoryInterface[AsyncIOMotorCollection]):
         return result.inserted_ids
 
     async def find(self, data: dict, options: dict = None):
-        return await self._collection.find_one(dict_string_to_uuid(data), options)
+        return await self._collection.find_one(data, options)
 
     async def find_by_id(self, id: str, options: dict = None):
         return await self._collection.find_one({"_id": UUID(id)}, options)

@@ -1,4 +1,5 @@
 from app.repositories.document.authorization_repositories.user_role_document_repository import UserRoleDocumentRepository
+from app.utils.resources import dict_string_to_uuid
 
 
 class UserRoleService:
@@ -15,7 +16,7 @@ class UserRoleService:
         self._user_role_repository = user_role_repository
 
     async def create_user_role(self, data: dict):
-        return await self._user_role_repository.create(data)
+        return await self._user_role_repository.create(dict_string_to_uuid(data))
 
     async def find_user_role(self, data: dict, options: dict = None):
         """
@@ -30,7 +31,7 @@ class UserRoleService:
         :param options:
         :return:
         """
-        return await self._user_role_repository.find(data, options)
+        return await self._user_role_repository.find(dict_string_to_uuid(data), options)
 
     async def find_user_role_by_id(self, user_role_id: str):
         return await self._user_role_repository.find_by_id(user_role_id)
