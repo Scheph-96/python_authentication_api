@@ -30,6 +30,7 @@ async def lifespan(app: FastAPI):
     logger.info("Starting authentication API")
     logger.info(f"Environment: {Settings.ENV}")
 
+    # Database initialization
     if Settings.DATABASE_TYPE == "document":
         await document_db.client.admin.command("ping")
         logger.info("Database connection established")
