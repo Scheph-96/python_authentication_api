@@ -13,6 +13,7 @@ from app.database.document.app_indexes.integrity_indexes import integrity_indexe
 from app.database.document.app_indexes.lifecycle_indexes import lifecycle_indexes
 from app.database.document.app_indexes.query_indexes import query_indexes
 from app.database.document.document_db import document_db
+from app.database.relationnal import relational_db
 from app.middleware.logging_middleware import LoggingMiddleware
 
 
@@ -32,11 +33,34 @@ async def lifespan(app: FastAPI):
 
     # Database initialization
     if Settings.DATABASE_TYPE == "document":
-        await document_db.client.admin.command("ping")
-        logger.info("Database connection established")
+        # Check document database activity
+        # Throw an error when the connection failed
+        try:
+            await document_db.client.admin.command("ping")
+            logger.info("Database connection established successfully")
+
+            try:
+                # await drop_all_indexes(db)
+                # Load indexes
+                await integrity_indexes(document_db)
+                await lifecycle_indexes(document_db)
+                await query_indexes(document_db)
+                logger.info("Database indexes initialized")
+            except Exception as e:
+                logger.error("Index initialization failed", exc_info=True)
+                raise
+        except Exception:
+            logger.error("Database connection failed")
+            raise
     elif Settings.DATABASE_TYPE == "relational":
-        # relational db check code...
-        logger.info("Database connection established")
+        # Check database activity
+        # Throw an error when the connection failed
+        try:
+            await relational_db.init_relational_database()
+            logger.info("Database connection established successfully")
+        except Exception:
+            logger.error("Database connection failed")
+            raise
     else:
         logger.error("Unsupported database type")
         raise
@@ -55,17 +79,6 @@ async def lifespan(app: FastAPI):
                 or not Settings.SMTP_FROM):
             logger.error("SMTP variables are not initialized. Check .env")
             raise
-
-    try:
-        # await drop_all_indexes(db)
-        # Load indexes
-        await integrity_indexes(document_db)
-        await lifecycle_indexes(document_db)
-        await query_indexes(document_db)
-        logger.info("Database indexes initialized")
-    except Exception as e:
-        logger.error("Index initialization failed", exc_info=True)
-        raise
 
     logger.info(f"Application Running at http://{Settings.APP_HOST}:{Settings.APP_PORT}")
 
