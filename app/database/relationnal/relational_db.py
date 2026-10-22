@@ -6,6 +6,8 @@ from sqlalchemy.sql import Executable
 
 from app.core.config import Settings
 from app.core.logging.logger import get_logger
+from app.database.relationnal.tables.authentication_sql import init_authentication_tables
+from app.database.relationnal.tables.authorization_sql import init_authorization_tables
 
 logger = get_logger("startup")
 app_async_engine = create_async_engine(Settings.RELATIONAL_DATABASE_URI, echo=False)
@@ -50,10 +52,21 @@ async def init_relational_database():
         # Release the connection to the test engine
         await engine.dispose()
 
-    # Verify the target database using your existing application engine,
+    # Verify the target database using application engine
     async with app_async_engine.connect() as connection:
         logger.info("Establishing connection...")
         await connection.execute(text("SELECT 1"))
+
+
+async def create_tables():
+    """
+        Creating tables
+    """
+    init_authentication_tables()
+    init_authorization_tables()
+
+    async with app_async_engine.begin() as connection:
+        await connection.run_sync(Settings.SQLALCHEMY_METADATA.create_all)
 
 
 async def _exec_query(statement: Executable, commit: bool = False, data: list = None) -> Result:

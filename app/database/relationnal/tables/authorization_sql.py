@@ -1,8 +1,9 @@
 from sqlalchemy import Table, Column, Uuid, String, DateTime, func, ForeignKey, UniqueConstraint, Index
+
 from app.core.config import Settings
 
 
-def role_table():
+def _role_table():
     return Table(
         f"{Settings.ROLES_COLLECTION}",
         Settings.SQLALCHEMY_METADATA,
@@ -14,7 +15,7 @@ def role_table():
     )
 
 
-def permission_table():
+def _permission_table():
     return Table(
         f"{Settings.PERMISSIONS_COLLECTION}",
         Settings.SQLALCHEMY_METADATA,
@@ -25,7 +26,7 @@ def permission_table():
     )
 
 
-def role_permission_table():
+def _role_permission_table():
     return Table(
         f"{Settings.ROLE_PERMISSIONS_COLLECTION}",
         Settings.SQLALCHEMY_METADATA,
@@ -35,11 +36,11 @@ def role_permission_table():
         Column("created_at", DateTime(timezone=True), server_default=func.now()),
         UniqueConstraint("role_id", "permission_id", name="unique_role_permission"),
         Index("idx_role_permission_permission", "permission_id"),
-        Index("idx_role_permission", "role_id", "permission_id") # Order matter
+        Index("idx_role_permission", "role_id", "permission_id")  # Order matter
     )
 
 
-def user_role_table():
+def _user_role_table():
     return Table(
         f"{Settings.USER_ROLES_COLLECTION}",
         Settings.SQLALCHEMY_METADATA,
@@ -49,5 +50,12 @@ def user_role_table():
         Column("created_at", DateTime(timezone=True), server_default=func.now()),
         UniqueConstraint("user_id", "role_id", name="unique_user_role"),
         Index("idx_user_role_role", "role_id"),
-        Index("idx_user_role", "user_id", "role_id") # Order matter
+        Index("idx_user_role", "user_id", "role_id")  # Order matter
     )
+
+
+def init_authorization_tables():
+    _role_table()
+    _permission_table()
+    _role_permission_table()
+    _user_role_table()

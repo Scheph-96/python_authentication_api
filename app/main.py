@@ -38,19 +38,19 @@ async def lifespan(app: FastAPI):
         try:
             await document_db.client.admin.command("ping")
             logger.info("Database connection established successfully")
-
-            try:
-                # await drop_all_indexes(db)
-                # Load indexes
-                await integrity_indexes(document_db)
-                await lifecycle_indexes(document_db)
-                await query_indexes(document_db)
-                logger.info("Database indexes initialized")
-            except Exception as e:
-                logger.error("Index initialization failed", exc_info=True)
-                raise
         except Exception:
             logger.error("Database connection failed")
+            raise
+
+        # Load indexes
+        try:
+            # await drop_all_indexes(db)
+            await integrity_indexes(document_db)
+            await lifecycle_indexes(document_db)
+            await query_indexes(document_db)
+            logger.info("Database indexes initialized")
+        except Exception as e:
+            logger.error("Index initialization failed", exc_info=True)
             raise
     elif Settings.DATABASE_TYPE == "relational":
         # Check database activity
