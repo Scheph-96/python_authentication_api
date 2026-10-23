@@ -58,6 +58,8 @@ async def lifespan(app: FastAPI):
         try:
             await relational_db.init_relational_database()
             logger.info("Database connection established successfully")
+            await relational_db.create_tables()
+            logger.info("Tables Loaded")
         except Exception:
             logger.error("Database connection failed")
             raise
