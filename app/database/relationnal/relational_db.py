@@ -69,17 +69,19 @@ async def create_tables():
         await connection.run_sync(Settings.SQLALCHEMY_METADATA.create_all)
 
 
-async def _exec_query(statement: Executable, commit: bool = False, data: list = None) -> Result:
+async def _exec_query(statement: Executable, data: list = None) -> Result:
     """
         Centralizing query execution
     """
     async with async_local_session() as session:
-        result = await session.execute(statement, data)
-
-        if commit:
+        try:
+            result = await session.execute(statement, data)
             await session.commit()
-
-    return result
+            return result
+        except Exception:
+            # If the operation failed, discard every previous action
+            await session.rollback()
+            raise
 
 
 async def app_execute_and_fetch_one(statement: Executable) -> dict:
@@ -87,8 +89,14 @@ async def app_execute_and_fetch_one(statement: Executable) -> dict:
         Execute a query and return one row
     """
     result = await _exec_query(statement)
-    row = result.fetchone()
-    return dict(row._mapping)
+    # result.mappings() changes the format of the returned rows; it doesn't retrieve them
+    # mappings() changes row access to mapping-style access.
+    # one() expects exactly one row.
+    row = result.mappings().one()
+    # We could have simply returned the variable 'rows' since RowMapping implements
+    # Python's Mapping interface; however, within the app, we work with dictionaries
+    # hence the conversion
+    return dict(row)
 
 
 async def app_execute_and_fetch_all(statement: Executable) -> list:
@@ -96,24 +104,32 @@ async def app_execute_and_fetch_all(statement: Executable) -> list:
         Execute the query and return every row that match the query
     """
     result = await _exec_query(statement)
-    rows = result.fetchall()
-    return [dict(row._mapping) for row in rows]
+    # result.mappings() changes the format of the returned rows; it doesn't retrieve them
+    # mappings() changes row access to mapping-style access.
+    # all() retrieves all remaining rows into a list.
+    rows = result.mappings().all()
+    # We could have simply returned the variable 'rows' since RowMapping implements
+    # Python's Mapping interface; however, within the app, we work with dictionaries
+    # hence the conversion
+    return [dict(row) for row in rows]
 
 
 async def app_execute(statement: Executable) -> Result:
     """
-        Execute queries with no row returned
+        Execute queries with no row returned.
+        Usually inserts, updates and deletes
+    :param statement: the SQL query to execute
     """
-    result = await _exec_query(statement=statement, commit=True)
+    result = await _exec_query(statement=statement)
     return result
 
 
 async def app_execute_many(statement: Executable, data: list) -> Result:
     """
-        Mostly for bulk insertion
-    :param statement:
-    :param data:
+        Execute bulk query. Insert, update and delete
+    :param statement: the SQL query to execute
+    :param data: the data that will affect the database
     :return:
     """
-    result = await _exec_query(statement=statement, data=data, commit=True)
+    result = await _exec_query(statement=statement, data=data)
     return result
