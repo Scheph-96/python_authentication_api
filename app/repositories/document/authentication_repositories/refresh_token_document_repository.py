@@ -11,7 +11,7 @@ class RefreshTokenDocumentRepository(BaseDocumentRepository, RefreshTokenReposit
     async def find_by_hash(self, token_hash: str):
         return await self._collection.find_one({"token_hash": token_hash})
 
-    async def revoke(self, token_id: str, new_refresh_token: str = None):
+    async def revoke(self, token_id: str, new_refresh_token: str | None = None):
         await self._collection.update_one(
             {"_id": UUID(token_id)},
             {

@@ -1,6 +1,6 @@
 from datetime import timezone, datetime, timedelta
 
-from sqlalchemy import Table, Column, Uuid, Integer, String, Boolean, DateTime, func, ForeignKey, Index
+from sqlalchemy import Table, Column, Uuid, Integer, String, Boolean, DateTime, func, ForeignKey, Index, JSON
 
 from app.core.config import Settings
 
@@ -14,7 +14,7 @@ def _user_table():
         Column("email", String, nullable=True, unique=True),
         Column("hashed_password", String, nullable=False),
         Column("auth_version", Integer, nullable=False),
-        Column("effective_permissions", String, nullable=False, server_default=""),
+        Column("effective_permissions", JSON, nullable=False, server_default=""),
         Column("is_verified", Boolean, nullable=False, default=False),
         Column("created_at", DateTime(timezone=True), server_default=func.now()),
         Index("idx_username", "username"),

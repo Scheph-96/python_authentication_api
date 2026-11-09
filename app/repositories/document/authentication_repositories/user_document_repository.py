@@ -23,6 +23,14 @@ class UserDocumentRepository(BaseDocumentRepository, UserRepositoryInterface):
         await self._collection.update_many({"_id": {"$in": user_ids}}, {"$set": data})
 
     async def update_users_effective_permissions(self, updates: list):
+        """
+            Updates user effective permissions by user_id
+        :param: updates: A list of objects with this format
+        {
+            "user_id": <user_is>,
+            "permissions": <list of permission>
+        }
+        """
         try:
             operations = [
                 UpdateOne(
@@ -37,4 +45,4 @@ class UserDocumentRepository(BaseDocumentRepository, UserRepositoryInterface):
 
             await self._collection.bulk_write(operations)
         except InvalidOperation:
-            pass
+            raise
