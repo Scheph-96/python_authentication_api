@@ -82,10 +82,10 @@ class RefreshTokenService:
         return await self.refresh_token_repo.find_by_hash(token_hash)
     
     async def revoke_refresh_token(self, token_id: UUID, replaced_by: str = None):
-        await self.refresh_token_repo.revoke(str(token_id), replaced_by)
+        await self.refresh_token_repo.revoke(token_id, replaced_by)
     
     async def remove_expired_refresh_token(self):
         await self.refresh_token_repo.delete_expired_revoked()
 
-    async def revoke_and_expire_all_refresh_tokens_by_user(self, user_id: str):
-        await self.refresh_token_repo.revoke_and_expire_all_refresh_tokens_by_user(user_id)
+    async def revoke_and_expire_all_refresh_tokens_by_user_id(self, user_id: str):
+        await self.refresh_token_repo.revoke_and_expire_all_refresh_tokens_by_user_id(UUID(user_id))
