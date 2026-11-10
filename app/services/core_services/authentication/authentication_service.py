@@ -256,7 +256,7 @@ class AuthenticationService:
             new_auth_version=str(user.auth_version),
         )
 
-        await self.auth_depends.refresh_token_service.revoke_and_expire_all_refresh_tokens_by_user(str(user._id))
+        await self.auth_depends.refresh_token_service.revoke_and_expire_all_refresh_tokens_by_user_id(str(user._id))
 
         self.logger.info(
             f"{Settings.OPERATION_SUCCESS_EVENT_LABEL}: all_user_refresh_tokens_revoked",
@@ -278,8 +278,8 @@ class AuthenticationService:
         )
 
         # Increment authentication version
-        await self.auth_depends.user_service.update_inc_user(
-            str(refresh_token.user_id), {"auth_version": 1}
+        await self.auth_depends.user_service.update_inc_auth_version(
+            str(refresh_token.user_id)
         )
 
         # Revoke refresh_token

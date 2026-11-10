@@ -16,8 +16,8 @@ class UserDocumentRepository(BaseDocumentRepository, UserRepositoryInterface):
     async def find_by_username(self, username: str):
         return await self._collection.find_one({"username": username})
 
-    async def update_inc(self, user_id: str, data: dict):
-        await self._collection.update_one({"_id": UUID(user_id)}, {"$inc": data})
+    async def update_inc_auth_version(self, user_id: UUID):
+        await self._collection.update_one({"_id": user_id}, {"$inc": {"auth_version": 1}})
 
     async def update_many_user(self, user_ids: list, data: dict):
         await self._collection.update_many({"_id": {"$in": user_ids}}, {"$set": data})

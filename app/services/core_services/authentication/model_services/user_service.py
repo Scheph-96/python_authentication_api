@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from app.core.logging.logger import get_logger
 from app.repositories.interfaces.authentication_repositories_interfaces.user_repository_interface import \
     UserRepositoryInterface
@@ -33,5 +35,5 @@ class UserService:
     async def update_effective_permissions(self, updates: list):
         await self._user_repository.update_users_effective_permissions(updates)
 
-    async def update_inc_user(self, user_id: str, data: dict):
-        await self._user_repository.update_inc(user_id, data)
+    async def update_inc_auth_version(self, user_id: str):
+        await self._user_repository.update_inc_auth_version(UUID(user_id))
