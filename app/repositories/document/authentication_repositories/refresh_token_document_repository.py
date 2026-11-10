@@ -35,6 +35,6 @@ class RefreshTokenDocumentRepository(BaseDocumentRepository, RefreshTokenReposit
 
     async def delete_expired_revoked(self):
         await self._collection.delete_many({
-            "revoke": True,
+            "revoked": True,
             "expire_at": {"$lt": datetime.now(timezone.utc)}
         })

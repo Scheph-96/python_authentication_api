@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from uuid import UUID
 
-from sqlalchemy import select, update, bindparam
+from sqlalchemy import select, update, bindparam, delete
 
 from app.database.relationnal.relational_db import app_execute_and_fetch_one, app_execute, app_execute_many
 from app.repositories.interfaces.authentication_repositories_interfaces.refresh_token_repository_interface import \
@@ -39,4 +39,10 @@ class RefreshTokenRelationalRepository(BaseRelationalRepository, RefreshTokenRep
         )
 
     async def delete_expired_revoked(self):
-        pass
+        await app_execute(
+            delete(self._collection)
+            .where(
+                self._collection.revoked == True,
+                self._collection.columns.expire_at < datetime.now(timezone.utc)
+            )
+        )
