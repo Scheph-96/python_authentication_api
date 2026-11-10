@@ -278,8 +278,8 @@ class AuthenticationService:
         )
 
         # Increment authentication version
-        await self.auth_depends.user_service.update_inc_user(
-            str(refresh_token.user_id), {"auth_version": 1}
+        await self.auth_depends.user_service.update_inc_auth_version(
+            str(refresh_token.user_id)
         )
 
         # Revoke refresh_token

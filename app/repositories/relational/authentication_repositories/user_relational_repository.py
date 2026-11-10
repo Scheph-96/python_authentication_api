@@ -24,10 +24,10 @@ class UserRelationalRepository(BaseRelationalRepository, UserRepositoryInterface
             .where(*expression)
         )
 
-    async def update_inc(self, user_id: str, data: dict):
+    async def update_inc_auth_version(self, user_id: UUID):
         await app_execute(
             update(self._collection)
-            .where(self._collection.columns._id == UUID(user_id))
+            .where(self._collection.columns._id == user_id)
             .values(auth_version=self._collection.auth_version + 1))
 
     async def update_many_user(self, user_ids: list, data: dict):
