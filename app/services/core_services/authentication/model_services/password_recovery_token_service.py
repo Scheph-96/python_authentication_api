@@ -1,5 +1,6 @@
 import secrets
 from datetime import datetime
+from uuid import UUID
 
 from fastapi import HTTPException
 
@@ -76,16 +77,16 @@ class PasswordRecoveryTokenService:
         return password_recovery_token.user_id
 
     async def revoke_all_password_recovery_tokens(self, user_id: str):
-        return await self.repo.revoke_all_password_recovery_tokens(user_id)
+        return await self.repo.revoke_all_password_recovery_tokens_by_user_id(UUID(user_id))
 
     async def get_by_hash(self, token_hash: str):
         return await self.repo.find_by_hash(token_hash)
 
     async def get_by_user_id(self, user_id: str):
-        return await self.repo.find_by_user_id(user_id)
+        return await self.repo.find_by_user_id(UUID(user_id))
 
     async def update_password_recovery_token(self, password_recovery_instance_id: str):
-        await self.repo.revoke_password_recovery_token(password_recovery_instance_id)
+        await self.repo.revoke_password_recovery_token(UUID(password_recovery_instance_id))
 
     async def delete_password_recovery_token(self, password_recovery_instance_id):
         await self.repo.delete_one_by_id(password_recovery_instance_id)

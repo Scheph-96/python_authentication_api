@@ -8,14 +8,35 @@ from app.repositories.interfaces.authentication_repositories_interfaces.password
 class PasswordRecoveryTokenDocumentRepository(BaseDocumentRepository, PasswordRecoveryTokenRepositoryInterface):
 
     async def find_by_hash(self, token_hash: str):
-        return await self._collection.find_one({"token_hash": token_hash})
+        return await self._collection.find_one({
+            "token_hash": token_hash
+        })
 
-    async def find_by_user_id(self, user_id: str):
-        return await self._collection.find_one({"user_id": UUID(user_id)})
+    async def find_by_user_id(self, user_id: UUID):
+        return await self._collection.find_one({
+            "user_id": user_id
+        })
 
-    async def revoke_password_recovery_token(self, recovery_token_id: str):
-        await self._collection.update_one({"_id": UUID(recovery_token_id)}, {"$set": {"revoked": True}})
+    async def revoke_password_recovery_token(self, password_recovery_token_id: UUID):
+        await self._collection.update_one(
+            {
+            "_id": password_recovery_token_id
+            },
+            {
+                "$set": {
+                    "revoked": True
+                }
+            }
+        )
 
-    async def revoke_all_password_recovery_tokens(self, user_id: str):
-        await self._collection.update_many({"user_id": UUID(user_id)}, {"$set": {"revoked": True}})
-
+    async def revoke_all_password_recovery_tokens_by_user_id(self, user_id: UUID):
+        await self._collection.update_many(
+            {
+                "user_id": user_id
+            },
+            {
+                "$set": {
+                    "revoked": True
+                }
+            }
+        )
