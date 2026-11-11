@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 
 from fastapi import HTTPException
 
@@ -15,7 +16,15 @@ from app.utils.resources import code_generator
 
 
 class EmailValidationCodeService:
-    # The EmailValidationCodeRepositoryInterface only has one method
+    # EmailValidationCodeRepositoryInterface only has one method
+    # The actual repo that inherit the interface also inherit
+    # PasswordRecoveryTokenRepository, so the methods that are
+    # highlighted here exist by overwriting and inheritance
+    # in EmailValidationCodeRelationRepository and
+    # in EmailValidationCodeDocumentRepository
+
+    # EmailValidationCodeRepositoryInterface is used here as
+    # datatype for future reference
     def __init__(self, repo: EmailValidationCodeRepositoryInterface):
         self.repo = repo
         self.logger = get_logger("EmailValidationCodeService")
@@ -101,7 +110,7 @@ class EmailValidationCodeService:
 
 
     async def revoke_all_email_recovery_tokens(self, user_id: str):
-        return await self.repo.revoke_all_email_recovery_tokens(user_id)
+        return await self.repo.revoke_all_email_recovery_tokens(UUID(user_id))
 
     async def get(self, data: dict):
         return await self.repo.find(data)
@@ -113,7 +122,7 @@ class EmailValidationCodeService:
         return await self.repo.find_by_user_id(user_id)
 
     async def update_code_email_validation_code(self, email_validation_code_id: str):
-        await self.repo.revoke_email_validation_code(email_validation_code_id)
+        await self.repo.revoke_email_validation_code(UUID(email_validation_code_id))
 
     async def delete_email_validation_code(self, email_validation_code_id):
         await self.repo.delete_one_by_id(email_validation_code_id)
