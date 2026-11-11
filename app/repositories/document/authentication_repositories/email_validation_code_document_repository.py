@@ -11,4 +11,4 @@ class EmailValidationCodeDocumentRepository(PasswordRecoveryTokenDocumentReposit
         return await super().revoke_password_recovery_token(email_validation_code_id)
 
     async def revoke_all_email_recovery_tokens(self, user_id: str):
-        return await super().revoke_all_password_recovery_tokens(user_id)
+        return await super().revoke_all_password_recovery_tokens_by_user_id(user_id)
