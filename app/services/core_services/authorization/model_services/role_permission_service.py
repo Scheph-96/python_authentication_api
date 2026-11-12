@@ -1,9 +1,13 @@
+from uuid import UUID
+
 from app.repositories.document.authorization_repositories.role_permission_document_repository import RolePermissionDocumentRepository
+from app.repositories.interfaces.authorization_repositories_interfaces.role_permission_repository_interface import \
+    RolePermissionRepositoryInterface
 from app.utils.resources import dict_string_to_uuid
 
 
 class RolePermissionService:
-    def __init__(self, role_permission_repository: RolePermissionDocumentRepository):
+    def __init__(self, role_permission_repository: RolePermissionRepositoryInterface):
         self._role_permission_repository = role_permission_repository
 
     async def create_role_permission(self, data: dict):
@@ -12,20 +16,20 @@ class RolePermissionService:
     async def create_role_permissions(self, data: list):
         return await self._role_permission_repository.create_many(data)
 
-    async def find_all_role_permissions(self, options: dict = None):
-        return await self._role_permission_repository.find_all(options)
+    async def find_all_role_permissions(self, options: dict | None = None):
+        return await self._role_permission_repository.find_all(options=options)
 
-    async def find_role_permission(self, data: dict, options: dict = None):
+    async def find_role_permission(self, data: dict, options: dict | None = None):
         return await self._role_permission_repository.find(dict_string_to_uuid(data), options=options)
 
     async def find_role_permission_by_id(self, role_permission_id: str):
         return await self._role_permission_repository.find_by_id(role_permission_id)
 
     async def find_role_permission_by_role_id(self, role_id: str) -> list:
-        return await self._role_permission_repository.find_by_role_id(role_id)
+        return await self._role_permission_repository.find_by_role_id(UUID(role_id))
 
-    async def find_role_permission_by_role_ids(self, role_ids: list, options: dict = None) -> list:
-        return await self._role_permission_repository.find_by_role_ids(role_ids)
+    async def find_role_permission_by_role_ids(self, role_ids: list, options: dict | None = None) -> list:
+        return await self._role_permission_repository.find_by_role_ids(role_ids, options=options)
 
     async def find_role_permission_by_permission_id(self, permission_id: str) -> list:
         return await self._role_permission_repository.find_by_permission_id(permission_id)

@@ -7,12 +7,24 @@ from app.repositories.interfaces.authorization_repositories_interfaces.role_perm
 
 class RolePermissionDocumentRepository(BaseDocumentRepository, RolePermissionRepositoryInterface):
 
-    async def find_by_role_id(self, role_id: str):
-        result = self._collection.find({"role_id": UUID(role_id)})
+    async def find_by_role_id(self, role_id: UUID):
+        result = self._collection.find(
+            {
+                "role_id": role_id
+            }
+        )
         return await result.to_list()
 
-    async def find_by_role_ids(self, role_ids: list, options: dict = None):
-        result = self._collection.find({"role_id": {"$in": role_ids}}, options)
+    async def find_by_role_ids(self, role_ids: list, **kwargs):
+        options = kwargs.get("options")
+        result = self._collection.find(
+            {
+                "role_id": {
+                    "$in": role_ids
+                }
+            },
+            options
+        )
         return await result.to_list()
 
     async def find_by_permission_id(self, permission_id: str):
