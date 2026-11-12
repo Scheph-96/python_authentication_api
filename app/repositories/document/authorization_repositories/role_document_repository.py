@@ -6,4 +6,8 @@ from app.repositories.interfaces.authorization_repositories_interfaces.role_repo
 class RoleDocumentRepository(BaseDocumentRepository, RoleRepositoryInterface):
 
     async def find_by_name(self, role_name: str):
-        return await self._collection.find_one({"role_name": role_name})
+        return await self._collection.find_one(
+            {
+                "role_name": role_name
+            }
+        )
