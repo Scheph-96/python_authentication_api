@@ -35,7 +35,7 @@ class RolePermissionService:
         return await self._role_permission_repository.find_by_permission_id(UUID(permission_id))
 
     async def get_user_ids_from_role_permissions(self, permission_id: str):
-        return await self._role_permission_repository.get_user_ids_from_role_permissions(permission_id)
+        return await self._role_permission_repository.get_user_ids_from_role_permissions(UUID(permission_id))
 
     async def update_role_permission(self, role_permission_id: str, data: dict):
         await self._role_permission_repository.update(role_permission_id, data)

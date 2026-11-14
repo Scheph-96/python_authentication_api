@@ -1,8 +1,10 @@
 from uuid import UUID
 
+import collections
 from sqlalchemy import select, delete
 
 from app.database.relationnal.relational_db import app_execute_and_fetch_one, app_execute_and_fetch_all, app_execute
+from app.database.relationnal.tables.authorization_sql import user_role_table
 from app.repositories.interfaces.authorization_repositories_interfaces.role_permission_repository_interface import \
     RolePermissionRepositoryInterface
 from app.repositories.relational.base_relational_repository import BaseRelationalRepository
@@ -30,8 +32,27 @@ class RolePermissionRelationalRepository(BaseRelationalRepository, RolePermissio
             .where(*expression)
         )
 
-    async def get_user_ids_from_role_permissions(self, permission_id: str):
-        pass
+    async def get_user_ids_from_role_permissions(self, permission_id: UUID):
+        """
+            Return users that have the provided permission
+
+            Logic
+            Find role_permissions matching the permission_id.
+            Join with user_roles using role_id.
+            Collect unique user_id values.
+        """
+        expression = build_sql_expression_from_dict(self._collection, {"permission_id": permission_id})
+        user_role = user_role_table()
+
+        return await app_execute_and_fetch_all(
+            select(user_role.columns.user_id)
+            .join(
+                self._collection,
+                self._collection.columns.role_id == user_role.columns.role_id
+            )
+            .where(*expression)
+            .distinct()
+        )
 
     async def delete_many_by_role_id(self, role_id: UUID):
         expression = build_sql_expression_from_dict(self._collection, {"role_id": role_id})

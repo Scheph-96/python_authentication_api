@@ -398,7 +398,7 @@ class AuthorizationService:
         role_permissions = await self.autho_depends.role_permission_service.get_user_ids_from_role_permissions(data["permission_id"])
 
         # If role_permissions is not null it means that the permission is assigned
-        # to some roles. SO before we delete the permission we first have to delete
+        # to some roles. So before we delete the permission we first have to delete
         # the relation role_permissions and finally the permission
         if role_permissions:
             # Delete role_permissions
