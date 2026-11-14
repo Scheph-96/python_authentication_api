@@ -27,10 +27,10 @@ class RolePermissionDocumentRepository(BaseDocumentRepository, RolePermissionRep
         )
         return await result.to_list()
 
-    async def find_by_permission_id(self, permission_id: str):
+    async def find_by_permission_id(self, permission_id: UUID):
         result = self._collection.find(
             {
-                "permission_id": UUID(permission_id)
+                "permission_id": permission_id
             }
         )
         return await result.to_list()

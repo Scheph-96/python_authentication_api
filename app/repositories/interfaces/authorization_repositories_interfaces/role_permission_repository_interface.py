@@ -11,7 +11,7 @@ class RolePermissionRepositoryInterface(BaseRepositoryInterface):
     async def find_by_role_ids(self, role_ids: list, **kwargs):
         pass
     
-    async def find_by_permission_id(self, permission_id: str):
+    async def find_by_permission_id(self, permission_id: UUID):
         pass
 
     async def get_user_ids_from_role_permissions(self, permission_id: str):

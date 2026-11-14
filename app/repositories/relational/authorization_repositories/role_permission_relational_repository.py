@@ -12,7 +12,7 @@ from app.utils.resources import build_sql_expression_from_dict
 class RolePermissionRelationalRepository(BaseRelationalRepository, RolePermissionRepositoryInterface):
     async def find_by_role_id(self, role_id: UUID):
         expression = build_sql_expression_from_dict(self._collection, {"role_id": role_id})
-        return await app_execute_and_fetch_one(
+        return await app_execute_and_fetch_all(
             select(self._collection)
             .where(*expression)
         )
@@ -23,8 +23,12 @@ class RolePermissionRelationalRepository(BaseRelationalRepository, RolePermissio
             .where(self._collection.columns.role_id.in_(role_ids))
         )
 
-    async def find_by_permission_id(self, permission_id: str):
-        pass
+    async def find_by_permission_id(self, permission_id: UUID):
+        expression = build_sql_expression_from_dict({"permission_id": permission_id})
+        return await app_execute_and_fetch_all(
+            select(self._collection)
+            .where(*expression)
+        )
 
     async def get_user_ids_from_role_permissions(self, permission_id: str):
         pass

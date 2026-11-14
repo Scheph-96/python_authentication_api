@@ -32,7 +32,7 @@ class RolePermissionService:
         return await self._role_permission_repository.find_by_role_ids(role_ids, options=options)
 
     async def find_role_permission_by_permission_id(self, permission_id: str) -> list:
-        return await self._role_permission_repository.find_by_permission_id(permission_id)
+        return await self._role_permission_repository.find_by_permission_id(UUID(permission_id))
 
     async def get_user_ids_from_role_permissions(self, permission_id: str):
         return await self._role_permission_repository.get_user_ids_from_role_permissions(permission_id)
