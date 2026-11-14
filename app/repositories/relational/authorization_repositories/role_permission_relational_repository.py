@@ -1,8 +1,8 @@
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, delete
 
-from app.database.relationnal.relational_db import app_execute_and_fetch_one, app_execute_and_fetch_all
+from app.database.relationnal.relational_db import app_execute_and_fetch_one, app_execute_and_fetch_all, app_execute
 from app.repositories.interfaces.authorization_repositories_interfaces.role_permission_repository_interface import \
     RolePermissionRepositoryInterface
 from app.repositories.relational.base_relational_repository import BaseRelationalRepository
@@ -24,7 +24,7 @@ class RolePermissionRelationalRepository(BaseRelationalRepository, RolePermissio
         )
 
     async def find_by_permission_id(self, permission_id: UUID):
-        expression = build_sql_expression_from_dict({"permission_id": permission_id})
+        expression = build_sql_expression_from_dict(self._collection, {"permission_id": permission_id})
         return await app_execute_and_fetch_all(
             select(self._collection)
             .where(*expression)
@@ -33,8 +33,16 @@ class RolePermissionRelationalRepository(BaseRelationalRepository, RolePermissio
     async def get_user_ids_from_role_permissions(self, permission_id: str):
         pass
 
-    async def delete_many_by_role_id(self, role_id: str):
-        pass
+    async def delete_many_by_role_id(self, role_id: UUID):
+        expression = build_sql_expression_from_dict(self._collection, {"role_id": role_id})
+        await app_execute(
+            delete(self._collection)
+            .where(*expression)
+        )
 
-    async def delete_many_by_permission_id(self, permission_id: str):
-        pass
+    async def delete_many_by_permission_id(self, permission_id: UUID):
+        expression = build_sql_expression_from_dict(self._collection, {"permission_id": permission_id})
+        await app_execute(
+            delete(self._collection)
+            .where(*expression)
+        )

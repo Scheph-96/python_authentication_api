@@ -72,8 +72,16 @@ class RolePermissionDocumentRepository(BaseDocumentRepository, RolePermissionRep
         result = self._collection.aggregate(pipeline)
         return await result.to_list()
 
-    async def delete_many_by_role_id(self, role_id: str):
-        await self._collection.delete_many({"role_id": UUID(role_id)})
+    async def delete_many_by_role_id(self, role_id: UUID):
+        await self._collection.delete_many(
+            {
+                "role_id": role_id
+            }
+        )
 
-    async def delete_many_by_permission_id(self, permission_id: str):
-        await self._collection.delete_many({"permission_id": UUID(permission_id)})
+    async def delete_many_by_permission_id(self, permission_id: UUID):
+        await self._collection.delete_many(
+            {
+                "permission_id": permission_id
+            }
+        )
