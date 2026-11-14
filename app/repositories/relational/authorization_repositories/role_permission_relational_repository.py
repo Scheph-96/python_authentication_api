@@ -2,7 +2,7 @@ from uuid import UUID
 
 from sqlalchemy import select
 
-from app.database.relationnal.relational_db import app_execute_and_fetch_one
+from app.database.relationnal.relational_db import app_execute_and_fetch_one, app_execute_and_fetch_all
 from app.repositories.interfaces.authorization_repositories_interfaces.role_permission_repository_interface import \
     RolePermissionRepositoryInterface
 from app.repositories.relational.base_relational_repository import BaseRelationalRepository
@@ -18,7 +18,10 @@ class RolePermissionRelationalRepository(BaseRelationalRepository, RolePermissio
         )
 
     async def find_by_role_ids(self, role_ids: list, **kwargs):
-        pass
+        return await app_execute_and_fetch_all(
+            select(self._collection)
+            .where(self._collection.columns.role_id.in_(role_ids))
+        )
 
     async def find_by_permission_id(self, permission_id: str):
         pass
