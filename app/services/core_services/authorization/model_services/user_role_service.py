@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from app.repositories.document.authorization_repositories.user_role_document_repository import UserRoleDocumentRepository
 from app.utils.resources import dict_string_to_uuid
 
@@ -18,7 +20,7 @@ class UserRoleService:
     async def create_user_role(self, data: dict):
         return await self._user_role_repository.create(dict_string_to_uuid(data))
 
-    async def find_user_role(self, data: dict, options: dict = None):
+    async def find_user_role(self, data: dict, options: dict | None = None):
         """
             Retrieve a user_role that has a specific role_id and a specific user_id,
             data will look like
@@ -36,32 +38,32 @@ class UserRoleService:
     async def find_user_role_by_id(self, user_role_id: str):
         return await self._user_role_repository.find_by_id(user_role_id)
 
-    async def find_user_role_by_role_id(self, role_id: str, options: dict = None) -> list:
+    async def find_user_role_by_role_id(self, role_id: str, options: dict | None = None) -> list:
         """
             Retrieve every user_role entries with the specified role_id
         :param options:
         :param role_id:
         :return:
         """
-        return await self._user_role_repository.find_by_role_id(role_id, options)
+        return await self._user_role_repository.find_by_role_id(UUID(role_id), options=options)
 
-    async def find_user_role_by_user_id(self, user_id: str, options: dict = None) -> list:
+    async def find_user_role_by_user_id(self, user_id: str, options: dict | None = None) -> list:
         """
             Retrieve every user_role entries with the specified user_id
         :param user_id:
         :param options:
         :return:
         """
-        return await self._user_role_repository.find_by_user_id(user_id, options)
+        return await self._user_role_repository.find_by_user_id(UUID(user_id), options=options)
 
-    async def find_user_role_by_user_ids(self, user_id: list, options: dict = None) -> list:
+    async def find_user_role_by_user_ids(self, user_id: list, options: dict | None = None) -> list:
         """
             Retrieve every user_role entries with all the specified user_ids
         :param user_id:
         :param options:
         :return:
         """
-        return await self._user_role_repository.find_by_user_ids(user_id, options)
+        return await self._user_role_repository.find_by_user_ids(user_id, options=options)
 
     async def get_user_role_user_ids_by_role_id(self, role_id: str):
         """
@@ -78,7 +80,7 @@ class UserRoleService:
         await self._user_role_repository.delete_one_by_id(user_role_id)
 
     async def delete_many_user_role_by_role_id(self, role_id: str):
-        await self._user_role_repository.delete_many_by_role_id(role_id)
+        await self._user_role_repository.delete_many_by_role_id(UUID(role_id))
 
     async def recompute_user_permissions_by_ids(self, user_ids: list):
         return await self._user_role_repository.get_users_and_permissions(user_ids)
