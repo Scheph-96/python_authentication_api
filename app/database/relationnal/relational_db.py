@@ -1,3 +1,5 @@
+from typing import Any, Sequence
+
 from sqlalchemy import text
 from sqlalchemy.engine import Result
 from sqlalchemy.engine import make_url
@@ -69,9 +71,9 @@ async def create_tables():
         await connection.run_sync(Settings.SQLALCHEMY_METADATA.create_all)
 
 
-async def _exec_query(statement: Executable, data: list = None) -> Result:
+async def _exec_query(statement: Executable, data: list | None = None) -> Result:
     """
-        Centralizing query execution
+        Centralizing statement execution
     """
     async with async_local_session() as session:
         try:
@@ -86,7 +88,7 @@ async def _exec_query(statement: Executable, data: list = None) -> Result:
 
 async def app_execute_and_fetch_one(statement: Executable) -> dict:
     """
-        Execute a query and return one row
+        Execute a statement and return one row
     """
     result = await _exec_query(statement)
     # result.mappings() changes the format of the returned rows; it doesn't retrieve them
@@ -101,7 +103,7 @@ async def app_execute_and_fetch_one(statement: Executable) -> dict:
 
 async def app_execute_and_fetch_all(statement: Executable) -> list:
     """
-        Execute the query and return every row that match the query
+        Execute the statement and return every row that match the query
     """
     result = await _exec_query(statement)
     # result.mappings() changes the format of the returned rows; it doesn't retrieve them
@@ -113,6 +115,15 @@ async def app_execute_and_fetch_all(statement: Executable) -> list:
     # hence the conversion
     return [dict(row) for row in rows]
 
+
+async def app_execute_and_scalars_all(statement: Executable) -> list:
+    """
+        Execute the statement and return a flat list of values
+    """
+    result = await _exec_query(statement)
+    # scalars extracts the first selected column from each result row.
+    # .all() Returns all values as a list.
+    return result.scalars().all()
 
 async def app_execute(statement: Executable) -> Result:
     """

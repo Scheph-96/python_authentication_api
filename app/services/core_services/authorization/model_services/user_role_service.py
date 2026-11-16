@@ -71,7 +71,7 @@ class UserRoleService:
         :param role_id:
         :return:
         """
-        return await self._user_role_repository.get_user_ids_by_role_id(role_id)
+        return await self._user_role_repository.get_user_ids_by_role_id(UUID(role_id))
 
     async def update_user_role(self, user_role_id: str, data: dict):
         await self._user_role_repository.update(user_role_id, data)

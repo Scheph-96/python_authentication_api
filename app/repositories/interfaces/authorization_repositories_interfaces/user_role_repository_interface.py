@@ -17,7 +17,7 @@ class UserRoleRepositoryInterface(BaseRepositoryInterface):
     async def delete_many_by_role_id(self, role_id: UUID):
         pass
 
-    async def get_user_ids_by_role_id(self, role_id: str):
+    async def get_user_ids_by_role_id(self, role_id: UUID):
         pass
 
     async def get_users_and_permissions(self, user_ids: list):
