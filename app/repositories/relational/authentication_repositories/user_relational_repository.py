@@ -25,15 +25,16 @@ class UserRelationalRepository(BaseRelationalRepository, UserRepositoryInterface
         )
 
     async def update_inc_auth_version(self, user_id: UUID):
+        expression = build_sql_expression_from_dict(self._collection, {"_id": user_id})
         await app_execute(
             update(self._collection)
-            .where(self._collection.columns._id == user_id)
-            .values(auth_version=self._collection.auth_version + 1))
+            .where(*expression)
+            .values(auth_version=self._collection.columns.auth_version + 1))
 
     async def update_many_user(self, user_ids: list, data: dict):
         await app_execute(
             update(self._collection)
-            .where(self._collection._id.in_(user_ids)
+            .where(self._collection.columns._id.in_(user_ids)
             .values(**data))
         )
 
@@ -48,7 +49,7 @@ class UserRelationalRepository(BaseRelationalRepository, UserRepositoryInterface
         """
         await app_execute_many(
             update(self._collection)
-            .where(self._collection.c._id == bindparam("user_id"))
+            .where(self._collection.columns._id == bindparam("user_id"))
             .values({
                 "user_id": bindparam("user_id"),
                 "effective_permissions": bindparam("user_id")

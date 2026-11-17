@@ -25,7 +25,7 @@ class RefreshTokenService:
         raw = secrets.token_urlsafe(64)
         token_hash = hash_token(raw)
 
-        user = await self.user_repo.find_by_id(user_id)
+        user = await self.user_repo.find_by_id(UUID(user_id))
 
         refresh_token = RefreshToken(user_id=user_id, token_hash=token_hash, auth_version=user["auth_version"])
         refresh_token_id = await self.refresh_token_repo.create(refresh_token.to_dict())
@@ -63,7 +63,7 @@ class RefreshTokenService:
             
             raise HTTPException(401, "Invalid refresh token")
         
-        user = await self.user_repo.find_by_id(str(refresh_token.user_id))
+        user = await self.user_repo.find_by_id(refresh_token.user_id)
         
         if refresh_token.auth_version != user["auth_version"]:
             # Since the token version doesn't match. We just revoke it

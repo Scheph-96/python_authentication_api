@@ -1,6 +1,7 @@
 from uuid import UUID
 
-from app.repositories.document.authorization_repositories.user_role_document_repository import UserRoleDocumentRepository
+from app.repositories.interfaces.authorization_repositories_interfaces.user_role_repository_interface import \
+    UserRoleRepositoryInterface
 from app.utils.resources import dict_string_to_uuid
 
 
@@ -14,7 +15,8 @@ class UserRoleService:
 
         A role is assigned the many users and many user has the same role
     """
-    def __init__(self, user_role_repository: UserRoleDocumentRepository):
+
+    def __init__(self, user_role_repository: UserRoleRepositoryInterface):
         self._user_role_repository = user_role_repository
 
     async def create_user_role(self, data: dict):
@@ -36,7 +38,7 @@ class UserRoleService:
         return await self._user_role_repository.find(dict_string_to_uuid(data), options)
 
     async def find_user_role_by_id(self, user_role_id: str):
-        return await self._user_role_repository.find_by_id(user_role_id)
+        return await self._user_role_repository.find_by_id(UUID(user_role_id))
 
     async def find_user_role_by_role_id(self, role_id: str, options: dict | None = None) -> list:
         """
@@ -74,10 +76,10 @@ class UserRoleService:
         return await self._user_role_repository.get_user_ids_by_role_id(UUID(role_id))
 
     async def update_user_role(self, user_role_id: str, data: dict):
-        await self._user_role_repository.update(user_role_id, data)
+        await self._user_role_repository.update(UUID(user_role_id), data)
 
     async def delete_user_role(self, user_role_id: str):
-        await self._user_role_repository.delete_one_by_id(user_role_id)
+        await self._user_role_repository.delete_one_by_id(UUID(user_role_id))
 
     async def delete_many_user_role_by_role_id(self, role_id: str):
         await self._user_role_repository.delete_many_by_role_id(UUID(role_id))

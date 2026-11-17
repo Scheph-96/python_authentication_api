@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from app.repositories.interfaces.authorization_repositories_interfaces.permission_repository_interface import \
     PermissionRepositoryInterface
 from app.utils.resources import string_list_to_uuid
@@ -14,7 +16,7 @@ class PermissionService:
         return await self._permission_repository.create_many(data)
 
     async def find_permission_by_id(self, permission_id: str, options: dict | None = None):
-        return await self._permission_repository.find_by_id(permission_id, options)
+        return await self._permission_repository.find_by_id(UUID(permission_id), options)
 
     async def find_permission_by_ids(self, permission_ids: list, options: dict | None = None) -> list:
         return await self._permission_repository.find_by_ids(permission_ids, options=options)
@@ -26,10 +28,10 @@ class PermissionService:
         return await self._permission_repository.find_by_name_in(permissions_names, options=options)
 
     async def update_permission(self, permission_id: str, updated_data: dict):
-        await self._permission_repository.update(permission_id, updated_data)
+        await self._permission_repository.update(UUID(permission_id), updated_data)
 
     async def delete_permission(self, permission_id: str):
-        await self._permission_repository.delete_one_by_id(permission_id)
+        await self._permission_repository.delete_one_by_id(UUID(permission_id))
 
     async def delete_permissions_in(self, permissions_ids: list):
         await self._permission_repository.delete_many_in(string_list_to_uuid(permissions_ids))

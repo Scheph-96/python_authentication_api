@@ -15,7 +15,7 @@ def _role_table() -> Table:
     )
 
 
-def _permission_table() -> Table:
+def permission_table() -> Table:
     return Table(
         f"{Settings.PERMISSIONS_COLLECTION}",
         Settings.SQLALCHEMY_METADATA,
@@ -26,7 +26,7 @@ def _permission_table() -> Table:
     )
 
 
-def _role_permission_table() -> Table:
+def role_permission_table() -> Table:
     return Table(
         f"{Settings.ROLE_PERMISSIONS_COLLECTION}",
         Settings.SQLALCHEMY_METADATA,
@@ -56,6 +56,6 @@ def user_role_table() -> Table:
 
 def init_authorization_tables():
     _role_table()
-    _permission_table()
-    _role_permission_table()
+    permission_table()
+    role_permission_table()
     user_role_table()

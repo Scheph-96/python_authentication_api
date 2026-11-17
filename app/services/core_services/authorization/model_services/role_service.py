@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from app.repositories.interfaces.authorization_repositories_interfaces.role_repository_interface import \
     RoleRepositoryInterface
 
@@ -10,13 +12,13 @@ class RoleService:
         return await self.role_repository.create(data)
     
     async def find_role_by_id(self, role_id: str):
-        return await self.role_repository.find_by_id(role_id)
+        return await self.role_repository.find_by_id(UUID(role_id))
 
     async def find_role_by_name(self, role_name: str):
         return await self.role_repository.find_by_name(role_name)
 
     async def update_role(self, role_id: str, updated_data: dict):
-        await self.role_repository.update(role_id, updated_data)
+        await self.role_repository.update(UUID(role_id), updated_data)
 
     async def delete_role(self, role_id: str):
-        await self.role_repository.delete_one_by_id(role_id)
+        await self.role_repository.delete_one_by_id(UUID(role_id))

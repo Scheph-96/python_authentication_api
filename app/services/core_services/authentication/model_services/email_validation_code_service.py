@@ -124,5 +124,5 @@ class EmailValidationCodeService:
     async def update_code_email_validation_code(self, email_validation_code_id: str):
         await self.repo.revoke_email_validation_code(UUID(email_validation_code_id))
 
-    async def delete_email_validation_code(self, email_validation_code_id):
-        await self.repo.delete_one_by_id(email_validation_code_id)
+    async def delete_email_validation_code(self, email_validation_code_id: str):
+        await self.repo.delete_one_by_id(UUID(email_validation_code_id))

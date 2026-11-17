@@ -19,9 +19,10 @@ class RefreshTokenRelationalRepository(BaseRelationalRepository, RefreshTokenRep
         )
 
     async def revoke(self, token_id: UUID, new_refresh_token: str | None = None):
+        expression = build_sql_expression_from_dict(self._collection, {"_id": token_id})
         await app_execute(
             update(self._collection)
-            .where(self._collection.columns._id == token_id)
+            .where(*expression)
             .values({
                     "revoked": True,
                     "replaced_by": new_refresh_token
@@ -29,9 +30,10 @@ class RefreshTokenRelationalRepository(BaseRelationalRepository, RefreshTokenRep
         )
 
     async def revoke_and_expire_all_refresh_tokens_by_user_id(self, user_id: UUID):
+        expression = build_sql_expression_from_dict(self._collection, {"_id": user_id})
         await app_execute(
             update(self._collection)
-            .where(self._collection.columns._id == user_id)
+            .where(*expression)
             .values({
                     "revoked": True,
                     "expire_at": datetime.now(timezone.utc)
@@ -42,7 +44,7 @@ class RefreshTokenRelationalRepository(BaseRelationalRepository, RefreshTokenRep
         await app_execute(
             delete(self._collection)
             .where(
-                self._collection.revoked == True,
+                self._collection.columns.revoked == True,
                 self._collection.columns.expire_at < datetime.now(timezone.utc)
             )
         )
