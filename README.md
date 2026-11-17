@@ -1,12 +1,14 @@
-# Authentication API
+# RBAC (Role Based Access Control)
 
-This project is a standalone authentication service for us who no longer want to go through the burden of creating
-authentication services for each project, this project is a full **Python** and **MongoDB** based project, using
-**FastAPI** and **Motor**.
+This project is a standalone rbac service for us who no longer want to go through the burden of creating
+authentication services for each project and want to own their data, this project is a full **Python** based project; using
+**FastAPI**, **Motor**, **SQLAchemy Core** and being database agnostic(meaning independent of a specific database management system).
 
 ## Prerequisites
 
-> Python 3.14+
+> Python 3.14+\
+> Postgres 17+; or any other relational rdbms. The app was built and tested with PostgreSQL\
+> Mongo 8+
 
 ## Getting Started
 
@@ -32,7 +34,7 @@ Learn more in [Authentication.md](docs/authentication.md)
 # In the terminal navigate to the project root and run:
 
 # Create a virtual environment:
-python3 -m venv <your_environment_name>
+python3.14 -m venv <your_environment_name>
 
 # Activate the virtual environment:
 source <your_environment_name>/bin/activate
@@ -72,6 +74,36 @@ SMTP_USER=
 SMTP_PASSWORD=
 SMTP_FROM=
 ```
+
+## API Endpoints
+
+### Authentication
+
+```
+POST <Settings.API_PREFIX>/authenticate/register/
+POST <Settings.API_PREFIX>/authenticate/login/
+POST <Settings.API_PREFIX>/authenticate/logout/
+POST <Settings.API_PREFIX>/authenticate/validate_email/
+POST <Settings.API_PREFIX>/authenticate/validate_email/retry/
+POST <Settings.API_PREFIX>/authenticate/refresh/tokens/
+POST <Settings.API_PREFIX>/authenticate/password_recovery/forgot/
+POST <Settings.API_PREFIX>/authenticate/password_recovery/reset/
+```
+
+### Authorization
+
+```
+POST <Settings.API_PREFIX>/authorize/create_role/
+POST <Settings.API_PREFIX>/authorize/assign_role/
+POST <Settings.API_PREFIX>/authorize/remove_user_role/
+POST <Settings.API_PREFIX>/authorize/delete_role/
+POST <Settings.API_PREFIX>/authorize/create_permissions/
+POST <Settings.API_PREFIX>/authorize/assign_permission/
+POST <Settings.API_PREFIX>/authorize/remove_role_permission/
+POST <Settings.API_PREFIX>/authorize/delete_permission/
+```
+
+[Learn more](docs/endpoints.md)
 
 ## Architecture
 The system follows a layered architecture:
@@ -132,36 +164,6 @@ A cached list of permissions computed from user roles.
 - Effective permissions are computed and stored on the user
 
 Authorization is excepted to be enforced by the consumer backend. [Learn more](docs/authorization.md)
-
-## API Endpoints
-
-### Authentication
-
-```
-POST /auth_api/v1/process/authenticate/register/
-POST /auth_api/v1/process/authenticate/login/
-POST /auth_api/v1/process/authenticate/logout/
-POST /auth_api/v1/process/authenticate/validate_email/
-POST /auth_api/v1/process/authenticate/validate_email/retry/
-POST /auth_api/v1/process/authenticate/refresh/tokens/
-POST /auth_api/v1/process/authenticate/password_recovery/forgot/
-POST /auth_api/v1/process/authenticate/password_recovery/reset/
-```
-
-### Authorization
-
-```
-POST /auth_api/v1/process/authorize/create_role/
-POST /auth_api/v1/process/authorize/assign_role/
-POST /auth_api/v1/process/authorize/remove_user_role/
-POST /auth_api/v1/process/authorize/delete_role/
-POST /auth_api/v1/process/authorize/create_permissions/
-POST /auth_api/v1/process/authorize/assign_permission/
-POST /auth_api/v1/process/authorize/remove_role_permission/
-POST /auth_api/v1/process/authorize/delete_permission/
-```
-
-[Learn more](docs/endpoints.md)
 
 ## Pipelines
 
