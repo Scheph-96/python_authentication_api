@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, BackgroundTasks
 
 from app.core.config import Settings
 from app.database.document.document_db import document_db
+from app.database.relationnal.tables.authentication_sql import email_validation_code_table, user_table, \
+    refresh_token_table, password_recovery_token_table
 from app.models.dependencies_model.authentication_dependencies import AuthenticationDependencies
 from app.repositories.document.authentication_repositories.email_validation_code_document_repository import EmailValidationCodeDocumentRepository
 from app.repositories.document.authentication_repositories.password_recovery_token_document_repository import (
@@ -9,6 +11,13 @@ from app.repositories.document.authentication_repositories.password_recovery_tok
 )
 from app.repositories.document.authentication_repositories.refresh_token_document_repository import RefreshTokenDocumentRepository
 from app.repositories.document.authentication_repositories.user_document_repository import UserDocumentRepository
+from app.repositories.relational.authentication_repositories.email_validation_code_relational_repository import \
+    EmailValidationCodeRelationalRepository
+from app.repositories.relational.authentication_repositories.password_recovery_token_relational_repository import \
+    PasswordRecoveryTokenRelationalRepository
+from app.repositories.relational.authentication_repositories.refresh_token_relational_repository import \
+    RefreshTokenRelationalRepository
+from app.repositories.relational.authentication_repositories.user_relational_repository import UserRelationalRepository
 from app.schemas.authentication_schemas.email_validation_code_schema import (
     EmailValidationCodeSubmit,
     EmailValidationCodeRetry,
@@ -34,26 +43,48 @@ router = APIRouter(prefix=f"{Settings.API_PREFIX}/authenticate")
 ########################################### DEPENDENCIES ###########################################
 
 
+#------------------------------------------ REPOSITORIES DEPENDENCIES ------------------------------------------#
 # Dependency: emailValidation repository
 def get_email_validation_repository():
-    return EmailValidationCodeDocumentRepository(document_db[Settings.EMAIL_VALIDATION_CODE_COLLECTION])
+    if Settings.DATABASE_TYPE == "document":
+        return EmailValidationCodeDocumentRepository(document_db[Settings.EMAIL_VALIDATION_CODE_COLLECTION])
+    elif Settings.DATABASE_TYPE == "relational":
+        return EmailValidationCodeRelationalRepository(email_validation_code_table())
+
+    return None
 
 
 # Dependency: user repository
 def get_user_repository():
-    return UserDocumentRepository(document_db[Settings.USERS_COLLECTION])
+    if Settings.DATABASE_TYPE == "document":
+        return UserDocumentRepository(document_db[Settings.USERS_COLLECTION])
+    elif Settings.DATABASE_TYPE == "relational":
+        return UserRelationalRepository(user_table())
+
+    return None
 
 
 # Dependency: refreshToken repository
 def get_refresh_token_repository():
-    return RefreshTokenDocumentRepository(document_db[Settings.REFRESH_TOKENS_COLLECTION])
+    if Settings.DATABASE_TYPE == "document":
+        return RefreshTokenDocumentRepository(document_db[Settings.REFRESH_TOKENS_COLLECTION])
+    elif Settings.DATABASE_TYPE == "relational":
+        return RefreshTokenRelationalRepository(refresh_token_table())
+
+    return None
 
 
 # Dependency: passwordRecoveryToken repository
 def get_password_recovery_token_repository():
-    return PasswordRecoveryTokenDocumentRepository(document_db[Settings.PASSWORD_RECOVERY_TOKENS_COLLECTION])
+    if Settings.DATABASE_TYPE == "document":
+        return PasswordRecoveryTokenDocumentRepository(document_db[Settings.PASSWORD_RECOVERY_TOKENS_COLLECTION])
+    elif Settings.DATABASE_TYPE == "relational":
+        return PasswordRecoveryTokenRelationalRepository(password_recovery_token_table())
+
+    return None
 
 
+#------------------------------------------ SERVICES DEPENDENCIES ------------------------------------------#
 # Dependency: emailValidation Service
 def get_email_validation_code_service(
         repo: EmailValidationCodeDocumentRepository = Depends(get_email_validation_repository)
@@ -187,10 +218,10 @@ async def retry(
 
 @router.post("/refresh/tokens")
 async def refresh_token(
-        refresh_token: RefreshTokenSchema,
+        refresh_token_schema: RefreshTokenSchema,
         authentication_service: AuthenticationService = Depends(get_auth_service),
 ):
-    new_tokens = await authentication_service.refresh_token(refresh_token.model_dump())
+    new_tokens = await authentication_service.refresh_token(refresh_token_schema.model_dump())
 
     return api_response(success="True", message="New Token Generated", data=new_tokens)
 
