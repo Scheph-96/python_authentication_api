@@ -42,27 +42,27 @@ class BaseDocumentRepository(BaseRepositoryInterface[AsyncIOMotorCollection]):
         result = await self._collection.insert_many(data)
         return result.inserted_ids
 
-    async def find(self, data: dict, options: dict = None):
+    async def find(self, data: dict, options: dict | None = None):
         return await self._collection.find_one(data, options)
 
-    async def find_by_id(self, id: str, options: dict = None):
-        return await self._collection.find_one({"_id": UUID(id)}, options)
+    async def find_by_id(self, id: UUID, options: dict | None = None):
+        return await self._collection.find_one({"_id": id}, options)
 
-    async def find_all(self, options: dict = None):
+    async def find_all(self, options: dict | None = None):
         result = self._collection.find({}, options)
         return await result.to_list()
 
-    async def update(self, id: str, data: dict):
-        await self._collection.update_one({"_id": UUID(id)}, {"$set": data})
+    async def update(self, id: UUID, data: dict):
+        await self._collection.update_one({"_id": id}, {"$set": data})
 
     async def delete(self, data: dict):
         await self._collection.delete_many(data)
 
-    async def delete_one_by_id(self, id: str):
-        await self._collection.delete_one({"_id": UUID(id)})
+    async def delete_one_by_id(self, id: UUID):
+        await self._collection.delete_one({"_id": id})
 
-    async def delete_many(self, id: str):
-        await self._collection.delete_many({"_id": UUID(id)})
+    async def delete_many_by_id(self, id: UUID):
+        await self._collection.delete_many({"_id": id})
 
     async def delete_many_in(self, ids: list):
         await self._collection.delete_many({"_id": {"$in": ids}})

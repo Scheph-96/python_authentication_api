@@ -7,14 +7,14 @@ from fastapi import HTTPException
 from app.core.config import Settings
 from app.core.logging.logger import get_logger
 from app.models.core_model.authentication_model.password_recovery_token_model import PasswordRecoveryToken
-from app.repositories.document.authentication_repositories.password_recovery_token_document_repository import \
-    PasswordRecoveryTokenDocumentRepository
+from app.repositories.interfaces.authentication_repositories_interfaces.password_recovery_token_repository_interface import \
+    PasswordRecoveryTokenRepositoryInterface
 from app.utils.app_jwt import hash_token
 
 
 class PasswordRecoveryTokenService:
 
-    def __init__(self, repo: PasswordRecoveryTokenDocumentRepository):
+    def __init__(self, repo: PasswordRecoveryTokenRepositoryInterface):
         self.repo = repo
         self.logger = get_logger("PasswordRecoveryTokenService")
 
@@ -88,5 +88,5 @@ class PasswordRecoveryTokenService:
     async def update_password_recovery_token(self, password_recovery_instance_id: str):
         await self.repo.revoke_password_recovery_token(UUID(password_recovery_instance_id))
 
-    async def delete_password_recovery_token(self, password_recovery_instance_id):
-        await self.repo.delete_one_by_id(password_recovery_instance_id)
+    async def delete_password_recovery_token(self, password_recovery_instance_id: str):
+        await self.repo.delete_one_by_id(UUID(password_recovery_instance_id))

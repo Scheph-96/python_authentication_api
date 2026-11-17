@@ -14,7 +14,7 @@ def _user_table() -> Table:
         Column("email", String, nullable=True, unique=True),
         Column("hashed_password", String, nullable=False),
         Column("auth_version", Integer, nullable=False),
-        Column("effective_permissions", JSON, nullable=False, server_default=""),
+        Column("effective_permissions", JSON, nullable=False, server_default="[]"),
         Column("is_verified", Boolean, nullable=False, default=False),
         Column("created_at", DateTime(timezone=True), server_default=func.now()),
         Index("idx_username", "username"),

@@ -31,7 +31,7 @@ class BaseRepositoryInterface(Generic[T]):
     async def delete_one_by_id(self, *args, **kwargs):
         pass
 
-    async def delete_many(self, *args, **kwargs):
+    async def delete_many_by_id(self, *args, **kwargs):
         pass
 
     async def delete_many_in(self, *args, **kwargs):

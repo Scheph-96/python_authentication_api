@@ -25,18 +25,20 @@ class PasswordRecoveryTokenRelationalRepository(BaseRelationalRepository, Passwo
         )
 
     async def revoke_password_recovery_token(self, password_recovery_token_id: UUID):
+        expression = build_sql_expression_from_dict(self._collection, {"_id": password_recovery_token_id})
         await app_execute(
             update(self._collection)
-            .where(self._collection.columns._id == password_recovery_token_id)
+            .where(*expression)
             .values({
                 "revoked": True
             })
         )
 
     async def revoke_all_password_recovery_tokens_by_user_id(self, user_id: UUID):
+        expression = build_sql_expression_from_dict(self._collection, {"user_id": user_id})
         await app_execute(
             update(self._collection)
-            .where(self._collection.columns.user_id == user_id)
+            .where(*expression)
             .values({
                 "revoked": True
             })

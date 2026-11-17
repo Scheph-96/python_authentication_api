@@ -18,7 +18,7 @@ class UserService:
         return await self._user_repository.create(data)
 
     async def get_by_id(self, user_id: str):
-        return await self._user_repository.find_by_id(user_id)
+        return await self._user_repository.find_by_id(UUID(user_id))
 
     async def get_by_email(self, email: str):
         return await self._user_repository.find_by_email(email)
@@ -27,7 +27,7 @@ class UserService:
         return await self._user_repository.find_by_username(username)
 
     async def update_user(self, user_id: str, data: dict):
-        await self._user_repository.update(user_id, data)
+        await self._user_repository.update(UUID(user_id), data)
 
     async def update_users(self, user_ids: list, data: dict):
         await self._user_repository.update_many_user(user_ids, data)

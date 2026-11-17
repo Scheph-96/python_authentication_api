@@ -7,27 +7,52 @@ from app.repositories.interfaces.authorization_repositories_interfaces.user_role
 
 class UserRoleDocumentRepository(BaseDocumentRepository, UserRoleRepositoryInterface):
 
-    async def find_by_role_id(self, role_id: str, options: dict = None):
-        result = self._collection.find({"role_id": UUID(role_id)}, options)
+    async def find_by_role_id(self, role_id: UUID, **kwargs):
+        options = kwargs.get("options")
+        result = self._collection.find(
+            {
+                "role_id": role_id
+            },
+            options
+        )
         return await result.to_list()
 
-    async def find_by_user_id(self, user_id: str, options: dict = None):
-        result = self._collection.find({"user_id": UUID(user_id)}, options)
+    async def find_by_user_id(self, user_id: UUID, **kwargs):
+        options = kwargs.get("options")
+        result = self._collection.find(
+            {
+                "user_id": user_id
+            },
+            options
+        )
         return await result.to_list()
 
-    async def find_by_user_ids(self, user_ids: list, options: dict = None):
-        result = self._collection.find({"user_id": {"$in": user_ids}}, options)
+    async def find_by_user_ids(self, user_ids: list, **kwargs):
+        options = kwargs.get("options")
+        result = self._collection.find(
+            {
+                "user_id":
+                    {
+                        "$in": user_ids
+                    }
+            },
+            options
+        )
         return await result.to_list()
 
-    async def delete_many_by_role_id(self, role_id: str):
-        await self._collection.delete_many({"role_id": UUID(role_id)})
+    async def delete_many_by_role_id(self, role_id: UUID):
+        await self._collection.delete_many(
+            {
+                "role_id": role_id
+            }
+        )
 
-    async def get_user_ids_by_role_id(self, role_id: str):
+    async def get_user_ids_by_role_id(self, role_id: UUID):
         user_role_pipeline = [
             {
-            # Get the role very document with this role
+            # Get every document with the role_id in argument
                 "$match": {
-                    "role_id": UUID(role_id)
+                    "role_id": role_id
                 }
             },
             # Group users by nothing, because we just
