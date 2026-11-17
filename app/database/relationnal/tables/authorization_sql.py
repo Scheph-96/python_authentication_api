@@ -3,7 +3,7 @@ from sqlalchemy import Table, Column, Uuid, String, DateTime, func, ForeignKey, 
 from app.core.config import Settings
 
 
-def _role_table() -> Table:
+def role_table() -> Table:
     return Table(
         f"{Settings.ROLES_COLLECTION}",
         Settings.SQLALCHEMY_METADATA,
@@ -55,7 +55,7 @@ def user_role_table() -> Table:
 
 
 def init_authorization_tables():
-    _role_table()
+    role_table()
     permission_table()
     role_permission_table()
     user_role_table()

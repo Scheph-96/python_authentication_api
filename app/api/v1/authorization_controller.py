@@ -3,12 +3,23 @@ from fastapi import APIRouter, Depends, BackgroundTasks
 from app.api.v1.authentication_controller import get_user_service
 from app.core.config import Settings
 from app.database.document.document_db import document_db
+from app.database.relationnal.tables.authorization_sql import role_table, permission_table, role_permission_table, \
+    user_role_table
 from app.models.dependencies_model.authorization_dependencies import AuthorizationDependencies
-from app.repositories.document.authorization_repositories.permission_document_repository import PermissionDocumentRepository
+from app.repositories.document.authorization_repositories.permission_document_repository import \
+    PermissionDocumentRepository
+from app.repositories.document.authorization_repositories.role_document_repository import RoleDocumentRepository
 from app.repositories.document.authorization_repositories.role_permission_document_repository import \
     RolePermissionDocumentRepository
-from app.repositories.document.authorization_repositories.role_document_repository import RoleDocumentRepository
-from app.repositories.document.authorization_repositories.user_role_document_repository import UserRoleDocumentRepository
+from app.repositories.document.authorization_repositories.user_role_document_repository import \
+    UserRoleDocumentRepository
+from app.repositories.relational.authorization_repositories.permission_relational_repository import \
+    PermissionRelationalRepository
+from app.repositories.relational.authorization_repositories.role_permission_relational_repository import \
+    RolePermissionRelationalRepository
+from app.repositories.relational.authorization_repositories.role_relational_repository import RoleRelationalRepository
+from app.repositories.relational.authorization_repositories.user_role_relational_repository import \
+    UserRoleRelationalRepository
 from app.schemas.authorization_schema.permission_schema import CreatePermissionSchema, AssignPermissionToRoleSchema, \
     RemovePermissionFromRoleSchema, DeletePermissionSchema
 from app.schemas.authorization_schema.role_schema import AssignRoleSchema, CreateRoleSchema, RemoveUserRoleSchema, \
@@ -27,26 +38,48 @@ router = APIRouter(prefix=f"{Settings.API_PREFIX}/authorize")
 ########################################### DEPENDENCIES ###########################################
 
 
+# ------------------------------------------ REPOSITORIES DEPENDENCIES ------------------------------------------#
 # Dependency: role repository
 def get_role_repository():
-    return RoleDocumentRepository(document_db[Settings.ROLES_COLLECTION])
+    if Settings.DATABASE_TYPE == "document":
+        return RoleDocumentRepository(document_db[Settings.ROLES_COLLECTION])
+    elif Settings.DATABASE_TYPE == "relational":
+        return RoleRelationalRepository(role_table())
+
+    return None
 
 
 # Dependency: permission repository
 def get_permission_repository():
-    return PermissionDocumentRepository(document_db[Settings.PERMISSIONS_COLLECTION])
+    if Settings.DATABASE_TYPE == "document":
+        return PermissionDocumentRepository(document_db[Settings.PERMISSIONS_COLLECTION])
+    elif Settings.DATABASE_TYPE == "relational":
+        return PermissionRelationalRepository(permission_table())
+
+    return None
 
 
 # Dependency: rolePermission repository
 def get_role_permission_repository():
-    return RolePermissionDocumentRepository(document_db[Settings.ROLE_PERMISSIONS_COLLECTION])
+    if Settings.DATABASE_TYPE == "document":
+        return RolePermissionDocumentRepository(document_db[Settings.ROLE_PERMISSIONS_COLLECTION])
+    elif Settings.DATABASE_TYPE == "relational":
+        return RolePermissionRelationalRepository(role_permission_table())
+
+    return None
 
 
 # Dependency: userRole repository
 def get_user_role_repository():
-    return UserRoleDocumentRepository(document_db[Settings.USER_ROLES_COLLECTION])
+    if Settings.DATABASE_TYPE == "document":
+        return UserRoleDocumentRepository(document_db[Settings.USER_ROLES_COLLECTION])
+    elif Settings.DATABASE_TYPE == "relational":
+        return UserRoleRelationalRepository(user_role_table())
+
+    return None
 
 
+# ------------------------------------------ SERVICES DEPENDENCIES ------------------------------------------#
 # Dependency: role service
 def get_role_service(repo: RoleDocumentRepository = Depends(get_role_repository)):
     return RoleService(repo)
@@ -87,64 +120,104 @@ def get_autho_service(
 ########################################### ENDPOINTS ###########################################
 
 @router.post("/create_role", response_model=dict)
-async def create_role(create_role_schema: CreateRoleSchema,
-                      authorization_service: AuthorizationService = Depends(get_autho_service)):
+async def create_role(
+        create_role_schema: CreateRoleSchema,
+        authorization_service: AuthorizationService = Depends(get_autho_service)
+):
     result = await authorization_service.create_role(create_role_schema.model_dump())
 
-    return api_response(data=result, message="Role Created Successfully")
+    return api_response(
+        data=result,
+        message="Role Created Successfully"
+    )
 
 
 @router.post("/assign_role", response_model=dict)
-async def assign_role(assign_role_schema: AssignRoleSchema,
-                      authorization_service: AuthorizationService = Depends(get_autho_service)):
+async def assign_role(
+        assign_role_schema: AssignRoleSchema,
+        authorization_service: AuthorizationService = Depends(get_autho_service)
+):
     result = await authorization_service.assign_role_to_user(assign_role_schema.model_dump())
 
-    return api_response(data=result, message="Role Assigned Successfully")
+    return api_response(
+        data=result,
+        message="Role Assigned Successfully"
+    )
 
 
 @router.post("/remove_user_role", response_model=dict)
-async def remove_user_role(remove_user_role_schema: RemoveUserRoleSchema,
-                           authorization_service: AuthorizationService = Depends(get_autho_service)):
+async def remove_user_role(
+        remove_user_role_schema: RemoveUserRoleSchema,
+        authorization_service: AuthorizationService = Depends(get_autho_service)
+):
     result = await authorization_service.remove_role_from_user(remove_user_role_schema.model_dump())
 
-    return api_response(data=result, message="Role Removed Successfully")
+    return api_response(
+        data=result,
+        message="Role Removed Successfully"
+    )
 
 
 @router.post("/delete_role", response_model=dict)
-async def delete_role(delete_role_schema: DeleteRoleSchema,
-                      authorization_service: AuthorizationService = Depends(get_autho_service)):
+async def delete_role(
+        delete_role_schema: DeleteRoleSchema,
+        authorization_service: AuthorizationService = Depends(get_autho_service)
+):
     result = await authorization_service.delete_role(delete_role_schema.model_dump())
 
-    return api_response(data=result, message="Role Deleted Successfully")
+    return api_response(
+        data=result,
+        message="Role Deleted Successfully"
+    )
 
 
 @router.post("/create_permissions", response_model=dict)
-async def create_permissions(create_permission_schema: CreatePermissionSchema,
-                             authorization_service: AuthorizationService = Depends(get_autho_service)):
+async def create_permissions(
+        create_permission_schema: CreatePermissionSchema,
+        authorization_service: AuthorizationService = Depends(get_autho_service)
+):
     result = await authorization_service.create_permissions(create_permission_schema.model_dump())
 
-    return api_response(data=result, message="Permission Created Successfully")
+    return api_response(
+        data=result,
+        message="Permission Created Successfully"
+    )
 
 
 @router.post("/assign_permission", response_model=dict)
-async def assign_permission(assign_permission_schema: AssignPermissionToRoleSchema,
-                            authorization_service: AuthorizationService = Depends(get_autho_service)):
+async def assign_permission(
+        assign_permission_schema: AssignPermissionToRoleSchema,
+        authorization_service: AuthorizationService = Depends(get_autho_service)
+):
     result = await authorization_service.assign_permission_to_role(assign_permission_schema.model_dump())
 
-    return api_response(data=result, message="Permission Assigned Successfully")
+    return api_response(
+        data=result,
+        message="Permission Assigned Successfully"
+    )
 
 
 @router.post("/remove_role_permission", response_model=dict)
-async def remove_permission_from_role(remove_permission_schema: RemovePermissionFromRoleSchema,
-                                      authorization_service: AuthorizationService = Depends(get_autho_service)):
+async def remove_permission_from_role(
+        remove_permission_schema: RemovePermissionFromRoleSchema,
+        authorization_service: AuthorizationService = Depends(get_autho_service)
+):
     result = await authorization_service.remove_permission_from_role(remove_permission_schema.model_dump())
 
-    return api_response(data=result, message="Permission Removed Successfully")
+    return api_response(
+        data=result,
+        message="Permission Removed Successfully"
+    )
 
 
 @router.post("/delete_permission", response_model=dict)
-async def delete_permission(delete_permission_schema: DeletePermissionSchema,
-                            authorization_service: AuthorizationService = Depends(get_autho_service)):
+async def delete_permission(
+        delete_permission_schema: DeletePermissionSchema,
+        authorization_service: AuthorizationService = Depends(get_autho_service)
+):
     result = await authorization_service.delete_permission(delete_permission_schema.model_dump())
 
-    return api_response(data=result, message="Permission Deleted Successfully")
+    return api_response(
+        data=result,
+        message="Permission Deleted Successfully"
+    )
