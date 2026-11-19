@@ -30,14 +30,14 @@ class BaseRelationalRepository(BaseRepositoryInterface):
         )
         return result.rowcount
 
-    async def find(self, data: dict):
+    async def find(self, data: dict, **kwargs):
         expression = build_sql_expression_from_dict(self._collection, data)
         return await app_execute_and_fetch_one(
             select(self._collection)
             .where(*expression)
         )
 
-    async def find_by_id(self, id: UUID):
+    async def find_by_id(self, id: UUID, **kwargs):
         expression = build_sql_expression_from_dict(self._collection, {"_id": id})
         return await app_execute_and_fetch_one(
             select(self._collection)

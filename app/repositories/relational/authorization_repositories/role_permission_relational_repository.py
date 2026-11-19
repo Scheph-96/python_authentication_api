@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy import select, delete
 
 from app.core.config import Settings
-from app.database.relationnal.relational_db import app_execute_and_fetch_all, app_execute
+from app.database.relationnal.relational_db import app_execute_and_fetch_all, app_execute, app_execute_and_scalars_all
 from app.repositories.interfaces.authorization_repositories_interfaces.role_permission_repository_interface import \
     RolePermissionRepositoryInterface
 from app.repositories.relational.base_relational_repository import BaseRelationalRepository
@@ -43,7 +43,7 @@ class RolePermissionRelationalRepository(BaseRelationalRepository, RolePermissio
         expression = build_sql_expression_from_dict(self._collection, {"permission_id": permission_id})
         user_role = Settings.SQLALCHEMY_METADATA.tables[f"{Settings.USER_ROLES_COLLECTION}"]
 
-        return await app_execute_and_fetch_all(
+        user_ids = await app_execute_and_scalars_all(
             select(user_role.columns.user_id)
             .join(
                 self._collection,
@@ -52,6 +52,8 @@ class RolePermissionRelationalRepository(BaseRelationalRepository, RolePermissio
             .where(*expression)
             .distinct()
         )
+
+        return {"user_ids": user_ids}
 
     async def delete_many_by_role_id(self, role_id: UUID):
         expression = build_sql_expression_from_dict(self._collection, {"role_id": role_id})

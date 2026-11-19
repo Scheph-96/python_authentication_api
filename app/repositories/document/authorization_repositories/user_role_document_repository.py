@@ -75,7 +75,9 @@ class UserRoleDocumentRepository(BaseDocumentRepository, UserRoleRepositoryInter
         ]
 
         result = self._collection.aggregate(user_role_pipeline)
-        return await result.to_list()
+        result = await result.to_list()
+
+        return result[0] if len(result) > 0 else None
 
     async def get_users_and_permissions(self, user_ids: list):
 
