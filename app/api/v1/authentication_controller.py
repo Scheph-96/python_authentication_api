@@ -49,7 +49,7 @@ def get_email_validation_repository():
     if Settings.DATABASE_TYPE == "document":
         return EmailValidationCodeDocumentRepository(document_db[Settings.EMAIL_VALIDATION_CODE_COLLECTION])
     elif Settings.DATABASE_TYPE == "relational":
-        return EmailValidationCodeRelationalRepository(email_validation_code_table())
+        return EmailValidationCodeRelationalRepository(Settings.SQLALCHEMY_METADATA.tables[f"{Settings.EMAIL_VALIDATION_CODE_COLLECTION}"])
 
     return None
 
@@ -59,7 +59,7 @@ def get_user_repository():
     if Settings.DATABASE_TYPE == "document":
         return UserDocumentRepository(document_db[Settings.USERS_COLLECTION])
     elif Settings.DATABASE_TYPE == "relational":
-        return UserRelationalRepository(user_table())
+        return UserRelationalRepository(Settings.SQLALCHEMY_METADATA.tables[f"{Settings.USERS_COLLECTION}"])
 
     return None
 
@@ -69,7 +69,7 @@ def get_refresh_token_repository():
     if Settings.DATABASE_TYPE == "document":
         return RefreshTokenDocumentRepository(document_db[Settings.REFRESH_TOKENS_COLLECTION])
     elif Settings.DATABASE_TYPE == "relational":
-        return RefreshTokenRelationalRepository(refresh_token_table())
+        return RefreshTokenRelationalRepository(Settings.SQLALCHEMY_METADATA.tables[f"{Settings.REFRESH_TOKENS_COLLECTION}"])
 
     return None
 
@@ -79,7 +79,7 @@ def get_password_recovery_token_repository():
     if Settings.DATABASE_TYPE == "document":
         return PasswordRecoveryTokenDocumentRepository(document_db[Settings.PASSWORD_RECOVERY_TOKENS_COLLECTION])
     elif Settings.DATABASE_TYPE == "relational":
-        return PasswordRecoveryTokenRelationalRepository(password_recovery_token_table())
+        return PasswordRecoveryTokenRelationalRepository(Settings.SQLALCHEMY_METADATA.tables[f"{Settings.PASSWORD_RECOVERY_TOKENS_COLLECTION}"])
 
     return None
 

@@ -8,7 +8,8 @@
 
 Request:
 {
-    "email": "..." or "username": "...",
+    "email": "...",
+    "username": "...",
     "password": "..."
 }
 

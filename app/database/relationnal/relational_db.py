@@ -94,11 +94,11 @@ async def app_execute_and_fetch_one(statement: Executable) -> dict:
     # result.mappings() changes the format of the returned rows; it doesn't retrieve them
     # mappings() changes row access to mapping-style access.
     # one() expects exactly one row.
-    row = result.mappings().one()
+    row = result.mappings().one_or_none()
     # We could have simply returned the variable 'rows' since RowMapping implements
     # Python's Mapping interface; however, within the app, we work with dictionaries
     # hence the conversion
-    return dict(row)
+    return dict(row) if row is not None else None
 
 
 async def app_execute_and_fetch_all(statement: Executable) -> list:
@@ -113,7 +113,7 @@ async def app_execute_and_fetch_all(statement: Executable) -> list:
     # We could have simply returned the variable 'rows' since RowMapping implements
     # Python's Mapping interface; however, within the app, we work with dictionaries
     # hence the conversion
-    return [dict(row) for row in rows]
+    return [dict(row) for row in rows] if len(rows) > 0 else []
 
 
 async def app_execute_and_scalars_all(statement: Executable) -> list:

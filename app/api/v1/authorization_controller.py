@@ -44,7 +44,7 @@ def get_role_repository():
     if Settings.DATABASE_TYPE == "document":
         return RoleDocumentRepository(document_db[Settings.ROLES_COLLECTION])
     elif Settings.DATABASE_TYPE == "relational":
-        return RoleRelationalRepository(role_table())
+        return RoleRelationalRepository(Settings.SQLALCHEMY_METADATA.tables[f"{Settings.ROLES_COLLECTION}"])
 
     return None
 
@@ -54,7 +54,7 @@ def get_permission_repository():
     if Settings.DATABASE_TYPE == "document":
         return PermissionDocumentRepository(document_db[Settings.PERMISSIONS_COLLECTION])
     elif Settings.DATABASE_TYPE == "relational":
-        return PermissionRelationalRepository(permission_table())
+        return PermissionRelationalRepository(Settings.SQLALCHEMY_METADATA.tables[f"{Settings.PERMISSIONS_COLLECTION}"])
 
     return None
 
@@ -64,7 +64,7 @@ def get_role_permission_repository():
     if Settings.DATABASE_TYPE == "document":
         return RolePermissionDocumentRepository(document_db[Settings.ROLE_PERMISSIONS_COLLECTION])
     elif Settings.DATABASE_TYPE == "relational":
-        return RolePermissionRelationalRepository(role_permission_table())
+        return RolePermissionRelationalRepository(Settings.SQLALCHEMY_METADATA.tables[f"{Settings.ROLE_PERMISSIONS_COLLECTION}"])
 
     return None
 
@@ -74,7 +74,7 @@ def get_user_role_repository():
     if Settings.DATABASE_TYPE == "document":
         return UserRoleDocumentRepository(document_db[Settings.USER_ROLES_COLLECTION])
     elif Settings.DATABASE_TYPE == "relational":
-        return UserRoleRelationalRepository(user_role_table())
+        return UserRoleRelationalRepository(Settings.SQLALCHEMY_METADATA.tables[f"{Settings.USER_ROLES_COLLECTION}"])
 
     return None
 

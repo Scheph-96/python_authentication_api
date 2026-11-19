@@ -33,6 +33,7 @@ async def lifespan(app: FastAPI):
 
     # Database initialization
     if Settings.DATABASE_TYPE == "document":
+        logger.info("Document Database Management System Selected")
         # Check document database activity
         # Throw an error when the connection failed
         try:
@@ -53,6 +54,7 @@ async def lifespan(app: FastAPI):
             logger.error("Index initialization failed", exc_info=True)
             raise
     elif Settings.DATABASE_TYPE == "relational":
+        logger.info("Relational Database Management System Selected")
         # Check database activity
         # Throw an error when the connection failed
         try:
