@@ -2,14 +2,14 @@ from fastapi import APIRouter, Depends, BackgroundTasks
 
 from app.core.config import Settings
 from app.database.document.document_db import document_db
-from app.database.relationnal.tables.authentication_sql import email_validation_code_table, user_table, \
-    refresh_token_table, password_recovery_token_table
 from app.models.dependencies_model.authentication_dependencies import AuthenticationDependencies
-from app.repositories.document.authentication_repositories.email_validation_code_document_repository import EmailValidationCodeDocumentRepository
+from app.repositories.document.authentication_repositories.email_validation_code_document_repository import \
+    EmailValidationCodeDocumentRepository
 from app.repositories.document.authentication_repositories.password_recovery_token_document_repository import (
     PasswordRecoveryTokenDocumentRepository,
 )
-from app.repositories.document.authentication_repositories.refresh_token_document_repository import RefreshTokenDocumentRepository
+from app.repositories.document.authentication_repositories.refresh_token_document_repository import \
+    RefreshTokenDocumentRepository
 from app.repositories.document.authentication_repositories.user_document_repository import UserDocumentRepository
 from app.repositories.relational.authentication_repositories.email_validation_code_relational_repository import \
     EmailValidationCodeRelationalRepository
@@ -29,8 +29,10 @@ from app.schemas.authentication_schemas.password_recovery_token_schema import (
 from app.schemas.authentication_schemas.refresh_token_schema import RefreshTokenSchema
 from app.schemas.authentication_schemas.user_schema import UserSignUpSchema, UserSignInSchema, UserLogOutSchema
 from app.services.core_services.authentication.authentication_service import AuthenticationService
-from app.services.core_services.authentication.model_services.email_validation_code_service import EmailValidationCodeService
-from app.services.core_services.authentication.model_services.password_recovery_token_service import PasswordRecoveryTokenService
+from app.services.core_services.authentication.model_services.email_validation_code_service import \
+    EmailValidationCodeService
+from app.services.core_services.authentication.model_services.password_recovery_token_service import \
+    PasswordRecoveryTokenService
 from app.services.core_services.authentication.model_services.refresh_token_service import RefreshTokenService
 from app.services.core_services.authentication.model_services.user_service import UserService
 from app.utils.resources import api_response
@@ -43,13 +45,14 @@ router = APIRouter(prefix=f"{Settings.API_PREFIX}/authenticate")
 ########################################### DEPENDENCIES ###########################################
 
 
-#------------------------------------------ REPOSITORIES DEPENDENCIES ------------------------------------------#
+# ------------------------------------------ REPOSITORIES DEPENDENCIES ------------------------------------------#
 # Dependency: emailValidation repository
 def get_email_validation_repository():
     if Settings.DATABASE_TYPE == "document":
         return EmailValidationCodeDocumentRepository(document_db[Settings.EMAIL_VALIDATION_CODE_COLLECTION])
     elif Settings.DATABASE_TYPE == "relational":
-        return EmailValidationCodeRelationalRepository(email_validation_code_table())
+        return EmailValidationCodeRelationalRepository(
+            Settings.SQLALCHEMY_METADATA.tables[f"{Settings.EMAIL_VALIDATION_CODE_COLLECTION}"])
 
     return None
 
@@ -59,7 +62,7 @@ def get_user_repository():
     if Settings.DATABASE_TYPE == "document":
         return UserDocumentRepository(document_db[Settings.USERS_COLLECTION])
     elif Settings.DATABASE_TYPE == "relational":
-        return UserRelationalRepository(user_table())
+        return UserRelationalRepository(Settings.SQLALCHEMY_METADATA.tables[f"{Settings.USERS_COLLECTION}"])
 
     return None
 
@@ -69,7 +72,8 @@ def get_refresh_token_repository():
     if Settings.DATABASE_TYPE == "document":
         return RefreshTokenDocumentRepository(document_db[Settings.REFRESH_TOKENS_COLLECTION])
     elif Settings.DATABASE_TYPE == "relational":
-        return RefreshTokenRelationalRepository(refresh_token_table())
+        return RefreshTokenRelationalRepository(
+            Settings.SQLALCHEMY_METADATA.tables[f"{Settings.REFRESH_TOKENS_COLLECTION}"])
 
     return None
 
@@ -79,12 +83,13 @@ def get_password_recovery_token_repository():
     if Settings.DATABASE_TYPE == "document":
         return PasswordRecoveryTokenDocumentRepository(document_db[Settings.PASSWORD_RECOVERY_TOKENS_COLLECTION])
     elif Settings.DATABASE_TYPE == "relational":
-        return PasswordRecoveryTokenRelationalRepository(password_recovery_token_table())
+        return PasswordRecoveryTokenRelationalRepository(
+            Settings.SQLALCHEMY_METADATA.tables[f"{Settings.PASSWORD_RECOVERY_TOKENS_COLLECTION}"])
 
     return None
 
 
-#------------------------------------------ SERVICES DEPENDENCIES ------------------------------------------#
+# ------------------------------------------ SERVICES DEPENDENCIES ------------------------------------------#
 # Dependency: emailValidation Service
 def get_email_validation_code_service(
         repo: EmailValidationCodeDocumentRepository = Depends(get_email_validation_repository)

@@ -2,8 +2,8 @@ from uuid import UUID
 
 from sqlalchemy import select, delete
 
+from app.core.config import Settings
 from app.database.relationnal.relational_db import app_execute_and_fetch_all, app_execute, app_execute_and_scalars_all
-from app.database.relationnal.tables.authorization_sql import permission_table, role_permission_table
 from app.repositories.interfaces.authorization_repositories_interfaces.user_role_repository_interface import \
     UserRoleRepositoryInterface
 from app.repositories.relational.base_relational_repository import BaseRelationalRepository
@@ -46,8 +46,8 @@ class UserRoleRelationalRepository(BaseRelationalRepository, UserRoleRepositoryI
         )
 
     async def get_users_and_permissions(self, user_ids: list):
-        permission = permission_table()
-        role_permission = role_permission_table()
+        permission = Settings.SQLALCHEMY_METADATA.tables[f"{Settings.PERMISSIONS_COLLECTION}"]
+        role_permission = Settings.SQLALCHEMY_METADATA.tables[f"{Settings.ROLE_PERMISSIONS_COLLECTION}"]
 
         rows = await app_execute_and_scalars_all(
             # Retrieve the user_id column from user_role collection
@@ -118,23 +118,3 @@ class UserRoleRelationalRepository(BaseRelationalRepository, UserRoleRepositoryI
         ]
 
         return users_permissions
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,10 +1,9 @@
 from uuid import UUID
 
-import collections
 from sqlalchemy import select, delete
 
-from app.database.relationnal.relational_db import app_execute_and_fetch_one, app_execute_and_fetch_all, app_execute
-from app.database.relationnal.tables.authorization_sql import user_role_table
+from app.core.config import Settings
+from app.database.relationnal.relational_db import app_execute_and_fetch_all, app_execute
 from app.repositories.interfaces.authorization_repositories_interfaces.role_permission_repository_interface import \
     RolePermissionRepositoryInterface
 from app.repositories.relational.base_relational_repository import BaseRelationalRepository
@@ -42,7 +41,7 @@ class RolePermissionRelationalRepository(BaseRelationalRepository, RolePermissio
             Collect unique user_id values.
         """
         expression = build_sql_expression_from_dict(self._collection, {"permission_id": permission_id})
-        user_role = user_role_table()
+        user_role = Settings.SQLALCHEMY_METADATA.tables[f"{Settings.USER_ROLES_COLLECTION}"]
 
         return await app_execute_and_fetch_all(
             select(user_role.columns.user_id)
