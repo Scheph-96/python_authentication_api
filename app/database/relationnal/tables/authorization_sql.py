@@ -3,7 +3,7 @@ from sqlalchemy import Table, Column, Uuid, String, DateTime, func, ForeignKey, 
 from app.core.config import Settings
 
 
-def role_table() -> Table:
+def _role_table() -> Table:
     return Table(
         f"{Settings.ROLES_COLLECTION}",
         Settings.SQLALCHEMY_METADATA,
@@ -15,7 +15,7 @@ def role_table() -> Table:
     )
 
 
-def permission_table() -> Table:
+def _permission_table() -> Table:
     return Table(
         f"{Settings.PERMISSIONS_COLLECTION}",
         Settings.SQLALCHEMY_METADATA,
@@ -26,7 +26,7 @@ def permission_table() -> Table:
     )
 
 
-def role_permission_table() -> Table:
+def _role_permission_table() -> Table:
     return Table(
         f"{Settings.ROLE_PERMISSIONS_COLLECTION}",
         Settings.SQLALCHEMY_METADATA,
@@ -40,7 +40,7 @@ def role_permission_table() -> Table:
     )
 
 
-def user_role_table() -> Table:
+def _user_role_table() -> Table:
     return Table(
         f"{Settings.USER_ROLES_COLLECTION}",
         Settings.SQLALCHEMY_METADATA,
@@ -55,7 +55,7 @@ def user_role_table() -> Table:
 
 
 def init_authorization_tables():
-    role_table()
-    permission_table()
-    role_permission_table()
-    user_role_table()
+    _role_table()
+    _permission_table()
+    _role_permission_table()
+    _user_role_table()
