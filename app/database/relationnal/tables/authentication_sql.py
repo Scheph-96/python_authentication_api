@@ -5,7 +5,7 @@ from sqlalchemy import Table, Column, Uuid, Integer, String, Boolean, DateTime, 
 from app.core.config import Settings
 
 
-def user_table() -> Table:
+def _user_table() -> Table:
     return Table(
         f"{Settings.USERS_COLLECTION}",
         Settings.SQLALCHEMY_METADATA,
@@ -22,7 +22,7 @@ def user_table() -> Table:
     )
 
 
-def refresh_token_table() -> Table:
+def _refresh_token_table() -> Table:
     return Table(
         f"{Settings.REFRESH_TOKENS_COLLECTION}",
         Settings.SQLALCHEMY_METADATA,
@@ -40,7 +40,7 @@ def refresh_token_table() -> Table:
     )
 
 
-def password_recovery_token_table() -> Table:
+def _password_recovery_token_table() -> Table:
     return Table(
         f"{Settings.PASSWORD_RECOVERY_TOKENS_COLLECTION}",
         Settings.SQLALCHEMY_METADATA,
@@ -56,7 +56,7 @@ def password_recovery_token_table() -> Table:
     )
 
 
-def email_validation_code_table() -> Table:
+def _email_validation_code_table() -> Table:
     return Table(
         f"{Settings.EMAIL_VALIDATION_CODE_COLLECTION}",
         Settings.SQLALCHEMY_METADATA,
@@ -73,7 +73,7 @@ def email_validation_code_table() -> Table:
 
 
 def init_authentication_tables():
-    user_table()
-    refresh_token_table()
-    password_recovery_token_table()
-    email_validation_code_table()
+    _user_table()
+    _refresh_token_table()
+    _password_recovery_token_table()
+    _email_validation_code_table()

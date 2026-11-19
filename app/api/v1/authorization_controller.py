@@ -3,8 +3,6 @@ from fastapi import APIRouter, Depends, BackgroundTasks
 from app.api.v1.authentication_controller import get_user_service
 from app.core.config import Settings
 from app.database.document.document_db import document_db
-from app.database.relationnal.tables.authorization_sql import role_table, permission_table, role_permission_table, \
-    user_role_table
 from app.models.dependencies_model.authorization_dependencies import AuthorizationDependencies
 from app.repositories.document.authorization_repositories.permission_document_repository import \
     PermissionDocumentRepository

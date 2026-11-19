@@ -2,8 +2,6 @@ from fastapi import APIRouter, Depends, BackgroundTasks
 
 from app.core.config import Settings
 from app.database.document.document_db import document_db
-from app.database.relationnal.tables.authentication_sql import email_validation_code_table, user_table, \
-    refresh_token_table, password_recovery_token_table
 from app.models.dependencies_model.authentication_dependencies import AuthenticationDependencies
 from app.repositories.document.authentication_repositories.email_validation_code_document_repository import EmailValidationCodeDocumentRepository
 from app.repositories.document.authentication_repositories.password_recovery_token_document_repository import (
