@@ -34,8 +34,8 @@ class UserRelationalRepository(BaseRelationalRepository, UserRepositoryInterface
     async def update_many_user(self, user_ids: list, data: dict):
         await app_execute(
             update(self._collection)
-            .where(self._collection.columns._id.in_(user_ids)
-            .values(**data))
+            .where(self._collection.columns._id.in_(user_ids))
+            .values(**data)
         )
 
     async def update_users_effective_permissions(self, updates: list):
@@ -47,11 +47,12 @@ class UserRelationalRepository(BaseRelationalRepository, UserRepositoryInterface
             "permissions": <list of permission>
         }
         """
-        await app_execute_many(
-            update(self._collection)
-            .where(self._collection.columns._id == bindparam("user_id"))
-            .values({
-                "user_id": bindparam("user_id"),
-                "effective_permissions": bindparam("user_id")
-            }), updates
-        )
+        if len(updates) > 0:
+            await app_execute_many(
+                update(self._collection)
+                .where(self._collection.columns._id == bindparam("user_id"))
+                .values({
+                    # "_id": bindparam("user_id"),
+                    "effective_permissions": bindparam("permissions")
+                }), updates
+            )

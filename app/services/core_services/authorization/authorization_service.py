@@ -208,9 +208,9 @@ class AuthorizationService:
             detail="ROLE DELETED SUCCESSFULLY"
         )
 
-        if len(user_roles) > 0:
+        if user_roles:
             # Recompute user permissions
-            self.autho_depends.background_tasks.add_task(self._recompute_permissions, user_roles[0]["user_ids"])
+            self.autho_depends.background_tasks.add_task(self._recompute_permissions, user_roles["user_ids"])
 
         return {"role_id": data["role_id"]}
 
@@ -297,9 +297,9 @@ class AuthorizationService:
         # Get the user_role
         user_roles = await self.autho_depends.user_role_service.get_user_role_user_ids_by_role_id(data["role_id"])
 
-        if len(user_roles) > 0:
+        if user_roles:
             # Recompute user permissions
-            self.autho_depends.background_tasks.add_task(self._recompute_permissions, user_roles[0]["user_ids"])
+            self.autho_depends.background_tasks.add_task(self._recompute_permissions, user_roles["user_ids"])
 
         self.logger.info(
             Settings.OPERATION_SUCCESS_EVENT_LABEL,
@@ -361,9 +361,9 @@ class AuthorizationService:
         # Get the user_role
         user_roles = await self.autho_depends.user_role_service.get_user_role_user_ids_by_role_id(data["role_id"])
 
-        if len(user_roles) > 0:
+        if user_roles:
             # Recompute user permissions
-            self.autho_depends.background_tasks.add_task(self._recompute_permissions, user_roles[0]["user_ids"])
+            self.autho_depends.background_tasks.add_task(self._recompute_permissions, user_roles["user_ids"])
 
         self.logger.info(
             Settings.OPERATION_SUCCESS_EVENT_LABEL,
@@ -408,9 +408,9 @@ class AuthorizationService:
         # Delete permission
         await self.autho_depends.permission_service.delete_permission(data["permission_id"])
 
-        if len(role_permissions) > 0:
+        if role_permissions:
             # Recompute user permissions
-            self.autho_depends.background_tasks.add_task(self._recompute_permissions, role_permissions[0]["user_ids"])
+            self.autho_depends.background_tasks.add_task(self._recompute_permissions, role_permissions["user_ids"])
 
         self.logger.info(
             Settings.OPERATION_SUCCESS_EVENT_LABEL,

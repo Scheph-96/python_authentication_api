@@ -16,7 +16,7 @@ class PermissionService:
         return await self._permission_repository.create_many(data)
 
     async def find_permission_by_id(self, permission_id: str, options: dict | None = None):
-        return await self._permission_repository.find_by_id(UUID(permission_id), options)
+        return await self._permission_repository.find_by_id(UUID(permission_id), options=options)
 
     async def find_permission_by_ids(self, permission_ids: list, options: dict | None = None) -> list:
         return await self._permission_repository.find_by_ids(permission_ids, options=options)

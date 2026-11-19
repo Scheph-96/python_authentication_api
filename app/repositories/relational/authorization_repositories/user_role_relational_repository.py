@@ -40,16 +40,18 @@ class UserRoleRelationalRepository(BaseRelationalRepository, UserRoleRepositoryI
 
     async def get_user_ids_by_role_id(self, role_id: UUID):
         expression = build_sql_expression_from_dict(self._collection, {"role_id": role_id})
-        return await app_execute_and_scalars_all(
+        user_ids = await app_execute_and_scalars_all(
             select(self._collection.columns.user_id)
             .where(*expression)
         )
+
+        return {"user_ids": user_ids}
 
     async def get_users_and_permissions(self, user_ids: list):
         permission = Settings.SQLALCHEMY_METADATA.tables[f"{Settings.PERMISSIONS_COLLECTION}"]
         role_permission = Settings.SQLALCHEMY_METADATA.tables[f"{Settings.ROLE_PERMISSIONS_COLLECTION}"]
 
-        rows = await app_execute_and_scalars_all(
+        rows = await app_execute_and_fetch_all(
             # Retrieve the user_id column from user_role collection
             # and permission_name from permission collection
             select(
@@ -112,7 +114,7 @@ class UserRoleRelationalRepository(BaseRelationalRepository, UserRoleRepositoryI
         users_permissions = [
             {
                 "user_id": user_id,
-                "permission": list(permissions)
+                "permissions": list(permissions)
             }
             for user_id, permissions in users_permissions.items()
         ]

@@ -35,7 +35,7 @@ class UserRoleService:
         :param options:
         :return:
         """
-        return await self._user_role_repository.find(dict_string_to_uuid(data), options)
+        return await self._user_role_repository.find(dict_string_to_uuid(data), options=options)
 
     async def find_user_role_by_id(self, user_role_id: str):
         return await self._user_role_repository.find_by_id(UUID(user_role_id))

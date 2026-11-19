@@ -123,7 +123,9 @@ class RolePermissionDocumentRepository(BaseDocumentRepository, RolePermissionRep
         ]
 
         result = self._collection.aggregate(pipeline)
-        return await result.to_list()
+        result = await result.to_list()
+
+        return result[0] if len(result) > 0 else None
 
     async def delete_many_by_role_id(self, role_id: UUID):
         await self._collection.delete_many(

@@ -45,4 +45,7 @@ class UserDocumentRepository(BaseDocumentRepository, UserRepositoryInterface):
 
             await self._collection.bulk_write(operations)
         except InvalidOperation:
-            raise
+            # raise InvalidOperation("No operations to execute")
+            # pymongo.errors.InvalidOperation: No operations to execute
+            # When the updates list is empty, there is nothing to do
+            pass
